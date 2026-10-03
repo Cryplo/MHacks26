@@ -1,0 +1,43 @@
+{
+  "name": "@mhacks26/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:contract": "vitest run tests/contract",
+    "test:invariants": "vitest run tests/invariants",
+    "test:replay": "vitest run tests/replay",
+    "test:coverage": "vitest run --coverage",
+    "dev:db": "spacetime start --listen-addr 127.0.0.1:3000",
+    "dev:seed": "tsx tools/seed.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "pngjs": "7.0.0",
+    "spacetimedb": "2.10.2",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.4",
+    "@types/pngjs": "6.0.5",
+    "@vitest/coverage-v8": "5.0.3",
+    "esbuild": "0.28.2",
+    "eslint": "10.12.0",
+    "fast-check": "4.10.2",
+    "node": "24.21.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.2",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.3"
+  }
+}
