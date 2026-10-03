@@ -1,0 +1,33 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "board-only",
+    "kind": "board",
+    "primaryAB": null,
+    "stage": 1,
+    "summary": "Replaces the Tempest Coaster board's rounded estimate with a 10-minute range from opening. Tests published information only; a distinct experiment from the price test.",
+    "authoredHypothesis": "Authored hypothesis (unmeasured): a range display changes how often guests join the coaster queue after reading it."
+  },
+  "scenario": {
+    "id": "board-only",
+    "revision": "1",
+    "label": "Coaster board shows a range",
+    "events": [
+      {
+        "id": "coaster-board-range",
+        "atMs": 0,
+        "order": 0,
+        "change": {
+          "kind": "board",
+          "placeId": "coaster_tempest",
+          "display": {
+            "kind": "range_estimate",
+            "roundToMin": 5,
+            "spreadMin": 10,
+            "template": "{lower}-{upper} min"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "price-only",
+    "kind": "price",
+    "primaryAB": "B",
+    "stage": 1,
+    "summary": "Changes ONLY the Harbor Pass unit price from 1,500 to 2,500 cents at opening. Boards, notices, messages and all other settings are held fixed.",
+    "authoredHypothesis": "Authored hypothesis (unmeasured): fewer groups buy passes at $25.00; pass revenue per buyer rises. The net effect on revenue and satisfaction is unknown until measured."
+  },
+  "scenario": {
+    "id": "price-only",
+    "revision": "1",
+    "label": "Price only (pass $25.00)",
+    "events": [
+      {
+        "id": "pass-price-2500",
+        "atMs": 0,
+        "order": 0,
+        "change": {
+          "kind": "pass_price",
+          "unitPriceCents": 2500
+        }
+      }
+    ]
+  }
+}

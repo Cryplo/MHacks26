@@ -1,0 +1,63 @@
+{
+  "$comment": "Park-level content for Harbor Lights. Times are ms since park opening; money is integer USD cents.",
+  "parkId": "harbor-lights",
+  "label": "Harbor Lights",
+  "contentVersion": "harbor-lights-content-v1",
+  "stages": {
+    "1": {
+      "revision": "harbor-lights-s1-v1",
+      "label": "Harbor Lights (starter: 5 attractions)"
+    },
+    "2": {
+      "revision": "harbor-lights-s2-v1",
+      "label": "Harbor Lights (target: 15 attractions)"
+    }
+  },
+  "openLocal": "09:00",
+  "closeAfterMs": 36000000,
+  "pass": {
+    "productId": "harbor_pass",
+    "label": "Harbor Pass (priority lane, per guest, rest of day)",
+    "unitPriceCents": 1500,
+    "unit": "per_guest",
+    "validity": "remaining_day"
+  },
+  "routeProfiles": [
+    {
+      "id": "rp_coaster_avenue",
+      "destinationId": "coaster_tempest",
+      "via": [
+        {
+          "xM": 100.5,
+          "yM": 90.5
+        },
+        {
+          "xM": 100.5,
+          "yM": 55.5
+        }
+      ],
+      "label": "Main avenue then the north path",
+      "stage": 1
+    },
+    {
+      "id": "rp_coaster_westloop",
+      "destinationId": "coaster_tempest",
+      "via": [
+        {
+          "xM": 55.5,
+          "yM": 90.5
+        },
+        {
+          "xM": 55.5,
+          "yM": 40.5
+        },
+        {
+          "xM": 100.5,
+          "yM": 40.5
+        }
+      ],
+      "label": "West loop past Splash Falls and the Teacups",
+      "stage": 1
+    }
+  ]
+}

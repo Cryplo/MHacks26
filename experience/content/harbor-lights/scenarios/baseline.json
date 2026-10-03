@@ -1,0 +1,17 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "baseline",
+    "kind": "baseline",
+    "primaryAB": "A",
+    "stage": 1,
+    "summary": "No scheduled changes. Harbor Pass at $15.00 per guest; boards show rounded runtime estimates.",
+    "authoredHypothesis": null
+  },
+  "scenario": {
+    "id": "baseline",
+    "revision": "1",
+    "label": "Baseline (pass $15.00)",
+    "events": []
+  }
+}

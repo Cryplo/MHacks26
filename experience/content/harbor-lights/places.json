@@ -1,0 +1,773 @@
+{
+  "$comment": "Descriptive and service content per place ID. Capacities/prices are internally consistent SYNTHETIC inputs, not measured facts about any real park. Geometry lives in layout.json.",
+  "places": [
+    {
+      "id": "main_gate",
+      "name": "Main Gate",
+      "kind": "entrance",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "none"
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Ticketed entry from the car park; guests arrive here.",
+      "restrictions": []
+    },
+    {
+      "id": "main_exit",
+      "name": "Exit Turnstiles",
+      "kind": "exit",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "none"
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Exit beside the main gate.",
+      "restrictions": []
+    },
+    {
+      "id": "coaster_tempest",
+      "name": "Tempest Coaster",
+      "kind": "ride",
+      "stage": 1,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 8,
+        "vehicles": 2,
+        "dispatchMs": 120000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 3000,
+        "passEnabled": true
+      },
+      "minHeightCm": 122,
+      "thrill": 0.95,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Steel coaster over the east harbor wall. Two eight-seat trains; one dispatches every 2 minutes (synthetic configuration).",
+      "restrictions": [
+        "Minimum height 122 cm"
+      ],
+      "authoredHypothesis": "Authored hypothesis: the busiest queue in the park at 200-400 guests; a likely pass buyer target."
+    },
+    {
+      "id": "splash_falls",
+      "name": "Splash Falls",
+      "kind": "ride",
+      "stage": 1,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 4,
+        "vehicles": 3,
+        "dispatchMs": 80000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 2500,
+        "passEnabled": true
+      },
+      "minHeightCm": 100,
+      "thrill": 0.45,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Family log flume with a single gentle drop. Riders may get wet.",
+      "restrictions": [
+        "Minimum height 100 cm"
+      ]
+    },
+    {
+      "id": "harbor_carousel",
+      "name": "Harbor Carousel",
+      "kind": "ride",
+      "stage": 1,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 16,
+        "vehicles": 1,
+        "dispatchMs": 300000,
+        "durationMs": 240000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.1,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Gentle carousel of hand-painted sea creatures. No height minimum; adults may ride with children.",
+      "restrictions": []
+    },
+    {
+      "id": "tidepool_teacups",
+      "name": "Tide Pool Teacups",
+      "kind": "ride",
+      "stage": 1,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 12,
+        "vehicles": 1,
+        "dispatchMs": 180000,
+        "durationMs": 120000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.3,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Spinning shell cups; riders control the spin.",
+      "restrictions": []
+    },
+    {
+      "id": "lantern_theatre",
+      "name": "Lantern Theatre",
+      "kind": "show",
+      "stage": 1,
+      "attraction": true,
+      "service": {
+        "kind": "show",
+        "seats": 120,
+        "startsAtMs": [
+          1800000,
+          4500000,
+          7200000,
+          9900000,
+          12600000,
+          15300000,
+          18000000,
+          20700000,
+          23400000,
+          26100000,
+          28800000,
+          31500000
+        ],
+        "durationMs": 1200000
+      },
+      "minHeightCm": null,
+      "thrill": 0.05,
+      "board": null,
+      "notice": {
+        "text": "LANTERN THEATRE - \"Songs of the Harbor\", a 20-minute musical show. Performances every 45 minutes from 9:30 AM; doors open 10 minutes before.",
+        "channel": "visual",
+        "radiusM": 25,
+        "cooldownMs": 1800000
+      },
+      "description": "Indoor 120-seat theatre with shaded seating.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    },
+    {
+      "id": "churro_cart",
+      "name": "Churro Cart",
+      "kind": "food",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 1,
+        "serviceMs": 60000,
+        "activityMs": 300000,
+        "products": [
+          {
+            "id": "churro",
+            "label": "Cinnamon churro",
+            "unitPriceCents": 450
+          },
+          {
+            "id": "lemonade",
+            "label": "Lemonade",
+            "unitPriceCents": 375
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "The smell of warm cinnamon sugar drifts from a small churro cart at the corner of the central plaza.",
+        "channel": "aroma",
+        "radiusM": 12,
+        "cooldownMs": 1800000
+      },
+      "description": "One-window cart serving churros and lemonade.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    },
+    {
+      "id": "harbor_snacks",
+      "name": "Harbor Snacks",
+      "kind": "food",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 3,
+        "serviceMs": 120000,
+        "activityMs": 900000,
+        "products": [
+          {
+            "id": "fish_chips",
+            "label": "Fish and chips",
+            "unitPriceCents": 1295
+          },
+          {
+            "id": "tenders",
+            "label": "Chicken tenders",
+            "unitPriceCents": 1150
+          },
+          {
+            "id": "soda",
+            "label": "Fountain soda",
+            "unitPriceCents": 399
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Counter-service meals with covered tables.",
+      "restrictions": []
+    },
+    {
+      "id": "lighthouse_gifts",
+      "name": "Lighthouse Gifts",
+      "kind": "shop",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 2,
+        "serviceMs": 90000,
+        "activityMs": 300000,
+        "products": [
+          {
+            "id": "lantern",
+            "label": "Glow harbor lantern",
+            "unitPriceCents": 1800
+          },
+          {
+            "id": "plush",
+            "label": "Puffin plush",
+            "unitPriceCents": 2200
+          },
+          {
+            "id": "postcard",
+            "label": "Postcard set",
+            "unitPriceCents": 300
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "LIGHTHOUSE GIFTS - glow-in-the-dark harbor lanterns, puffin plush toys and postcards. Open until close.",
+        "channel": "visual",
+        "radiusM": 18,
+        "cooldownMs": 1800000
+      },
+      "description": "Gift shop beside the main gate.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    },
+    {
+      "id": "restrooms_gate",
+      "name": "Restrooms (Gate)",
+      "kind": "restroom",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "rest",
+        "durationMs": 180000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Restrooms and baby-change beside the main gate.",
+      "restrictions": []
+    },
+    {
+      "id": "quay_garden",
+      "name": "Quay Garden",
+      "kind": "scenery",
+      "stage": 1,
+      "attraction": false,
+      "service": {
+        "kind": "rest",
+        "durationMs": 600000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "QUAY GARDEN - shaded benches facing the harbor. Quiet seating; no rides.",
+        "channel": "visual",
+        "radiusM": 20,
+        "cooldownMs": 1800000
+      },
+      "description": "Waterfront seating garden at the north end of the main path; a scenic place to rest.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    },
+    {
+      "id": "river_rapids",
+      "name": "River Rapids",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 8,
+        "vehicles": 6,
+        "dispatchMs": 60000,
+        "durationMs": 300000,
+        "turnaroundMs": 60000,
+        "passShareBps": 2500,
+        "passEnabled": true
+      },
+      "minHeightCm": 107,
+      "thrill": 0.55,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Round raft ride through rapids; expect to get wet.",
+      "restrictions": [
+        "Minimum height 107 cm"
+      ]
+    },
+    {
+      "id": "ghost_lighthouse",
+      "name": "Ghost Lighthouse",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 4,
+        "vehicles": 12,
+        "dispatchMs": 30000,
+        "durationMs": 300000,
+        "turnaroundMs": 60000,
+        "passShareBps": 2000,
+        "passEnabled": true
+      },
+      "minHeightCm": null,
+      "thrill": 0.4,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Slow indoor dark ride through a haunted lighthouse; dark and loud in places.",
+      "restrictions": [
+        "Dark, loud scenes"
+      ]
+    },
+    {
+      "id": "harbor_eye",
+      "name": "Harbor Eye",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 6,
+        "vehicles": 16,
+        "dispatchMs": 30000,
+        "durationMs": 420000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.2,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Observation wheel with views across the harbor.",
+      "restrictions": []
+    },
+    {
+      "id": "mariner_drop",
+      "name": "Mariner Drop",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 12,
+        "vehicles": 1,
+        "dispatchMs": 150000,
+        "durationMs": 90000,
+        "turnaroundMs": 60000,
+        "passShareBps": 3000,
+        "passEnabled": true
+      },
+      "minHeightCm": 122,
+      "thrill": 0.9,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Drop tower beside the west wall.",
+      "restrictions": [
+        "Minimum height 122 cm"
+      ]
+    },
+    {
+      "id": "wild_mouse",
+      "name": "Wild Mouse",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 4,
+        "vehicles": 4,
+        "dispatchMs": 60000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 3000,
+        "passEnabled": true
+      },
+      "minHeightCm": 107,
+      "thrill": 0.75,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Compact spinning coaster with tight turns.",
+      "restrictions": [
+        "Minimum height 107 cm"
+      ]
+    },
+    {
+      "id": "bumper_boats",
+      "name": "Bumper Boats",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 10,
+        "vehicles": 1,
+        "dispatchMs": 300000,
+        "durationMs": 240000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": 100,
+      "thrill": 0.35,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Motorised bumper boats in a shallow pool.",
+      "restrictions": [
+        "Minimum height 100 cm"
+      ]
+    },
+    {
+      "id": "pirate_swing",
+      "name": "Pirate Swing",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 40,
+        "vehicles": 1,
+        "dispatchMs": 240000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": 112,
+      "thrill": 0.6,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Swinging ship ride.",
+      "restrictions": [
+        "Minimum height 112 cm"
+      ]
+    },
+    {
+      "id": "seafarer_scrambler",
+      "name": "Seafarer Scrambler",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 30,
+        "vehicles": 1,
+        "dispatchMs": 180000,
+        "durationMs": 120000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": 107,
+      "thrill": 0.5,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Classic scrambler ride.",
+      "restrictions": [
+        "Minimum height 107 cm"
+      ]
+    },
+    {
+      "id": "lighthouse_railway",
+      "name": "Lighthouse Railway",
+      "kind": "ride",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "ride",
+        "seats": 20,
+        "vehicles": 1,
+        "dispatchMs": 300000,
+        "durationMs": 240000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.05,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null,
+      "description": "Miniature train loop along the west fence; suitable for young children.",
+      "restrictions": []
+    },
+    {
+      "id": "pier_stage",
+      "name": "Pier Stage",
+      "kind": "show",
+      "stage": 2,
+      "attraction": true,
+      "service": {
+        "kind": "show",
+        "seats": 200,
+        "startsAtMs": [
+          3600000,
+          7200000,
+          10800000,
+          14400000,
+          18000000,
+          21600000,
+          25200000,
+          28800000,
+          32400000
+        ],
+        "durationMs": 1500000
+      },
+      "minHeightCm": null,
+      "thrill": 0.05,
+      "board": null,
+      "notice": {
+        "text": "PIER STAGE - \"Lighthouse Keepers\" acrobatics show on the hour, 25 minutes, open-air seating.",
+        "channel": "visual",
+        "radiusM": 25,
+        "cooldownMs": 1800000
+      },
+      "description": "Open-air show stage on the north pier.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    },
+    {
+      "id": "fish_shack",
+      "name": "Fish Shack",
+      "kind": "food",
+      "stage": 2,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 2,
+        "serviceMs": 120000,
+        "activityMs": 900000,
+        "products": [
+          {
+            "id": "chowder",
+            "label": "Clam chowder",
+            "unitPriceCents": 895
+          },
+          {
+            "id": "fish_taco",
+            "label": "Fish tacos",
+            "unitPriceCents": 1095
+          },
+          {
+            "id": "iced_tea",
+            "label": "Iced tea",
+            "unitPriceCents": 350
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Waterfront seafood counter.",
+      "restrictions": []
+    },
+    {
+      "id": "ice_cream_float",
+      "name": "Ice Cream Float",
+      "kind": "food",
+      "stage": 2,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 1,
+        "serviceMs": 60000,
+        "activityMs": 600000,
+        "products": [
+          {
+            "id": "cone",
+            "label": "Ice cream cone",
+            "unitPriceCents": 550
+          },
+          {
+            "id": "sundae",
+            "label": "Harbor sundae",
+            "unitPriceCents": 795
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Ice cream window near the west path.",
+      "restrictions": []
+    },
+    {
+      "id": "harbor_outfitters",
+      "name": "Harbor Outfitters",
+      "kind": "shop",
+      "stage": 2,
+      "attraction": false,
+      "service": {
+        "kind": "counter",
+        "servers": 2,
+        "serviceMs": 90000,
+        "activityMs": 300000,
+        "products": [
+          {
+            "id": "hoodie",
+            "label": "Harbor Lights hoodie",
+            "unitPriceCents": 4800
+          },
+          {
+            "id": "cap",
+            "label": "Captain cap",
+            "unitPriceCents": 2400
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Apparel shop on the east path.",
+      "restrictions": []
+    },
+    {
+      "id": "restrooms_east",
+      "name": "Restrooms (East)",
+      "kind": "restroom",
+      "stage": 2,
+      "attraction": false,
+      "service": {
+        "kind": "rest",
+        "durationMs": 180000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "description": "Restrooms on the east path.",
+      "restrictions": []
+    },
+    {
+      "id": "lookout_point",
+      "name": "Lookout Point",
+      "kind": "scenery",
+      "stage": 2,
+      "attraction": false,
+      "service": {
+        "kind": "rest",
+        "durationMs": 600000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "LOOKOUT POINT - telescope and benches over the harbor mouth.",
+        "channel": "visual",
+        "radiusM": 20,
+        "cooldownMs": 1800000
+      },
+      "description": "Viewing platform in the north-west corner.",
+      "restrictions": [],
+      "noticeVersion": "v1"
+    }
+  ]
+}
