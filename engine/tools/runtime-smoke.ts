@@ -60,7 +60,34 @@ try {
   const { runId } = unwrap(
     await op.command("createRun", { manifest }, randomUUID()),
   );
-  unwrap(await op.command("scheduleEvents",{runId,expectedScenarioRevision:manifest.scenario.revision,draftId:null,events:[{id:"smoke-board",atMs:5000,order:0,change:{kind:"board",placeId:"ride",display:{kind:"fixed",text:"Test ride — 2 minutes",lowerMin:2,upperMin:2}}}]},randomUUID()));
+  unwrap(
+    await op.command(
+      "scheduleEvents",
+      {
+        runId,
+        expectedScenarioRevision: manifest.scenario.revision,
+        draftId: null,
+        events: [
+          {
+            id: "smoke-board",
+            atMs: 5000,
+            order: 0,
+            change: {
+              kind: "board",
+              placeId: "ride",
+              display: {
+                kind: "fixed",
+                text: "Test ride — 2 minutes",
+                lowerMin: 2,
+                upperMin: 2,
+              },
+            },
+          },
+        ],
+      },
+      randomUUID(),
+    ),
+  );
   let snapshots = 0,
     patches = 0,
     lastRevision = -1;
@@ -195,10 +222,22 @@ try {
   assert.equal(final.metrics.measures.rides_per_guest.value, 1);
   assert.equal(final.metrics.measures.satisfaction_0_100.value, null);
   assert(snapshots > 0 && patches > 0);
-  const checkpoint = unwrap(await op.command("checkpointRun",{runId},randomUUID()));
-  const backup = JSON.parse(new TextDecoder().decode(await op.getArtifact(checkpoint.checkpoint)));
-  assert.equal(backup.physicalStateHash,checkpoint.physicalStateHash);
-  assert.equal(backup.state.scenarioApplied.includes("smoke-board"),true);
+  // Exercise the actual SDK reconnect path; the same authenticated identity
+  // must regain its scoped projections and receive a full snapshot reset.
+  const beforeReconnect = snapshots;
+  (
+    op as unknown as { connection: { disconnect(): void } }
+  ).connection.disconnect();
+  assert.equal((await op.query("getRun", { runId })).status, "completed");
+  assert(snapshots > beforeReconnect, "Reconnect did not reset snapshot");
+  const checkpoint = unwrap(
+    await op.command("checkpointRun", { runId }, randomUUID()),
+  );
+  const backup = JSON.parse(
+    new TextDecoder().decode(await op.getArtifact(checkpoint.checkpoint)),
+  );
+  assert.equal(backup.physicalStateHash, checkpoint.physicalStateHash);
+  assert.equal(backup.state.scenarioApplied.includes("smoke-board"), true);
   unsubscribe();
   console.log(
     JSON.stringify(
