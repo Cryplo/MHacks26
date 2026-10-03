@@ -264,6 +264,13 @@ export function applyAction(
       ensure(!action.routeProfileId || route, "Invalid route");
       travel(action.placeId, route?.via);
       g.leaving = false;
+      if (
+        !action.routeProfileId &&
+        s.manifest.config.features.routeChoice &&
+        s.park.routeProfiles.filter((r) => r.destinationId === action.placeId)
+          .length > 1
+      )
+        trigger(g, "route_choice");
       break;
     }
     case "notice_enter":
@@ -432,10 +439,14 @@ export function applyAction(
     case "continue":
       g.lastQueueCheckMs = s.view.simMs;
       break;
-    case "notice_stop":
+    case "notice_stop": {
+      const current = members(s, g)[0]!.state;
+      g.resumeAfterNotice =
+        current === "walking" || current === "browsing" ? current : null;
       g.activityUntilMs = s.view.simMs + action.durationMs;
       setActivity(s, g, "resting");
       break;
+    }
     case "route": {
       const r = s.park.routeProfiles.find((r) => r.id === action.profileId);
       ensure(r && s.manifest.config.features.routeChoice, "Route unavailable");

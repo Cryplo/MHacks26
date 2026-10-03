@@ -198,8 +198,13 @@ function prepare(s: CoreState, nav: Navigation) {
     }
     if (g.activityUntilMs !== null && g.activityUntilMs <= s.view.simMs) {
       g.activityUntilMs = null;
-      setActivity(s, g, "deciding");
-      trigger(g, "what_next");
+      if (g.resumeAfterNotice && g.target) {
+        setActivity(s, g, g.resumeAfterNotice);
+        g.resumeAfterNotice = null;
+      } else {
+        setActivity(s, g, "deciding");
+        trigger(g, "what_next");
+      }
     }
     if (
       first.state === "deciding" &&
@@ -259,6 +264,12 @@ export function advanceCore(
         break;
       }
       if (v.simMs >= s.manifest.config.horizonMs) {
+        // Settle work whose physical interval ends exactly at the horizon;
+        // do not dispatch, admit arrivals, or manufacture cleanup exits.
+        for (const session of [...s.sessions].sort((a,b)=>a.endMs-b.endMs||asciiCompare(a.id,b.id)))
+          if (session.endMs <= v.simMs) completeSession(s,session);
+        for (const g of groups(s))
+          if (g.leaving && g.target === null && members(s,g).every(p=>p.state === "deciding")) depart(s,g,nav);
         for (const p of Object.values(s.persons))
           if (p.admittedAtMs !== null && p.departedAtMs === null) {
             p.censored = true;

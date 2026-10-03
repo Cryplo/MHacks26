@@ -51,6 +51,7 @@ export type GroupState = {
   target: C.Vec2 | null;
   route: C.Vec2[];
   activityUntilMs: number | null;
+  resumeAfterNotice?: "walking" | "browsing" | null;
   lastQueueCheckMs: number;
   needArmed: boolean;
   lastNeedMs: number;

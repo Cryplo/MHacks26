@@ -34,6 +34,7 @@ export type ArtifactRecord = {
   ref: ArtifactRef;
   scope: Scope;
   owner: string;
+  readers?: string[];
   chunks: number;
   complete: boolean;
 };
@@ -185,18 +186,27 @@ export function readArtifact(
     a && a.complete && canonical(a.ref) === canonical(ref),
     "Artifact missing or reference mismatch",
   );
-  if (!internal && a.owner !== ctx.identity) {
+  if (
+    !internal &&
+    a.owner !== ctx.identity &&
+    !a.readers?.includes(ctx.identity)
+  ) {
     if (a.ref.kind === "model_response")
       throw new DomainFault("FORBIDDEN", "Raw provider artifact is private");
+    const references = (value: unknown): boolean => {
+      if (!value || typeof value !== "object") return false;
+      if ("artifactId" in value && value.artifactId === ref.artifactId)
+        return true;
+      return Object.values(value).some(references);
+    };
     const assigned = list<{
-      scope: Scope;
+      payload: unknown;
       lease: { ownerIdentity: string; expiresAtEpochMs: number } | null;
     }>(store, "work").some(
       (w) =>
-        w.scope.runId === a.scope.runId &&
-        w.scope.experimentId === a.scope.experimentId &&
         w.lease?.ownerIdentity === ctx.identity &&
-        w.lease.expiresAtEpochMs > ctx.now,
+        w.lease.expiresAtEpochMs > ctx.now &&
+        references(w.payload),
     );
     if (!assigned) {
       if (a.scope.runId) requireRun(store, ctx, a.scope.runId);
@@ -273,4 +283,18 @@ export function writeJSON(
       artifactId,
     );
   return ref;
+}
+
+export function attachArtifactReader(
+  store: Store,
+  ctx: Context,
+  ref: ArtifactRef,
+  identity: string,
+) {
+  readArtifact(store, ctx, ref);
+  const a = get<ArtifactRecord>(store, "artifact", ref.artifactId)!;
+  ensure(a.owner === ctx.identity, "Only artifact owner may attach a result");
+  ensure(a.ref.kind !== "model_response", "Raw responses stay private");
+  a.readers = [...new Set([...(a.readers ?? []), identity])];
+  put(store, "artifact", ref.artifactId, a);
 }

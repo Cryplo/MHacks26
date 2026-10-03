@@ -1,3 +1,5 @@
+import { resolveLiveTimeouts } from "./fallback.js";
+import { health } from "./health.js";
 import { makeTape, validateTape, type ResponseTape } from "../replay/tape.js";
 import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
@@ -47,6 +49,7 @@ import {
   type RoleRecord,
 } from "./access.js";
 import {
+  attachArtifactReader,
   MAX_ARTIFACT_BYTES,
   MAX_CHUNK_BYTES,
   readJSON,
@@ -181,11 +184,38 @@ export function command<K extends keyof C.Commands>(
   } catch (error) {
     if (!(error instanceof DomainFault)) throw error;
     receipt = { commandId, ok: false, error: error.error };
+    if (name === "completeWork") {
+      // Failed validation rolls back physical changes, but preserves operational
+      // attempt evidence and fences the invalid submission before retry.
+      const item = (input as C.Commands["completeWork"]["input"]).item;
+      try {
+        const j = validateLease(store, ctx, item.lease);
+        j.error = error.error;
+        put(
+          store,
+          "work_error",
+          `${j.id}:${j.attempt}`,
+          {
+            workId: j.id,
+            attempt: j.attempt,
+            error: error.error,
+            submitted: item.result,
+          },
+          j.scope.runId ?? j.scope.experimentId ?? "",
+        );
+        j.status = j.attempt >= 3 ? "failed" : "pending";
+        j.retryAt = ctx.now + 1000;
+        j.lease = null;
+        saveJob(store, j);
+      } catch {
+        /* Malformed/foreign leases cannot mutate another job. */
+      }
+    }
   }
   put(store, "receipt", commandId, { digest, receipt }, ctx.identity);
   return receipt;
 }
-function publish(store: Store, s: CoreState) {
+function publish(store: Store, s: CoreState, ctx: Context) {
   if (
     s.view.phase === "prepare" ||
     s.view.phase === "barrier" ||
@@ -193,6 +223,7 @@ function publish(store: Store, s: CoreState) {
   ) {
     const old = get<C.LiveSnapshot>(store, "publication", s.runId, s.runId);
     const next = snapshot(s);
+    next.health = health(store, s.runId, ctx.now);
     const comparable = (x: C.LiveSnapshot) => ({
       ...x,
       run: { ...x.run, revision: 0 },
@@ -375,7 +406,7 @@ function dispatchCommand(
         } satisfies Grant,
         runId,
       );
-      publish(store, s);
+      publish(store, s, ctx);
       return { runId };
     }
     case "startRun": {
@@ -383,7 +414,7 @@ function dispatchCommand(
       requireRun(store, ctx, a.runId, true);
       const s = core(store, a.runId);
       startCore(s);
-      publish(store, s);
+      publish(store, s, ctx);
       return s.view;
     }
     case "pauseRun":
@@ -430,7 +461,7 @@ function dispatchCommand(
             saveJob(store, j);
           }
       }
-      publish(store, s);
+      publish(store, s, ctx);
       return s.view;
     }
     case "scheduleEvents": {
@@ -469,7 +500,7 @@ function dispatchCommand(
       validateScenario(scenario, s.park);
       s.manifest.scenario = scenario;
       s.view.scenarioRevision = scenario.revision;
-      publish(store, s);
+      publish(store, s, ctx);
       return { scenarioRevision: scenario.revision, events: a.events };
     }
     case "claimWork": {
@@ -503,7 +534,7 @@ function dispatchCommand(
             ensure(item.result.ratingId === r.ratingId, "Wrong rating request");
             acceptRating(s, item.result);
           }
-          publish(store, s);
+          publish(store, s, ctx);
         } else if (item.kind === "population") {
           const payload = j.payload as C.WorkPayloads["population"],
             park = parkFor(store, payload.park).park,
@@ -514,6 +545,7 @@ function dispatchCommand(
               "population",
             );
           validatePopulation(pop, park);
+          attachArtifactReader(store, ctx, item.result.artifact, j.requester);
           ensure(
             pop.personas.length === item.result.guestCount &&
               pop.groups.length === item.result.groupCount,
@@ -598,6 +630,7 @@ function dispatchCommand(
       const s = core(store, a.lease.runId);
       expectedBoundary(s.view, a.expectedStep, a.expectedPhase);
       checkedInt(a.maxSteps, "maxSteps", 1, 100);
+      resolveLiveTimeouts(store, ctx, s);
       const beforeBoundaries = s.boundaries.length;
       let tape: ResponseTape | null = null;
       if (s.manifest.replayTape) {
@@ -642,7 +675,7 @@ function dispatchCommand(
           },
           makeTape(s),
         );
-      publish(store, s);
+      publish(store, s, ctx);
       return {
         run: s.view,
         completedSteps: result.completedSteps,

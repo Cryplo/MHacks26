@@ -9,6 +9,7 @@ export type Family =
   | "artifact"
   | "upload"
   | "chunk"
+  | "work_error"
   | "work"
   | "attempt"
   | "driver"
@@ -57,9 +58,7 @@ export class MemoryStore implements Store {
         (x) =>
           x.family === family && (scope === undefined || x.scope === scope),
       )
-      .sort(
-        (a, b) => a.sequence - b.sequence || asciiCompare(a.key, b.key),
-      );
+      .sort((a, b) => a.sequence - b.sequence || asciiCompare(a.key, b.key));
   }
   put(row: RecordRow) {
     this.rows.set(row.key, { ...row });

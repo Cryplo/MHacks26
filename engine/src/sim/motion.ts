@@ -129,6 +129,7 @@ export function moveSubstep(
     }
     proposed.set(p.agentId, next);
   }
+  const waitingCells = new Map<number, number>();
   for (const p of ordered) {
     const old = p.position,
       next = proposed.get(p.agentId)!,
@@ -159,15 +160,8 @@ export function moveSubstep(
       s.totals.queuePersonMs += 250;
       const q = s.queues.find((q) => q.agentIds.includes(p.agentId));
       if (q) q.waitMs += 250;
-      const from = s.view.simMs + s.movementSubstep * 250;
-      s.heat.push({
-        atMs: from,
-        fromMs: from,
-        toMs: from + 250,
-        cell: nav.cell(p.position),
-        layer: "waiting_person_minutes",
-        value: 250 / 60000,
-      });
+      const cell = nav.cell(p.position);
+      waitingCells.set(cell, (waitingCells.get(cell) ?? 0) + 1);
     }
     if (!["walking", "browsing"].includes(p.state)) continue;
     for (const place of Object.values(s.places).sort((a, b) =>
@@ -205,6 +199,38 @@ export function moveSubstep(
       }
     }
   }
+  const from = s.view.simMs + s.movementSubstep * 250;
+  // Coalesce identical exposure rates within a logical step, preserving exact
+  // interval clipping for historical heat queries without a row per person.
+  for (const [cell, count] of waitingCells) {
+    let prior: (typeof s.heat)[number] | undefined;
+    for (let i = s.heat.length - 1; i >= 0; i--) {
+      const h = s.heat[i]!;
+      if (h.fromMs < s.view.simMs) break;
+      if (h.layer === "waiting_person_minutes" && h.cell === cell) {
+        prior = h;
+        break;
+      }
+    }
+    const value = (count * 250) / 60000;
+    if (
+      prior &&
+      prior.toMs === from &&
+      Math.abs(prior.value / (prior.toMs - prior.fromMs) - count / 60000) <
+        1e-12
+    ) {
+      prior.toMs += 250;
+      prior.value += value;
+    } else
+      s.heat.push({
+        atMs: from,
+        fromMs: from,
+        toMs: from + 250,
+        cell,
+        layer: "waiting_person_minutes",
+        value,
+      });
+  }
   for (const g of groups(s)) {
     const people = members(s, g);
     if (
@@ -240,11 +266,14 @@ export function moveSubstep(
   for (const place of Object.values(s.places)) {
     const service = place.definition.service;
     if (service.kind === "counter") {
-      if (!place.closed && !s.closing)
-        s.totals.availableServerMs += service.servers * 250;
-      s.totals.busyServerMs +=
-        s.sessions.filter((x) => x.placeId === place.definition.id).length *
-        250;
+      const busy = s.sessions.filter(
+        (x) => x.placeId === place.definition.id,
+      ).length;
+      // Closed counters finish occupied slots; those slots remain available
+      // capacity until their in-flight service completes.
+      s.totals.availableServerMs +=
+        (!place.closed && !s.closing ? service.servers : busy) * 250;
+      s.totals.busyServerMs += busy * 250;
     }
   }
   return { neighborChecks };

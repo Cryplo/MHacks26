@@ -1,6 +1,11 @@
 import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
-import { DomainFault, ensure, hash } from "../domain/primitives.js";
+import {
+  DomainFault,
+  ensure,
+  hash,
+  asciiCompare,
+} from "../domain/primitives.js";
 import { get, put, list, type Store } from "./store.js";
 import { requireRole, type Context } from "./access.js";
 export type Job = {
@@ -113,7 +118,7 @@ export function claim(
         ((j.status === "pending" && j.retryAt <= ctx.now) ||
           (j.status === "leased" && j.lease!.expiresAtEpochMs <= ctx.now)),
     )
-    .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id, "en"))
+    .sort((a, b) => a.createdAt - b.createdAt || asciiCompare(a.id, b.id))
     .slice(0, limit);
   return jobs.map((j) => {
     j.attempt++;

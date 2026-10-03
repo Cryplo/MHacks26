@@ -82,7 +82,7 @@ export function observeEntrance(s: CoreState, g: GroupState, placeId: string) {
         placeId,
         source: "sight",
         observedAtMs: s.view.simMs,
-        contentVersion: place.boardVersion,
+        contentVersion: `${place.boardVersion}:${hash(b).slice(0, 12)}`,
         text: b.text,
         waitLowerMs: b.lower,
         waitUpperMs: b.upper,
@@ -226,7 +226,23 @@ export function makeRequest(
         }),
       );
   };
-  if (queue) {
+  if (
+    moment === "route_choice" &&
+    place &&
+    s.manifest.config.features.routeChoice
+  ) {
+    const routes = s.park.routeProfiles
+      .filter((r) => r.destinationId === place.definition.id)
+      .sort((a, b) => asciiCompare(a.id, b.id));
+    if (routes.length > 1)
+      for (const r of routes)
+        options.push(
+          option(`route:${r.id}`, r.label, { kind: "route", profileId: r.id }),
+        );
+    options.push(
+      option("continue", "Continue current route", { kind: "continue" }),
+    );
+  } else if (queue) {
     options.push(
       option("continue", "Stay in queue", { kind: "continue" }),
       option("leave_queue", "Leave this queue", {

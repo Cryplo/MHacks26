@@ -12,7 +12,16 @@ export function scheduleLive(store: Store, ctx: Context): void {
       !s.manifest.experiment &&
       ["running", "blocked", "draining"].includes(s.view.status),
   );
-  for (const s of active.slice(0, 4)) {
+  const cursor =
+    get<{ offset: number }>(store, "rate", "scheduler-cursor")?.offset ?? 0;
+  const selected = Array.from(
+    { length: Math.min(4, active.length) },
+    (_, i) => active[(cursor + i) % active.length]!,
+  );
+  put(store, "rate", "scheduler-cursor", {
+    offset: active.length ? (cursor + selected.length) % active.length : 0,
+  });
+  for (const s of selected) {
     const d = get<DriverRecord>(store, "driver", s.runId);
     if (
       d &&

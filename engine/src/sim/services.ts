@@ -193,7 +193,11 @@ export function dispatch(s: CoreState, placeId: string) {
 }
 export function completeSession(s: CoreState, session: Session) {
   // A replayed completion has no effect once the occupied session is removed.
-  if (!s.sessions.some((active) => active.id === session.id) || session.endMs > s.view.simMs) return;
+  if (
+    !s.sessions.some((active) => active.id === session.id) ||
+    session.endMs > s.view.simMs
+  )
+    return;
   const place = s.places[session.placeId]!,
     service = place.definition.service;
   for (const groupId of session.groupIds) {

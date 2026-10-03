@@ -223,3 +223,7 @@ it("A-18 individual terminal rating delivery never changes physical hashes", () 
   expect(metrics(s).measures.satisfaction_0_100.value).toBe(75);
   expect(metrics(s).measures.satisfaction_0_100.coverage).toBeCloseTo(1 / 3);
 });
+it('A-14 a replayed or early service completion cannot duplicate rewards',()=>{
+ const {s,g,nav}=setup();applyAction(s,g,{kind:'join_queue',placeId:'ride',lane:'standard',riderIds:g.manifest.memberIds},nav,'join');dispatch(s,'ride');const session=s.sessions[0]!;
+ completeSession(s,session);expect(s.totals.completedRiders).toBe(0);s.view.simMs=session.endMs;completeSession(s,session);const hash=physicalHash(s);completeSession(s,session);expect(physicalHash(s)).toBe(hash);expect(s.totals.completedRiders).toBe(3);
+});
