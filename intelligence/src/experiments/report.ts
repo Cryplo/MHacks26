@@ -1,9 +1,10 @@
 import type {
-  ExperimentReport, ExperimentSpec, Fact, FactBundle, MetricId, MetricSnapshot, MetricValue, PairResult, PairedSummary, Quality, Scope, Source,
+  ExperimentReport, ExperimentSpec, Fact, FactBundle, MetricId, MetricSnapshot, MetricValue, Narrative, PairResult, PairedSummary, Quality, Scope, Source,
 } from '../../contract/behavior-v1.ts';
 import { CONTRACT_VERSION } from '../../contract/behavior-v1.ts';
 import { hashCanonical } from '../core/canonical.ts';
 import { METRIC_IDS } from '../core/validate.ts';
+import { REPORT_LIMITATIONS, factBundleHash } from '../reports/narrative.ts';
 import type { UsageTotals } from '../worker/usage.ts';
 import { scenarioDiff } from './preflight.ts';
 import { ANALYSIS_VERSION, PAIRED_T_ASSUMPTIONS, pairedSummary } from './stats.ts';
@@ -114,6 +115,7 @@ export function buildExperimentFacts(report: ExperimentReport, ctx: ReportContex
   }
   for (const p of report.pairs) {
     const pid = p.pairId;
+    f(`pair.${pid}.seed`, 'Pair replicate seed', p.seed, 'label', 'none');
     f(`pair.${pid}.status`, `Pair ${p.seed} status`, p.status, 'label', 'none', expScope, null, p.reasons);
     f(`pair.${pid}.population_hash`, `Pair ${p.seed} population manifest hash`, p.populationHash, 'sha256', 'none');
     if (p.initialStateHash) f(`pair.${pid}.initial_state_hash`, `Pair ${p.seed} shared initial state hash`, p.initialStateHash, 'sha256', 'none');
@@ -166,6 +168,67 @@ function diffText(d: ReturnType<typeof scenarioDiff>): string {
     ...d.added.map((e) => `added ${ev(e)}`),
     ...d.removed.map((e) => `removed ${ev(e)}`),
   ].join('; ') || 'none (A/A)';
+}
+
+const METRIC_NAMES: Record<MetricId, string> = {
+  net_revenue_cents: 'net revenue', revenue_per_guest_cents: 'revenue per admitted guest', satisfaction_0_100: 'synthetic satisfaction score',
+  queue_minutes_per_guest: 'queue minutes per guest', completed_ride_wait_minutes: 'completed ride wait', rides_per_guest: 'rides per guest',
+  abandonment_rate: 'queue abandonment rate', queue_time_share: 'share of time in queues', early_departures: 'early departures',
+  ride_seat_utilization: 'ride seat utilization', server_utilization: 'service utilization',
+};
+
+type Seg = Narrative['sections'][number]['segments'][number];
+
+/**
+ * Deterministic experiment narrative: every number is a fact reference; text segments carry no digits
+ * and no recommendations. Observed outcomes and modeled ratings are separate sections.
+ */
+export function experimentNarrative(b: FactBundle): Narrative {
+  const has = new Set(b.facts.map((x) => x.id));
+  const fact = (id: string): Seg[] => (has.has(id) ? [{ kind: 'fact', factId: id }] : [{ kind: 'text', text: 'unavailable' }]);
+  const t = (text: string): Seg => ({ kind: 'text', text });
+  const val = (id: string) => b.facts.find((x) => x.id === id)?.value;
+  const metricSentence = (id: MetricId): Seg[] => {
+    const base = `delta.${id}`;
+    const name = METRIC_NAMES[id];
+    if (!has.has(`${base}.n`)) return [];
+    if (val(`${base}.mean`) === 'unavailable') return [t(`Difference in ${name}: no complete eligible pair (`), ...fact(`${base}.n`), t(' eligible). ')];
+    const segs: Seg[] = [t(`Mean difference B minus A in ${name}: `), ...fact(`${base}.mean`), t(' over '), ...fact(`${base}.n`), t(' eligible pairs, ranging from '), ...fact(`${base}.min`), t(' to '), ...fact(`${base}.max`), t('; sample SD '), ...fact(`${base}.sample_sd`)];
+    if (has.has(`${base}.t95_lower`)) segs.push(t('; paired-t interval '), ...fact(`${base}.t95_lower`), t(' to '), ...fact(`${base}.t95_upper`));
+    segs.push(t('. '));
+    return segs;
+  };
+  const observedMetrics = METRIC_IDS.filter((id) => id !== 'satisfaction_0_100');
+  const pairIds = [...new Set(b.facts.filter((x) => /^pair\..+\.seed$/.test(x.id)).map((x) => x.id.slice(5, -5)))];
+  const pairSegs: Seg[] = pairIds.flatMap((pid) => [
+    t('Pair with seed '), ...fact(`pair.${pid}.seed`), t(': status '), ...fact(`pair.${pid}.status`),
+    ...(has.has(`pair.${pid}.a.net_revenue_cents`) ? [t('; net revenue A '), ...fact(`pair.${pid}.a.net_revenue_cents`), t(', B '), ...fact(`pair.${pid}.b.net_revenue_cents`)] : []),
+    t('. '),
+  ]);
+  const sentence = (l: string) => `${l.charAt(0).toUpperCase()}${l.slice(1)}${/[.!?]$/.test(l) ? '' : '.'}`;
+  const limits = [...new Set([...REPORT_LIMITATIONS, ...b.facts.flatMap((x) => x.limitations)].filter((l) => !/\d/.test(l)).map(sentence))];
+  if (b.quality && !b.quality.comparisonEligible) limits.push('Not comparison-eligible as a whole; see pair statuses and reasons.');
+  const sections: Narrative['sections'] = [
+    { heading: 'Design', segments: [
+      t('Intervention: '), ...fact('exp.intervention'), t('. Changed lever: '), ...fact('exp.changed_lever'), t('. Exact scenario difference: '), ...fact('exp.diff'),
+      t('. Predeclared analysis: '), ...fact('exp.analysis'), t('. Requested pairs '), ...fact('exp.requested_pairs'), t(', complete pairs '), ...fact('exp.complete_pairs'), t('.'),
+    ] },
+    { heading: 'Observed in simulation', segments: observedMetrics.flatMap(metricSentence).length ? observedMetrics.flatMap(metricSentence) : [t('No observed-outcome differences are available.')] },
+    { heading: 'Modeled experience and ratings', segments: metricSentence('satisfaction_0_100').length ? metricSentence('satisfaction_0_100') : [t('No synthetic rating differences are available.')] },
+    { heading: 'Pairs', segments: pairSegs.length ? pairSegs : [t('No pairs.')] },
+    { heading: 'Provenance', segments: [
+      t('Applied decisions by source: provider '), ...fact('sources.jev'), t(', cache '), ...fact('sources.cache'), t(', mock '), ...fact('sources.mock'), t(', fallback '), ...fact('sources.fallback'),
+      ...(has.has('provenance.response_tape_sha256') ? [t('. Response tape '), ...fact('provenance.response_tape_sha256')] : []), t('. Spec hash '), ...fact('provenance.spec_hash'), t('.'),
+    ] },
+    { heading: 'Limitations', segments: [t(limits.join(' '))] },
+    { heading: 'Proposed next experiment', segments: [t(b.quality?.comparisonEligible
+      ? 'Next experiment: repeat the same paired comparison with additional predeclared seeds, changing only one lever at a time.'
+      : 'Next experiment: resolve the pair issues listed above, then rerun the same paired comparison with unchanged seeds and population settings.')] },
+  ];
+  return {
+    id: `report-${hashCanonical({ v: REPORT_FACTS_VERSION, bundle: factBundleHash(b) }).slice(0, 32)}`,
+    evidenceHash: factBundleHash(b), origin: 'template', label: 'modeled-results report', sections, limitations: limits,
+  };
 }
 
 const REPORT_KEYS = ['spec', 'revision', 'status', 'pairs', 'summaries', 'requestedPairs', 'completePairs', 'exploratory', 'limitations', 'facts', 'responseTape'].sort();

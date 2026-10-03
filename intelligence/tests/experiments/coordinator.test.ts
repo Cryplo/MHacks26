@@ -295,6 +295,11 @@ describe('B-24 report artifacts, facts and response tape', () => {
     for (const id of decisionIds) expect(tapeRequests.has(id)).toBe(true);
     expect(validateReportNarrative(r.narrative!, r.facts!)).toEqual([]);
     expect(r.narrative!.label).toBe('modeled-results report');
+    expect(r.narrative!.sections.map((s) => s.heading)).toEqual(['Design', 'Observed in simulation', 'Modeled experience and ratings', 'Pairs', 'Provenance', 'Limitations', 'Proposed next experiment']);
+    const observed = r.narrative!.sections[1]!.segments;
+    expect(observed.some((s) => s.kind === 'fact' && s.factId === 'delta.net_revenue_cents.mean')).toBe(true);
+    expect(observed.some((s) => s.kind === 'fact' && s.factId.startsWith('delta.satisfaction'))).toBe(false);
+    for (const s of r.narrative!.sections) for (const g of s.segments) if (g.kind === 'text') expect(g.text).not.toMatch(/\d/);
     const pairFacts = r.facts!.facts.filter((f) => f.id.startsWith('pair.pair-s1.a.'));
     expect(pairFacts).toHaveLength(11);
   });

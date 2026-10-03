@@ -19,7 +19,7 @@ import type { Handler, HandlerContext } from '../worker/handlers.ts';
 import { InvalidRequestError } from '../worker/inference.ts';
 import type { UsageLedger } from '../worker/usage.ts';
 import { preflightExperiment } from './preflight.ts';
-import { buildExperimentFacts, buildReport, pairDeltas, validateReportShape } from './report.ts';
+import { buildExperimentFacts, buildReport, experimentNarrative, pairDeltas, validateReportShape } from './report.ts';
 import type { ReportContext } from './report.ts';
 
 export const COORDINATOR_VERSION = 'paired-coordinator-v1';
@@ -497,7 +497,7 @@ class Session {
     const facts = buildExperimentFacts(pre, { ...ctx, responseTapeSha256: this.state.artifacts.tape?.sha256 ?? null });
     const factBytes = canonicalBytes(facts);
     this.state.artifacts.facts = await this.deps.client.putArtifact({ kind: 'fact_bundle', mediaType: 'application/json', bytes: factBytes, scope, commandId: `artifact:fact_bundle:${sha256Hex(factBytes)}` });
-    const { narrative } = await composeReport(facts, null, this.ctx.signal);
+    const { narrative } = await composeReport(facts, null, this.ctx.signal, experimentNarrative);
     const nBytes = canonicalBytes(narrative);
     this.state.artifacts.narrative = await this.deps.client.putArtifact({ kind: 'narrative', mediaType: 'application/json', bytes: nBytes, scope, commandId: `artifact:narrative:${sha256Hex(nBytes)}` });
     const report: ExperimentReport = { ...pre, facts: this.state.artifacts.facts };

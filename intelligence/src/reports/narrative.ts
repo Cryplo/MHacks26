@@ -111,8 +111,10 @@ export interface ReportProseProvider {
   compose(bundle: FactBundle, template: Narrative, signal?: AbortSignal): Promise<Narrative>;
 }
 
-export async function composeReport(b: FactBundle, provider: ReportProseProvider | null = null, signal?: AbortSignal): Promise<{ narrative: Narrative; fallbackReason: string | null }> {
-  const template = templateReport(b);
+export async function composeReport(
+  b: FactBundle, provider: ReportProseProvider | null = null, signal?: AbortSignal, buildTemplate: (b: FactBundle) => Narrative = templateReport,
+): Promise<{ narrative: Narrative; fallbackReason: string | null }> {
+  const template = buildTemplate(b);
   if (!provider) return { narrative: template, fallbackReason: null };
   let candidate: Narrative;
   try { candidate = await provider.compose(b, template, signal); } catch (e) {
