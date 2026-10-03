@@ -8,7 +8,7 @@ Starting toolchain: Node 25.9.0, npm 11.12.1; SpacetimeDB CLI not installed.
 
 - [x] Bootstrap: frozen contract, fixtures, canonicalization and golden checks
 - [x] Validated manifests, pure state/phase model, 12-guest synthetic park
-- [ ] Mock vertical slice: arrival, free motion, admission, service, purchase, exit
+- [x] Mock vertical slice: arrival, free motion, admission, service, purchase, exit
 - [ ] Navigation, PNG compilation, simultaneous motion and group invariants
 - [ ] Observations, action options, notices, scenarios and decision barriers
 - [ ] Queues, accounting, meters, ratings, reconciled metrics/heatmaps
@@ -25,3 +25,5 @@ pinned for typescript-eslint compatibility; Node 24 is lane-local for Vitest 5.
 
 Second slice: 19 validation/navigation tests + 6 golden checks PASS; typecheck/lint PASS.
 Base: adf003b5eaebdf7a790446daeec0d672ce6e7434. Isolated worktree: ~/.codex/worktrees/mhacks-engine/MHacks26.
+
+Third slice: 28 tests PASS, including 12-person completed mock visit, wallet/revenue/heat reconciliation, blocked barrier immutability and A/A invariance under work budgets and reversed responses. This is pure-core evidence, not real database or all A-01..A-25 coverage.
