@@ -1,5 +1,8 @@
 import type { RuntimeClient, Scope, WorkKind } from '../../contract/behavior-v1.ts';
 import type { ProseProvider } from '../population/prose.ts';
+import type { ReportProseProvider } from '../reports/narrative.ts';
+import { parseCrowdHandler, parseScenarioHandler, reportHandler, thoughtHandler } from '../text/handlers.ts';
+import type { NarrationProvider } from '../text/narration.ts';
 import type { BehaviorProvider } from '../providers/types.ts';
 import type { Clock, Jitter, Logger } from '../runtime/clock.ts';
 import type { IdSource } from '../runtime/commands.ts';
@@ -25,7 +28,8 @@ export type CreateWorkerInput = {
   client: RuntimeClient; provider: BehaviorProvider; store: DurableStore;
   clock: Clock; jitter: Jitter; ids: IdSource; logger: Logger;
   cache?: ResponseCachePort; coalescer?: CoalescerPort; limiter?: LimiterPort;
-  prose?: ProseProvider | null; extraHandlers?: Handlers;
+  prose?: ProseProvider | null; narration?: NarrationProvider | null; reportProse?: ReportProseProvider | null;
+  extraHandlers?: Handlers;
   options?: Partial<WorkerOptions>; inference?: Partial<InferenceConfig>;
 };
 
@@ -44,6 +48,9 @@ export function createWorker(input: CreateWorkerInput) {
   });
   const handlers: Handlers = {
     decision: decisionHandler, rating: ratingHandler, population: populationHandler({ prose: input.prose ?? null }),
+    parse_crowd: parseCrowdHandler(), parse_scenario: parseScenarioHandler,
+    thought: thoughtHandler({ store: input.store, provider: input.narration ?? null }),
+    report: reportHandler({ provider: input.reportProse ?? null }),
     ...input.extraHandlers,
   };
   const options: WorkerOptions = {
