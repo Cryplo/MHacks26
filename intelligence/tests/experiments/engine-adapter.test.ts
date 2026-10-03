@@ -2,8 +2,8 @@
  * Real-Engine gates for B-18 (A/A) and B-21 (mock A/B). They need Engine's built Node adapter and a
  * running SpacetimeDB module with operator, coordinator and worker identities:
  *
- *   BEHAVIOR_RUNTIME_ADAPTER=../engine/client/dist/node.js SPACETIME_URI=ws://127.0.0.1:3000 \
- *   SPACETIME_DATABASE=behavior BEHAVIOR_OPERATOR_TOKEN=... BEHAVIOR_COORDINATOR_TOKEN=... \
+ *   BEHAVIOR_RUNTIME_ADAPTER=../engine/client/dist/node.js BEHAVIOR_RUNTIME_URI=ws://127.0.0.1:3000 \
+ *   BEHAVIOR_RUNTIME_DATABASE=behavior-engine BEHAVIOR_OPERATOR_TOKEN=... BEHAVIOR_COORDINATOR_TOKEN=... \
  *   BEHAVIOR_WORKER_TOKEN=... npm run test:experiments
  *
  * Without them these tests are reported as skipped with a NOT RUN title; they never fall back to the fake.
@@ -27,7 +27,7 @@ import { createCoordinator, createWorker } from '../../src/worker/factory.ts';
 
 const env = process.env;
 const adapter = env.BEHAVIOR_RUNTIME_ADAPTER ? resolve(env.BEHAVIOR_RUNTIME_ADAPTER) : null;
-const ready = !!(adapter && existsSync(adapter) && env.SPACETIME_URI && env.SPACETIME_DATABASE && env.BEHAVIOR_OPERATOR_TOKEN && env.BEHAVIOR_COORDINATOR_TOKEN && env.BEHAVIOR_WORKER_TOKEN);
+const ready = !!(adapter && existsSync(adapter) && env.BEHAVIOR_RUNTIME_URI && env.BEHAVIOR_RUNTIME_DATABASE && env.BEHAVIOR_OPERATOR_TOKEN && env.BEHAVIOR_COORDINATOR_TOKEN && env.BEHAVIOR_WORKER_TOKEN);
 const why = adapter ? (existsSync(adapter) ? 'Engine identities/URI not configured' : `adapter missing at ${adapter}`) : 'BEHAVIOR_RUNTIME_ADAPTER not set';
 
 describe('real-Engine loader never falls back', () => {
@@ -38,7 +38,7 @@ describe('real-Engine loader never falls back', () => {
 });
 
 async function client(token: string): Promise<RuntimeClient> {
-  return loadRuntimeClient({ mode: 'spacetime', adapterModulePath: adapter!, config: { uri: env.SPACETIME_URI!, database: env.SPACETIME_DATABASE!, token } });
+  return loadRuntimeClient({ mode: 'spacetime', adapterModulePath: adapter!, config: { uri: env.BEHAVIOR_RUNTIME_URI!, database: env.BEHAVIOR_RUNTIME_DATABASE!, token } });
 }
 
 async function runOnEngine(mutate: (s: ExperimentSpec) => ExperimentSpec, timeoutMs: number): Promise<ExperimentReport> {

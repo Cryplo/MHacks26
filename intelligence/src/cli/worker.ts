@@ -3,8 +3,11 @@
  *
  *   npm run dev:worker                       # fixture runtime + mock provider, labeled demo work, then exit
  *   BEHAVIOR_RUNTIME_MODE=spacetime BEHAVIOR_RUNTIME_ADAPTER=../engine/client/dist/node.js \
- *     SPACETIME_URI=ws://127.0.0.1:3000 SPACETIME_DATABASE=behavior BEHAVIOR_TOKEN=... \
- *     [BEHAVIOR_ROLE=worker|coordinator] [BEHAVIOR_PROVIDER=mock|jev JEV_API_KEY=...] npm run dev:worker
+ *     BEHAVIOR_RUNTIME_URI=ws://127.0.0.1:3000 BEHAVIOR_RUNTIME_DATABASE=behavior-engine \
+ *     BEHAVIOR_ROLE=worker BEHAVIOR_WORKER_TOKEN=...            (or BEHAVIOR_ROLE=coordinator BEHAVIOR_COORDINATOR_TOKEN=...)
+ *     [BEHAVIOR_PROVIDER=mock|jev JEV_API_KEY=...] npm run dev:worker
+ *
+ * All variables are listed in .env.example and docs/HANDOFF.md.
  *
  * The worker only answers frozen requests with probability vectors and text; it never samples or
  * chooses actions and never calls world-mutation or scenario commands. Spacetime mode never falls
@@ -31,7 +34,9 @@ import { CONSERVATIVE_LIMITS, ProviderLimiter } from '../worker/limiter.ts';
 const env = process.env;
 const mode = env.BEHAVIOR_RUNTIME_MODE ?? 'fixture';
 const role = env.BEHAVIOR_ROLE ?? 'worker';
-const secrets = [env.JEV_API_KEY, env.BEHAVIOR_TOKEN].filter((s): s is string => !!s);
+const token = role === 'coordinator' ? env.BEHAVIOR_COORDINATOR_TOKEN : env.BEHAVIOR_WORKER_TOKEN;
+const secrets = [env.JEV_API_KEY, env.BEHAVIOR_WORKER_TOKEN, env.BEHAVIOR_COORDINATOR_TOKEN].filter((s): s is string => !!s);
+const num = (name: string, fallback: number) => (env[name] ? Number(env[name]) : fallback);
 const logger = jsonLineLogger(undefined, systemClock, secrets);
 
 function provider(): BehaviorProvider {
@@ -40,7 +45,7 @@ function provider(): BehaviorProvider {
   if (!env.JEV_API_KEY) throw new Error('BEHAVIOR_PROVIDER=jev requires JEV_API_KEY');
   return new JevProvider({
     endpoint: env.JEV_ENDPOINT ?? 'https://api.typesafe.ai/v1/systemone', apiKey: env.JEV_API_KEY, model: env.JEV_MODEL ?? DEFAULT_JEV_MODEL,
-    timeoutMs: Number(env.JEV_TIMEOUT_MS ?? 15_000), maxResponseBytes: 256 * 1024, retryAfterCapMs: 60_000,
+    timeoutMs: num('JEV_HTTP_TIMEOUT_MS', 10_000), maxResponseBytes: num('JEV_MAX_RESPONSE_BYTES', 256 * 1024), retryAfterCapMs: 60_000,
   }, new FetchHttp(systemClock), systemClock);
 }
 
@@ -48,8 +53,10 @@ function limiter() {
   const maxCalls = env.BEHAVIOR_MAX_PROVIDER_CALLS ? Number(env.BEHAVIOR_MAX_PROVIDER_CALLS) : undefined;
   return new ProviderLimiter({
     ...CONSERVATIVE_LIMITS,
-    requestsPerSecond: Number(env.BEHAVIOR_RPS ?? CONSERVATIVE_LIMITS.requestsPerSecond),
-    maxConcurrency: Number(env.BEHAVIOR_MAX_CONCURRENCY ?? CONSERVATIVE_LIMITS.maxConcurrency),
+    requestsPerSecond: num('JEV_REQUESTS_PER_SECOND', CONSERVATIVE_LIMITS.requestsPerSecond),
+    inputTokensPerMinute: num('JEV_INPUT_TOKENS_PER_MINUTE', CONSERVATIVE_LIMITS.inputTokensPerMinute),
+    maxConcurrency: num('JEV_MAX_CONCURRENCY', CONSERVATIVE_LIMITS.maxConcurrency),
+    maxQueue: num('WORKER_QUEUE_LIMIT', CONSERVATIVE_LIMITS.maxQueue),
     budgets: maxCalls ? { behavior: { maxCalls }, measurement: { maxCalls }, text: { maxCalls } } : undefined,
   }, systemClock);
 }
@@ -58,8 +65,7 @@ function build(client: RuntimeClient, store: FileStore | MemoryStore) {
   const p = provider();
   const common = { client, provider: p, store, clock: systemClock, jitter: systemJitter, ids: uuidIds, logger, limiter: limiter() };
   if (role === 'coordinator') return createCoordinator({ ...common, coordinator: { runtime: 'engine' } });
-  if (role !== 'worker') throw new Error(`BEHAVIOR_ROLE must be worker or coordinator, not ${role}`);
-  return createWorker({ ...common, cache: new ResponseCache(store), coalescer: new InflightCoalescer() });
+  return createWorker({ ...common, cache: new ResponseCache(store), coalescer: new InflightCoalescer(), options: { leaseMs: num('WORKER_LEASE_MS', 30_000) } });
 }
 
 async function fixtureDemo() {
@@ -96,9 +102,11 @@ async function fixtureDemo() {
 }
 
 async function serve() {
+  if (role !== 'worker' && role !== 'coordinator') throw new Error(`BEHAVIOR_ROLE must be worker or coordinator, not ${role}`);
   if (!env.BEHAVIOR_RUNTIME_ADAPTER) throw new Error('BEHAVIOR_RUNTIME_ADAPTER is required in spacetime mode');
-  const client = await loadRuntimeClient({ mode: 'spacetime', adapterModulePath: env.BEHAVIOR_RUNTIME_ADAPTER, config: { uri: env.SPACETIME_URI ?? '', database: env.SPACETIME_DATABASE ?? '', token: env.BEHAVIOR_TOKEN ?? null } });
-  const store = new FileStore(resolve(env.BEHAVIOR_STATE_DIR ?? '.data/worker'));
+  if (!env.BEHAVIOR_RUNTIME_URI || !env.BEHAVIOR_RUNTIME_DATABASE) throw new Error('BEHAVIOR_RUNTIME_URI and BEHAVIOR_RUNTIME_DATABASE are required in spacetime mode');
+  const client = await loadRuntimeClient({ mode: 'spacetime', adapterModulePath: env.BEHAVIOR_RUNTIME_ADAPTER, config: { uri: env.BEHAVIOR_RUNTIME_URI, database: env.BEHAVIOR_RUNTIME_DATABASE, token: token ?? null } });
+  const store = new FileStore(resolve(env.INTELLIGENCE_DATA_DIR ?? '.data', role));
   const built = build(client, store);
   const kinds: WorkKind[] = role === 'coordinator' ? ['experiment'] : ['decision', 'rating', 'population', 'parse_crowd', 'parse_scenario', 'thought', 'report'];
   logger.log('info', 'process.start', { role, mode, kinds, provider: env.BEHAVIOR_PROVIDER ?? 'mock', stateDir: store.root });
@@ -120,6 +128,11 @@ async function serve() {
   process.on('SIGTERM', () => void stop('SIGTERM'));
 }
 
-if (mode === 'fixture') await fixtureDemo();
-else if (mode === 'spacetime') await serve();
-else throw new Error(`BEHAVIOR_RUNTIME_MODE must be fixture or spacetime, not ${mode}`);
+try {
+  if (mode === 'fixture') await fixtureDemo();
+  else if (mode === 'spacetime') await serve();
+  else throw new Error(`BEHAVIOR_RUNTIME_MODE must be fixture or spacetime, not ${mode}`);
+} catch (e) {
+  logger.log('error', 'process.startup_failed', { error: (e as Error).message, name: (e as Error).name });
+  process.exit(1);
+}

@@ -5,7 +5,7 @@
  *
  * Runtime "fixture" (default) is the scripted fake runtime: ORCHESTRATION-ONLY, metrics are fixtures.
  * Runtime "spacetime" (--runtime spacetime) uses Engine's adapter and the real Engine path; it needs
- * BEHAVIOR_RUNTIME_ADAPTER, SPACETIME_URI, SPACETIME_DATABASE and operator/coordinator/worker tokens,
+ * BEHAVIOR_RUNTIME_ADAPTER, BEHAVIOR_RUNTIME_URI, BEHAVIOR_RUNTIME_DATABASE and operator/coordinator/worker tokens,
  * and never falls back to the fixture. The printed differences are B - A with whatever sign results.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -69,11 +69,11 @@ async function fixture() {
 
 async function spacetime() {
   const env = process.env;
-  const missing = ['BEHAVIOR_RUNTIME_ADAPTER', 'SPACETIME_URI', 'SPACETIME_DATABASE', 'BEHAVIOR_OPERATOR_TOKEN', 'BEHAVIOR_COORDINATOR_TOKEN', 'BEHAVIOR_WORKER_TOKEN'].filter((k) => !env[k]);
+  const missing = ['BEHAVIOR_RUNTIME_ADAPTER', 'BEHAVIOR_RUNTIME_URI', 'BEHAVIOR_RUNTIME_DATABASE', 'BEHAVIOR_OPERATOR_TOKEN', 'BEHAVIOR_COORDINATOR_TOKEN', 'BEHAVIOR_WORKER_TOKEN'].filter((k) => !env[k]);
   if (missing.length) { console.log(JSON.stringify({ status: 'NOT RUN', reason: `missing ${missing.join(', ')}` })); process.exit(2); }
   const secrets = [env.BEHAVIOR_OPERATOR_TOKEN!, env.BEHAVIOR_COORDINATOR_TOKEN!, env.BEHAVIOR_WORKER_TOKEN!];
   const logger = jsonLineLogger(undefined, systemClock, secrets);
-  const client = (token: string): Promise<RuntimeClient> => loadRuntimeClient({ mode: 'spacetime', adapterModulePath: env.BEHAVIOR_RUNTIME_ADAPTER!, config: { uri: env.SPACETIME_URI!, database: env.SPACETIME_DATABASE!, token } });
+  const client = (token: string): Promise<RuntimeClient> => loadRuntimeClient({ mode: 'spacetime', adapterModulePath: env.BEHAVIOR_RUNTIME_ADAPTER!, config: { uri: env.BEHAVIOR_RUNTIME_URI!, database: env.BEHAVIOR_RUNTIME_DATABASE!, token } });
   const [operator, coordinatorClient, workerClient] = await Promise.all([client(secrets[0]!), client(secrets[1]!), client(secrets[2]!)]);
   try {
     const art = parkArtifact(harborLightsFixturePark());
