@@ -1,5 +1,5 @@
 import type { Grid, ParkBundle, Vec2 } from "../../contract/behavior-v1.js";
-import { ensure, hashBytes, asciiCompare } from "../domain/primitives.js";
+import { ensure, hashBytes, asciiCompare, hash } from "../domain/primitives.js";
 import { parkSchema, parse, unique } from "../domain/schemas.js";
 const alphabet =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -286,6 +286,12 @@ export function validatePark(input: unknown): {
   unique(
     park.routeProfiles.map((r) => r.id),
     "route",
+  );
+  unique(
+    park.routeProfiles.map((r) =>
+      hash({ destinationId: r.destinationId, via: r.via }),
+    ),
+    "route geometry",
   );
   const entrances = park.places.filter((p) => p.kind === "entrance"),
     exits = park.places.filter((p) => p.kind === "exit");

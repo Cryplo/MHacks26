@@ -114,7 +114,7 @@ it("A-03 route choice offers explicit alternatives only when multiple profiles e
   const base = { destinationId: "ride", via: [{ xM: 5.5, yM: 5.5 }] };
   s.park.routeProfiles = [
     { ...base, id: "one", label: "One" },
-    { ...base, id: "two", label: "Two" },
+    { ...base, id: "two", label: "Two", via: [{ xM: 6.5, yM: 7.5 }] },
   ];
   applyAction(
     s,
@@ -127,4 +127,46 @@ it("A-03 route choice offers explicit alternatives only when multiple profiles e
   expect(
     makeRequest(s, g, nav).options.filter((o) => o.action.kind === "route"),
   ).toHaveLength(2);
+});
+
+it("A-02 route alternatives cannot duplicate the same authored geometry", async () => {
+  const { validatePark } = await import("../../src/navigation/grid.js");
+  const p = tinyPark(),
+    r = {
+      id: "first",
+      label: "First",
+      destinationId: "ride",
+      via: [{ xM: 5.5, yM: 5.5 }],
+    };
+  p.routeProfiles = [r, { ...r, id: "second", label: "Second" }];
+  expect(() => validatePark(p)).toThrow(/route geometry/);
+});
+it("A-11 app messages only enter the knowledge of guests whose app is active", () => {
+  const { s, g, nav } = setup();
+  s.view.simMs = 5000;
+  g.pendingMoment = null;
+  s.population.personas[0]!.hasApp = true;
+  s.population.personas[0]!.phoneActiveUntilMs = 1000;
+  s.population.personas[1]!.hasApp = false;
+  s.population.personas[2]!.hasApp = true;
+  s.manifest.scenario.events = [
+    {
+      id: "message",
+      atMs: 5000,
+      order: 0,
+      change: {
+        kind: "app_message",
+        messageId: "greeting",
+        text: "Hello",
+        expiresAtMs: 10000,
+        suggestedPlaceId: "food",
+        discount: null,
+      },
+    },
+  ];
+  startCore(s);
+  advanceCore(s, nav, 1);
+  expect(s.persons.a0!.facts.some((f) => f.kind === "message")).toBe(false);
+  expect(s.persons.a1!.facts.some((f) => f.kind === "message")).toBe(false);
+  expect(s.persons.a2!.facts.some((f) => f.kind === "message")).toBe(true);
 });

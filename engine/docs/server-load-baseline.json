@@ -1,0 +1,158 @@
+{
+  "recordedAt": "2026-10-03T22:09:02.581Z",
+  "spacetime": "2.10.2",
+  "node": "v24.21.0",
+  "results": [
+    {
+      "guests": 200,
+      "viewers": 1,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 140.53791699999965,
+      "p95Ms": 611.8036250000005,
+      "p99Ms": 611.8036250000005,
+      "invocations": 9,
+      "completedSteps": 2,
+      "wallMs": 5965.3899169999995,
+      "barriers": 1,
+      "barrierWallMs": 3893.427584,
+      "patches": 72,
+      "deliveredApplicationBytes": 4322007,
+      "networkWireBytes": null,
+      "clientHeapBytes": 48212784
+    },
+    {
+      "guests": 200,
+      "viewers": 4,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 355.7560830000002,
+      "p95Ms": 1913.0968749999993,
+      "p99Ms": 1913.0968749999993,
+      "invocations": 9,
+      "completedSteps": 2,
+      "wallMs": 12320.217916000001,
+      "barriers": 1,
+      "barrierWallMs": 7149.130333000001,
+      "patches": 288,
+      "deliveredApplicationBytes": 17288076,
+      "networkWireBytes": null,
+      "clientHeapBytes": 30478952
+    },
+    {
+      "guests": 300,
+      "viewers": 1,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 858.6970000000001,
+      "p95Ms": 4460.516250000001,
+      "p99Ms": 4460.516250000001,
+      "invocations": 12,
+      "completedSteps": 2,
+      "wallMs": 34428.09775,
+      "barriers": 1,
+      "barrierWallMs": 19787.222292,
+      "patches": 105,
+      "deliveredApplicationBytes": 9049219,
+      "networkWireBytes": null,
+      "clientHeapBytes": 22824192
+    },
+    {
+      "guests": 300,
+      "viewers": 4,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 1410.3927089999925,
+      "p95Ms": 5971.600375000009,
+      "p99Ms": 5971.600375000009,
+      "invocations": 12,
+      "completedSteps": 2,
+      "wallMs": 51609.39391700001,
+      "barriers": 1,
+      "barrierWallMs": 30102.158292,
+      "patches": 420,
+      "deliveredApplicationBytes": 36196964,
+      "networkWireBytes": null,
+      "clientHeapBytes": 42992272
+    },
+    {
+      "guests": 400,
+      "viewers": 1,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 2676.2550829999964,
+      "p95Ms": 10860.350583000021,
+      "p99Ms": 10860.350583000021,
+      "invocations": 15,
+      "completedSteps": 2,
+      "wallMs": 117816.997083,
+      "barriers": 1,
+      "barrierWallMs": 67804.115417,
+      "patches": 139,
+      "deliveredApplicationBytes": 15618517,
+      "networkWireBytes": null,
+      "clientHeapBytes": 27471648
+    },
+    {
+      "guests": 400,
+      "viewers": 4,
+      "grid": [
+        200,
+        150
+      ],
+      "fields": 15,
+      "simulatedMs": 10000,
+      "mode": "real SpacetimeDB + engine fixture responses",
+      "latencyKind": "client-observed advanceRun round trip including reducer and transport",
+      "p50Ms": 3318.974125000008,
+      "p95Ms": 16032.164749999996,
+      "p99Ms": 16032.164749999996,
+      "invocations": 15,
+      "completedSteps": 2,
+      "wallMs": 113516.290542,
+      "barriers": 1,
+      "barrierWallMs": 52424.38062500002,
+      "patches": 556,
+      "deliveredApplicationBytes": 62474064,
+      "networkWireBytes": null,
+      "clientHeapBytes": 103973928
+    }
+  ],
+  "limitations": [
+    "10-second occupied-park sample",
+    "Coincident entrance arrivals",
+    "No real provider",
+    "Round-trip timing is not isolated reducer CPU timing",
+    "Application payload bytes exclude SDK wire overhead"
+  ]
+}

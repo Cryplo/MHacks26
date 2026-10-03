@@ -1,0 +1,89 @@
+{
+  "spacetimeVersion": "2.10.2",
+  "mode": "Real local module and generated SDK, engine-owned Mock provider",
+  "fullDay": {
+    "status": "PASS",
+    "runId": "run:ec7af1d2b27925290f209bd0a30d74fc",
+    "horizonMs": 28800000,
+    "advanceInvocations": 385,
+    "frameEveryMs": 60000,
+    "snapshots": 2,
+    "patches": 30,
+    "admitted": 3,
+    "departed": 3,
+    "revenueCents": 6000,
+    "checks": [
+      "worker population artifact handoff",
+      "private receipt retries",
+      "viewer control denial",
+      "scenario scheduling",
+      "actual SDK reconnect snapshot reset",
+      "checkpoint retrieval and integrity"
+    ]
+  },
+  "partialLauncher": {
+    "status": "PASS",
+    "horizonMs": 360000,
+    "advanceInvocations": 79,
+    "snapshots": 2,
+    "patches": 80,
+    "steps": [
+      "npm ci both engine/module",
+      "client build",
+      "module publish",
+      "fixture seed",
+      "real adapter smoke"
+    ]
+  },
+  "strictPreflight": {
+    "status": "EXPECTED_FAILURE",
+    "reason": "intelligence/experience lanes absent"
+  },
+  "realProvider": "UNRUN",
+  "unitPropertyIntegrationReplay": {
+    "status": "PASS",
+    "tests": 71,
+    "files": 13,
+    "coverage": {
+      "lines": {
+        "total": 2312,
+        "covered": 1976,
+        "skipped": 0,
+        "pct": 85.46
+      },
+      "statements": {
+        "total": 2500,
+        "covered": 2105,
+        "skipped": 0,
+        "pct": 84.2
+      },
+      "functions": {
+        "total": 451,
+        "covered": 393,
+        "skipped": 0,
+        "pct": 87.13
+      },
+      "branches": {
+        "total": 1701,
+        "covered": 1326,
+        "skipped": 0,
+        "pct": 77.95
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "exportTool": {
+    "status": "PASS",
+    "outputs": [
+      "checkpoint.json",
+      "response-tape.json",
+      "manifest.json"
+    ],
+    "location": "engine/.local/export-final-smoke (ignored local fixture data)"
+  }
+}

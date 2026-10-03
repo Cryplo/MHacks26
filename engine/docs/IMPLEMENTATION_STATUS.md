@@ -1,35 +1,23 @@
 # Engine implementation status
 
-Scope: the full engine assignment in ASSIGNMENT.md, A-01 through A-25.
-Source repository was unborn (no commit, files, or remote refs). Bootstrap is
-the first commit on feat/behavior-engine-runtime; implementation continues in
-an isolated worktree from that commit. No existing AGENTS.md was found.
-Starting toolchain: Node 25.9.0, npm 11.12.1; SpacetimeDB CLI not installed.
+Owned implementation is delivered on `feat/behavior-engine-runtime` in the isolated `mhacks-engine` worktree. The original repository was empty; bootstrap/base is `adf003b5eaebdf7a790446daeec0d672ce6e7434`. No existing AGENTS.md was found. Remote: `https://github.com/Cryplo/MHacks26.git`.
 
-- [x] Bootstrap: frozen contract, fixtures, canonicalization and golden checks
-- [x] Validated manifests, pure state/phase model, 12-guest synthetic park
-- [x] Mock vertical slice: arrival, free motion, admission, service, purchase, exit
-- [ ] Navigation, PNG compilation, simultaneous motion and group invariants
-- [ ] Observations, action options, notices, scenarios and decision barriers
-- [ ] Queues, accounting, meters, ratings, reconciled metrics/heatmaps
-- [ ] Durable work, receipts, artifacts, driver fencing and trusted access
-- [ ] Real SpacetimeDB module, generated SDK and portable adapter
-- [ ] Replay, checkpoints, experiments/product plumbing and subscriptions
-- [ ] Integration launcher, real local tests, load measurements and handoff
+- [x] Frozen contract, golden vectors and lane-local tooling
+- [x] Validated immutable park/population/config/scenario input and 12-person synthetic fixture
+- [x] Pure seven-phase mechanics, queues, money, needs and frozen measurements
+- [x] PNG compilation, topology checks, persisted destination fields and resumable preparation
+- [x] Simultaneous individual motion with restartable 32-agent proposal batches
+- [x] Observations, executable options, notices, route alternatives and complete-set decision barriers
+- [x] Durable work, retries, receipts, artifacts, driver fencing and trusted access
+- [x] Actual SpacetimeDB 2.10.2 module and generated browser/Node adapter
+- [x] Checkpoints, response replay, experiment/product plumbing and subscriptions
+- [x] Integration launcher, real local mock day, load measurements, CI and handoff
+- [ ] External B/C integration, real Jev/provider mode and authored production park/UI gates
 
-External gates: intelligence/experience lanes are absent; real Jev calls need
-authorized credentials and budget. These do not block owned offline work.
+Verified ordinary suite: 71 tests across 13 files, including ten simulated minutes of 400-person motion. Typecheck, lint, build and frozen hash checks pass. Final coverage passes: 85.46% lines and 77.95% branches.
 
-Bootstrap validation: typecheck, lint and 6 contract tests PASS. TypeScript 6.0.2
-pinned for typescript-eslint compatibility; Node 24 is lane-local for Vitest 5.
+Real-server final smoke: eight-hour horizon, 3 scripted guests, 385 advance invocations, 60-second frames, two snapshots across reconnect, 30 patches, 6,000 cents reconciled and all 3 physical exits. Includes worker-generated population handoff, a scheduled scenario, private receipt retry, read-only denial and checkpoint retrieval. Full launcher smoke also passes from dependency installation through publication/seed and a six-minute visit.
 
-Second slice: 19 validation/navigation tests + 6 golden checks PASS; typecheck/lint PASS.
-Base: adf003b5eaebdf7a790446daeec0d672ce6e7434. Isolated worktree: ~/.codex/worktrees/mhacks-engine/MHacks26.
+Load: 200/300/400 guests × one/four viewers on a 200×150 grid with 15 fields. Latest recorded p95 advance-command round trips are 64.6–168.9 ms. Timing conditions and limits are in HANDOFF.md; baseline and intermediate results are retained. This does not establish accelerated full-day occupied-park performance or real-provider economics.
 
-Third slice: 28 tests PASS, including 12-person completed mock visit, wallet/revenue/heat reconciliation, blocked barrier immutability and A/A invariance under work budgets and reversed responses. This is pure-core evidence, not real database or all A-01..A-25 coverage.
-
-Early real SDK probe PASS (2.10.2, loopback 3099): SHA-256 shared core execution, private caller receipts, explicit domain denial, idempotent retry. The full module remains in progress.
-
-Protocol slice: 36 tests total; durable runtime test uses normalized in-memory Store with the real engine, explicit upload/claim/complete/advance commands, receipt retries/conflicts, conservation and read-only denial. Not a real-server full-day test. Full runtime handlers and checkpoint primitives now present; exhaustive acceptance and server adapter remain in progress.
-
-Server-backed transport slice PASS: tools/runtime-smoke.ts on SpacetimeDB 2.10.2 local 3099, 3 guests / 6 simulated minutes, 79 advancement invocations, 1 snapshot + 86 monotonic patches, 6000 cents reconciled, all 3 physical exits; read-only control denial and durable retry checked. Build/typecheck/lint + 36 tests PASS. Browser/Node adapters built. Full-day, load, reconnect fault injection and full acceptance suites still pending.
+Strict integration preflight intentionally fails for missing intelligence/experience contracts. No paid inference was made. See ACCEPTANCE.md for the evidence mapping and HANDOFF.md for operational notes and limitations.

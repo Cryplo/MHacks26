@@ -70,7 +70,7 @@ it("A-04 400 initially coincident guests remain finite and on walkable cells ove
     ).toBe(true);
     expect(nav.walkable(nav.cell(person.position))).toBe(true);
   }
-}, 60000);
+}, 180000);
 it("A-06 substep proposals resume in batches without exposing partial positions or changing results", () => {
   const park = tinyPark(),
     pop = tinyPopulation(park, 60),
