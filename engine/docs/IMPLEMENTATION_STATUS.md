@@ -27,3 +27,5 @@ Second slice: 19 validation/navigation tests + 6 golden checks PASS; typecheck/l
 Base: adf003b5eaebdf7a790446daeec0d672ce6e7434. Isolated worktree: ~/.codex/worktrees/mhacks-engine/MHacks26.
 
 Third slice: 28 tests PASS, including 12-person completed mock visit, wallet/revenue/heat reconciliation, blocked barrier immutability and A/A invariance under work budgets and reversed responses. This is pure-core evidence, not real database or all A-01..A-25 coverage.
+
+Early real SDK probe PASS (2.10.2, loopback 3099): SHA-256 shared core execution, private caller receipts, explicit domain denial, idempotent retry. The full module remains in progress.

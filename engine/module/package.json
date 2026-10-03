@@ -1,0 +1,1 @@
+{"name":"@mhacks26/engine-module","private":true,"type":"module","version":"0.1.0","dependencies":{"spacetimedb":"2.10.2"},"devDependencies":{"typescript":"6.0.2"}}
