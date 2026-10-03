@@ -1,4 +1,6 @@
 import type { RuntimeClient, Scope, WorkKind } from '../../contract/behavior-v1.ts';
+import type { CoordinatorDeps, CoordinatorOptions } from '../experiments/coordinator.ts';
+import { experimentHandler } from '../experiments/coordinator.ts';
 import type { ProseProvider } from '../population/prose.ts';
 import type { ReportProseProvider } from '../reports/narrative.ts';
 import { parseCrowdHandler, parseScenarioHandler, reportHandler, thoughtHandler } from '../text/handlers.ts';
@@ -60,4 +62,18 @@ export function createWorker(input: CreateWorkerInput) {
   };
   const worker = new Worker({ client: input.client, inference, handlers, journal, ledger, clock: input.clock, jitter: input.jitter, ids: input.ids, logger: input.logger, limiter: input.limiter }, options);
   return { worker, inference, ledger, journal, handlers };
+}
+
+/**
+ * Coordinator process: a separate identity and executor that claims ONLY experiment jobs, so an
+ * experiment waiting on its own behavior work never occupies behavior/rating/text capacity.
+ */
+export function createCoordinator(input: Omit<CreateWorkerInput, 'extraHandlers'> & {
+  coordinator: Omit<CoordinatorDeps, 'client' | 'store' | 'clock' | 'jitter' | 'logger'>; coordinatorOptions?: Partial<CoordinatorOptions>;
+}) {
+  const handler = experimentHandler({ ...input.coordinator, client: input.client, store: input.store, clock: input.clock, jitter: input.jitter, logger: input.logger }, input.coordinatorOptions);
+  return createWorker({
+    ...input, extraHandlers: { experiment: handler },
+    options: { kinds: ['experiment'], capacity: { behavior: 0, measurement: 0, text: 0, experiment: 1 }, leaseMs: 120_000, renewEveryMs: 20_000, ...input.options },
+  });
 }

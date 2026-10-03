@@ -1,14 +1,15 @@
 import type { RuntimeClient } from '../../contract/behavior-v1.ts';
 import type { BehaviorProvider } from '../../src/providers/types.ts';
 import { MockProvider } from '../../src/providers/mock.ts';
+import type { Clock } from '../../src/runtime/clock.ts';
 import { ManualClock, MemoryLogger, SequenceJitter } from '../../src/runtime/clock.ts';
 import { CounterIds } from '../../src/runtime/commands.ts';
 import { MemoryStore } from '../../src/runtime/store.ts';
 import type { CreateWorkerInput } from '../../src/worker/factory.ts';
 import { createWorker } from '../../src/worker/factory.ts';
 
-export function buildWorker(client: RuntimeClient, over: Partial<CreateWorkerInput> & { provider?: BehaviorProvider; clock?: ManualClock } = {}) {
-  const clock = over.clock ?? new ManualClock();
+export function buildWorker<C extends Clock = ManualClock>(client: RuntimeClient, over: Partial<Omit<CreateWorkerInput, 'clock'>> & { provider?: BehaviorProvider; clock?: C } = {}) {
+  const clock = (over.clock ?? new ManualClock()) as C;
   const logger = new MemoryLogger();
   const store = over.store ?? new MemoryStore();
   const built = createWorker({

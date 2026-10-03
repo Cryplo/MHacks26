@@ -1,4 +1,4 @@
-import type { Id, ParkBundle, RuntimeClient, Scope, WorkKind, WorkPayloads, WorkResults } from '../../contract/behavior-v1.ts';
+import type { Id, ParkBundle, RuntimeClient, Scope, WorkKind, WorkLease, WorkPayloads, WorkResults } from '../../contract/behavior-v1.ts';
 import { sha256Hex } from '../core/canonical.ts';
 import { generatePopulation } from '../population/index.ts';
 import { parkContext } from '../population/park.ts';
@@ -13,6 +13,10 @@ export type HandlerContext = {
   workId: Id; scope: Scope; signal: AbortSignal;
   client: RuntimeClient; inference: InferenceService; clock: Clock; ids: IdSource; logger: Logger;
   onCallStarted: (callId: Id) => Promise<void>;
+  /** Current (renewed) lease of this item, for fenced progress commands. */
+  lease: () => WorkLease;
+  /** Renews owned leases now; false when this item's lease is lost. */
+  renewLease: () => Promise<boolean>;
 };
 
 export type Handler<K extends WorkKind> = (payload: WorkPayloads[K], ctx: HandlerContext) => Promise<WorkResults[K]>;

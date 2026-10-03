@@ -481,6 +481,7 @@ export class FakeRuntimeServer {
   }
 
   private advanceResult(run: RunRecord, completedSteps: number, blocked: Id[]): AdvanceResult {
+    run.view = { ...run.view, simMs: run.step * 5000, stepIndex: run.step, earliestSchedulableMs: (run.step + 1) * 5000 };
     this.refreshQuality(run);
     return { run: structuredClone(run.view), completedSteps, physicalStateHash: run.stateHash, blockedWorkIds: blocked };
   }

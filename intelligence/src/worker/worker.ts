@@ -151,6 +151,8 @@ export class Worker {
       const result = await handler(item.payload, {
         workId, scope: item.scope, signal: rec.ac.signal, client: this.deps.client, inference: this.deps.inference,
         clock: this.deps.clock, ids: this.deps.ids, logger: this.deps.logger,
+        lease: () => rec.lease,
+        renewLease: async () => { await this.renewNow(); return !rec.ac.signal.aborted; },
         onCallStarted: async (callId) => {
           const cur = await this.deps.journal.get(workId);
           await this.deps.journal.update(workId, item.lease.attempt, { state: 'calling', callIds: [...(cur?.callIds ?? []), callId] }, this.now());

@@ -4,6 +4,7 @@ import { hashCanonical } from '../../src/core/canonical.ts';
 import { DEFAULT_CROWD_300 } from '../../src/fixtures/crowds.ts';
 import { RUBRICS, displayScore, summarizeTerminalRatings } from '../../src/measurements/rating.ts';
 import { MockProvider } from '../../src/providers/mock.ts';
+import type { ManualClock } from '../../src/runtime/clock.ts';
 import { conformance } from '../helpers/fixtures.ts';
 import { ScriptedJev } from '../helpers/providers.ts';
 import { fakeServer } from '../helpers/runtime.ts';
@@ -21,7 +22,7 @@ function ratingReq(agentId: string, over: Partial<RatingRequest> = {}): RatingRe
 }
 const WORKER_COMMANDS = new Set(['claimWork', 'renewWork', 'completeWork', 'failWork', 'recordProviderAttempt']);
 
-async function runAll(_server: ReturnType<typeof fakeServer>['server'], w: ReturnType<typeof buildWorker>) {
+async function runAll(_server: ReturnType<typeof fakeServer>['server'], w: ReturnType<typeof buildWorker<ManualClock>>) {
   for (let i = 0; i < 20; i++) {
     const n = await w.worker.runOnce();
     await pump(w.clock, w.worker.drain());
