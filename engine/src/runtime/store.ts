@@ -17,6 +17,7 @@ export type Family =
   | "driver"
   | "receipt"
   | "experiment"
+  | "run_assets"
   | "run"
   | "person"
   | "group"
@@ -161,6 +162,17 @@ const collections = {
 type Collection = keyof typeof collections;
 export function saveCore(store: Store, state: CoreState) {
   const metadata = { ...state } as Partial<CoreState>;
+  // Park/population are immutable inputs, not hot phase/cursor payloads.
+  if (!store.get(key("run_assets", state.runId, state.runId)))
+    put(
+      store,
+      "run_assets",
+      state.runId,
+      { park: state.park, population: state.population },
+      state.runId,
+    );
+  delete metadata.park;
+  delete metadata.population;
   for (const [property, family] of Object.entries(collections) as [
     Collection,
     Family,
@@ -180,6 +192,8 @@ export function saveCore(store: Store, state: CoreState) {
         atMs?: number;
         simMs?: number;
         sequence?: number;
+        placeId?: string;
+        lane?: string;
       };
       put(
         store,
@@ -187,8 +201,10 @@ export function saveCore(store: Store, state: CoreState) {
         id,
         value,
         state.runId,
-        v.status ?? v.state ?? "",
-        v.endMs ?? v.atMs ?? v.simMs ?? 0,
+        v.status ??
+          v.state ??
+          (family === "queue" ? canonical([v.placeId, v.lane]) : ""),
+        family === "queue" ? v.sequence! : (v.endMs ?? v.atMs ?? v.simMs ?? 0),
         v.sequence ?? (Number.isFinite(Number(id)) ? Number(id) : 0),
       );
     }
@@ -209,6 +225,16 @@ export function saveCore(store: Store, state: CoreState) {
 export function loadCore(store: Store, runId: string): CoreState | undefined {
   const metadata = get<CoreState>(store, "run", runId, runId);
   if (!metadata) return;
+  if (!metadata.park || !metadata.population) {
+    const assets = get<Pick<CoreState, "park" | "population">>(
+      store,
+      "run_assets",
+      runId,
+      runId,
+    );
+    if (!assets) throw new Error("Run assets missing");
+    Object.assign(metadata, assets);
+  }
   for (const [property, family] of Object.entries(collections) as [
     Collection,
     Family,

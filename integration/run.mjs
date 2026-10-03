@@ -13,7 +13,7 @@ let stopping=false;
 const env={...process.env,SPACETIME_URI:process.env.SPACETIME_URI??'http://127.0.0.1:3000',SPACETIME_DATABASE:process.env.SPACETIME_DATABASE??'mhacks-engine'};
 function stop(){if(stopping)return;stopping=true;for(const c of children)c.kill('SIGTERM');const timer=setTimeout(()=>{for(const c of children)c.kill('SIGKILL');},3000);timer.unref();}
 for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{stop();process.exitCode=signal==='SIGINT'?130:143;});
-function launch(command,args,cwd=root){const p=spawn(command,args,{cwd,env,stdio:'inherit'});children.add(p);p.on('exit',()=>children.delete(p));return p;}
+function launch(command,args,cwd=root){const p=spawn(command,args,{cwd,env,stdio:'inherit'});children.add(p);p.on('exit',()=>children.delete(p));p.on('error',error=>{console.error(error.message);process.exitCode=1;stop();});return p;}
 function wait(p){return new Promise((resolve,reject)=>{p.once('error',reject);p.once('exit',(code,signal)=>code===0?resolve():reject(new Error(`Child failed (${code??signal})`)));});}
 async function run(command,args,cwd=root){await wait(launch(command,args,cwd));}
 try {
@@ -33,7 +33,7 @@ try {
     await mkdir(resolve(root,'engine/.local'),{recursive:true});
     const server=env.SPACETIME_SERVER??cli;
     const args=env.SPACETIME_SERVER?['--listen-addr',u.host,'--data-dir',resolve(root,'engine/.local/db')]:['start','--listen-addr',u.host,'--data-dir',resolve(root,'engine/.local/db')];
-    const db=launch(server,args);db.once('exit',()=>{if(!stopping)stop();});
+    const db=launch(server,args);db.once('exit',()=>{if(!stopping){process.exitCode=1;stop();}});
     const deadline=Date.now()+30000;let ready=false;
     while(Date.now()<deadline&&!stopping){try{const r=await fetch(`${env.SPACETIME_URI}/v1/ping`,{signal:AbortSignal.timeout(1000)});if(r.ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,150));}
     if(!ready)throw new Error('Database startup timeout');
@@ -45,7 +45,7 @@ try {
   await run('npm',['run','dev:seed','--',...park],resolve(root,'engine'));
   if(smoke){await run(process.execPath,[resolve(root,'integration/smoke.mjs'),...(partial?['--partial']:[])]);stop();}
   else {
-    for(const lane of lanes.filter(l=>l!=='engine')){const child=launch('npm',['run','dev:integration'],resolve(root,lane));child.once('exit',()=>{if(!stopping)stop();});}
+    for(const lane of lanes.filter(l=>l!=='engine')){const child=launch('npm',['run','dev:integration'],resolve(root,lane));child.once('exit',()=>{if(!stopping){process.exitCode=1;stop();}});}
     console.log(partial?'Engine ready; no intelligence or experience lane launched.':'All configured lanes started.');
     if(external&&partial)console.log('External server remains running.');
   }

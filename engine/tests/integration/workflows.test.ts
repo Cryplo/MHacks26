@@ -75,6 +75,10 @@ it("A-08 scheduler honors external driver and pause/resume safe points", () => {
   system.now += 250;
   scheduleLive(store, system);
   expect(loadCore(store, runId)!.view.status).toBe("blocked");
+  const blockedRows = store.rows.size;
+  system.now += 250;
+  scheduleLive(store, system);
+  expect(store.rows.size).toBe(blockedRows);
   let view = query(store, op, "getRun", { runId });
   call(op, "pauseRun", {
     runId,

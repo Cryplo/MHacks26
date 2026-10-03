@@ -150,6 +150,11 @@ export type CoreState = {
   barrierIds: string[];
   phaseCursor: number;
   movementSubstep: number;
+  motionPending?: {
+    cursor: number;
+    proposed: Record<string, C.Vec2>;
+    ties: Record<string, { x: number; y: number }>;
+  };
   pauseRequested: boolean;
   closing: boolean;
   totals: {

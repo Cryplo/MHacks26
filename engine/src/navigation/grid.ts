@@ -155,8 +155,17 @@ export class Navigation {
         }
       }
     }
+    if (this.fields.size >= 64)
+      this.fields.delete(this.fields.keys().next().value!);
     this.fields.set(key, distances);
     return distances;
+  }
+  seedField(cell: number, values: number[]) {
+    ensure(
+      values.length === this.cells.length && values[cell] === 0,
+      "Invalid stored destination field",
+    );
+    this.fields.set(`${cell}:`, Float64Array.from(values));
   }
   next(position: Vec2, destination: Vec2): Vec2 | null {
     const from = this.cell(position),

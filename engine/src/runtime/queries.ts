@@ -134,12 +134,24 @@ function dispatchQuery(
   const a = input as { runId: string };
   requireRun(store, ctx, a.runId);
   if (name === "getRun" || name === "getManifest") {
-    const metadata=get<{view:C.RunView;manifest:C.RunManifest}>(store,"run",a.runId,a.runId);
-    ensure(metadata,"Run not found");return name === "getRun" ? metadata.view : metadata.manifest;
+    const metadata = get<{ view: C.RunView; manifest: C.RunManifest }>(
+      store,
+      "run",
+      a.runId,
+      a.runId,
+    );
+    ensure(metadata, "Run not found");
+    return name === "getRun" ? metadata.view : metadata.manifest;
   }
   if (name === "getLiveSnapshot") {
-    const publication=get<C.LiveSnapshot>(store,"publication",a.runId,a.runId);
-    ensure(publication,"Run publication unavailable");return publication;
+    const publication = get<C.LiveSnapshot>(
+      store,
+      "publication",
+      a.runId,
+      a.runId,
+    );
+    ensure(publication, "Run publication unavailable");
+    return publication;
   }
   const s = core(store, a.runId);
   switch (name) {
@@ -215,14 +227,19 @@ export function availableWork(
   ctx: Context,
 ): { kind: C.WorkKind; count: number }[] {
   const roles = get<RoleRecord>(store, "role", ctx.identity)?.roles ?? [];
-  const jobs = list<Job>(store, "work").filter(
-    (j) =>
-      (j.status === "pending" || j.status === "leased") &&
-      (j.kind === "experiment"
-        ? roles.includes("coordinator")
-        : roles.includes("worker")),
-  );
   const counts = new Map<C.WorkKind, number>();
-  for (const j of jobs) counts.set(j.kind, (counts.get(j.kind) ?? 0) + 1);
+  for (const row of store.list("work")) {
+    const [status, encodedKind] = row.status.split(":");
+    if (status !== "pending" && status !== "leased") continue;
+    const kind = (encodedKind ??
+      (JSON.parse(row.body) as Job).kind) as C.WorkKind;
+    if (
+      kind === "experiment"
+        ? !roles.includes("coordinator")
+        : !roles.includes("worker")
+    )
+      continue;
+    counts.set(kind, (counts.get(kind) ?? 0) + 1);
+  }
   return [...counts].map(([kind, count]) => ({ kind, count }));
 }

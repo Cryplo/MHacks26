@@ -48,7 +48,7 @@ it("A-03 swept notice distance catches a crossed region even with both endpoints
     segmentDistance({ xM: 0, yM: 0 }, { xM: 10, yM: 0 }, { xM: 5, yM: 1 }),
   ).toBe(1);
 });
-it("A-04 400 initially coincident guests remain finite and on walkable cells over 240 substeps", () => {
+it("A-04 400 initially coincident guests remain finite and on walkable cells over ten simulated minutes", () => {
   const p = tinyPark(),
     pop = tinyPopulation(p, 400),
     s = createCore("load", tinyManifest(p, pop), p, pop),
@@ -58,8 +58,9 @@ it("A-04 400 initially coincident guests remain finite and on walkable cells ove
     person.admittedAtMs = 0;
   }
   for (const g of Object.values(s.groups)) g.target = { xM: 10.5, yM: 10.5 };
-  for (let i = 0; i < 240; i++) {
+  for (let i = 0; i < 2400; i++) {
     s.movementSubstep = i % 20;
+    s.view.simMs = Math.floor(i / 20) * 5000;
     moveSubstep(s, nav);
   }
   for (const person of Object.values(s.persons)) {
@@ -69,4 +70,24 @@ it("A-04 400 initially coincident guests remain finite and on walkable cells ove
     ).toBe(true);
     expect(nav.walkable(nav.cell(person.position))).toBe(true);
   }
-}, 20000);
+}, 60000);
+it("A-06 substep proposals resume in batches without exposing partial positions or changing results", () => {
+  const park = tinyPark(),
+    pop = tinyPopulation(park, 60),
+    a = createCore("a", tinyManifest(park, pop), park, pop);
+  for (const p of Object.values(a.persons)) {
+    p.state = "walking";
+    p.admittedAtMs = 0;
+  }
+  for (const g of Object.values(a.groups)) g.target = { xM: 10.5, yM: 10.5 };
+  let b = structuredClone(a);
+  const nav = new Navigation(park.grid),
+    before = physicalHash(b);
+  moveSubstep(a, nav);
+  expect(moveSubstep(b, nav, 16).complete).toBe(false);
+  expect(physicalHash(b)).toBe(before);
+  b = JSON.parse(JSON.stringify(b));
+  while (!moveSubstep(b, nav, 16).complete) b = JSON.parse(JSON.stringify(b));
+  expect(physicalHash(b)).toBe(physicalHash(a));
+  expect(b.motionPending).toBeUndefined();
+});

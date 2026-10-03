@@ -33,7 +33,16 @@ import {
 } from "../../src/domain/primitives.js";
 import { encodeBase64 } from "../../src/navigation/grid.js";
 const record = table(
-  { name: "record" },
+  {
+    name: "record",
+    indexes: [
+      {
+        accessor: "byScopeStateDue",
+        algorithm: "btree",
+        columns: ["familyScope", "status", "due"],
+      },
+    ],
+  },
   {
     key: t.string().primaryKey(),
     family: t.string().index("btree"),

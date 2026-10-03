@@ -10,7 +10,7 @@ import {
   canonical,
 } from "../domain/primitives.js";
 import { encodeBase64, decodeBase64 } from "../navigation/grid.js";
-import { get, put, key, type Store, list } from "./store.js";
+import { get, put, key, type Store } from "./store.js";
 import {
   authorizeScope,
   requireRun,
@@ -49,16 +49,21 @@ type Upload = {
   chunks: number;
 };
 function canUpload(store: Store, ctx: Context, scope: Scope) {
-  const assigned = list<{
-    scope: Scope;
-    lease: { ownerIdentity: string; expiresAtEpochMs: number } | null;
-  }>(store, "work").some(
-    (w) =>
-      w.scope.runId === scope.runId &&
-      w.scope.experimentId === scope.experimentId &&
-      w.lease?.ownerIdentity === ctx.identity &&
-      w.lease.expiresAtEpochMs > ctx.now,
-  );
+  const assigned = store
+    .list("work", scope.runId ?? scope.experimentId ?? "")
+    .filter((row) => row.status.split(":")[0] === "leased")
+    .some((row) => {
+      const w = JSON.parse(row.body) as {
+        scope: Scope;
+        lease: { ownerIdentity: string; expiresAtEpochMs: number } | null;
+      };
+      return (
+        w.scope.runId === scope.runId &&
+        w.scope.experimentId === scope.experimentId &&
+        w.lease?.ownerIdentity === ctx.identity &&
+        w.lease.expiresAtEpochMs > ctx.now
+      );
+    });
   if (!assigned) authorizeScope(store, ctx, scope, true);
 }
 export function beginUpload(
@@ -214,15 +219,20 @@ export function readArtifact(
         return true;
       return Object.values(value).some(references);
     };
-    const assigned = list<{
-      payload: unknown;
-      lease: { ownerIdentity: string; expiresAtEpochMs: number } | null;
-    }>(store, "work").some(
-      (w) =>
-        w.lease?.ownerIdentity === ctx.identity &&
-        w.lease.expiresAtEpochMs > ctx.now &&
-        references(w.payload),
-    );
+    const assigned = store
+      .list("work")
+      .filter((row) => row.status.split(":")[0] === "leased")
+      .some((row) => {
+        const w = JSON.parse(row.body) as {
+          payload: unknown;
+          lease: { ownerIdentity: string; expiresAtEpochMs: number } | null;
+        };
+        return (
+          w.lease?.ownerIdentity === ctx.identity &&
+          w.lease.expiresAtEpochMs > ctx.now &&
+          references(w.payload)
+        );
+      });
     if (!assigned) {
       if (a.scope.runId) requireRun(store, ctx, a.scope.runId);
       else if (a.scope.experimentId) authorizeScope(store, ctx, a.scope);

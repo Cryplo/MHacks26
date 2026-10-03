@@ -699,7 +699,11 @@ function dispatchCommand(
       const result = advanceCore(
         s,
         runtimeNavigation(store, s.park.grid),
-        Math.min(500, a.maxSteps * 40),
+        Math.min(
+          500,
+          a.maxSteps * 40,
+          Math.max(4, Math.floor(2400 / s.population.personas.length)),
+        ),
         a.maxSteps,
       );
       if (tape)

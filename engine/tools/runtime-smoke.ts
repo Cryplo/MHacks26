@@ -57,6 +57,62 @@ try {
         randomUUID(),
       ),
     );
+  const populationWork = unwrap(
+    await op.command(
+      "requestProductWork",
+      {
+        request: {
+          kind: "population",
+          park: manifest.park,
+          crowd: population.crowd,
+        },
+      },
+      randomUUID(),
+    ),
+  );
+  const populationJob = unwrap(
+    await worker.command(
+      "claimWork",
+      {
+        kinds: ["population"],
+        limit: 1,
+        leaseMs: 30000,
+        workerNonce: randomUUID(),
+      },
+      randomUUID(),
+    ),
+  ).items[0]!;
+  assert.equal(populationJob.kind, "population");
+  assert((await worker.getArtifact(manifest.park)).length > 0);
+  manifest.population = await worker.putArtifact({
+    kind: "population",
+    mediaType: "application/json",
+    bytes: json(population),
+    scope: populationJob.scope,
+    commandId: randomUUID(),
+  });
+  unwrap(
+    await worker.command(
+      "completeWork",
+      {
+        item: {
+          kind: "population",
+          lease: populationJob.lease,
+          result: {
+            artifact: manifest.population,
+            guestCount: population.personas.length,
+            groupCount: population.groups.length,
+          },
+        },
+      },
+      randomUUID(),
+    ),
+  );
+  assert.equal(
+    (await op.query("getWork", { workId: populationWork.workId })).status,
+    "ready",
+  );
+  assert((await op.getArtifact(manifest.population)).length > 0);
   const { runId } = unwrap(
     await op.command("createRun", { manifest }, randomUUID()),
   );

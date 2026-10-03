@@ -1,3 +1,4 @@
+import type { Job } from "./work.js";
 import { initializeParks } from "./navigation.js";
 import type { CoreState } from "../domain/state.js";
 import type { Context, Grant } from "./access.js";
@@ -32,6 +33,18 @@ export function scheduleLive(store: Store, ctx: Context): void {
       d.owner !== ctx.identity
     )
       continue;
+    if (s.view.status === "blocked") {
+      const unresolved = s.view.blockedWorkIds
+        .map((id) => get<Job>(store, "work", `${s.runId}:${id}`, s.runId))
+        .filter((j) => j && !["ready", "applied"].includes(j.status));
+      const dueFallback =
+        s.manifest.config.mode === "live" &&
+        s.manifest.config.fallback === "live_timeout_v1" &&
+        unresolved.some(
+          (j) => ctx.now - j!.createdAt >= s.manifest.config.liveTimeoutMs,
+        );
+      if (unresolved.length && !dueFallback) continue;
+    }
     const grantId = `scheduler:${s.runId}`;
     if (!get(store, "grant", grantId, s.runId))
       put(

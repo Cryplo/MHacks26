@@ -20,7 +20,8 @@ export function segmentDistance(a: Vec2, b: Vec2, p: Vec2): number {
 export function moveSubstep(
   s: CoreState,
   nav: Navigation,
-): { neighborChecks: number } {
+  maxAgents = Number.POSITIVE_INFINITY,
+): { neighborChecks: number; complete: boolean } {
   const dt = 0.25,
     ordered = Object.values(s.persons)
       .filter((p) => p.state !== "not_arrived" && p.state !== "left")
@@ -33,19 +34,31 @@ export function moveSubstep(
     list.push(p);
     bins.set(key, list);
   }
-  const proposed = new Map<string, Vec2>();
-  const tieDirections = new Map(
-    ordered.map((p) => {
-      const angle =
-        random(s.manifest.replicateSeed, "movement", p.agentId, "separation") *
-        2 *
-        Math.PI;
-      return [p.agentId, { x: Math.cos(angle), y: Math.sin(angle) }] as const;
-    }),
-  );
+  if (!s.motionPending)
+    s.motionPending = {
+      cursor: 0,
+      proposed: {},
+      ties: Object.fromEntries(
+        ordered.map((p) => {
+          const angle =
+            random(
+              s.manifest.replicateSeed,
+              "movement",
+              p.agentId,
+              "separation",
+            ) *
+            2 *
+            Math.PI;
+          return [p.agentId, { x: Math.cos(angle), y: Math.sin(angle) }];
+        }),
+      ),
+    };
+  const pending = s.motionPending,
+    proposed = new Map(Object.entries(pending.proposed)),
+    tieDirections = new Map(Object.entries(pending.ties));
   let neighborChecks = 0;
   const traits = new Map(s.population.personas.map((p) => [p.agentId, p]));
-  for (const p of ordered) {
+  for (const p of ordered.slice(pending.cursor, pending.cursor + maxAgents)) {
     const g = s.groups[p.groupId]!,
       trait = traits.get(p.agentId)!;
     if (
@@ -142,6 +155,12 @@ export function moveSubstep(
     }
     proposed.set(p.agentId, next);
   }
+  pending.cursor = Math.min(ordered.length, pending.cursor + maxAgents);
+  if (pending.cursor < ordered.length) {
+    pending.proposed = Object.fromEntries(proposed);
+    return { neighborChecks, complete: false };
+  }
+  delete s.motionPending;
   const waitingCells = new Map<number, number>();
   for (const p of ordered) {
     const old = p.position,
@@ -289,5 +308,5 @@ export function moveSubstep(
       s.totals.busyServerMs += busy * 250;
     }
   }
-  return { neighborChecks };
+  return { neighborChecks, complete: true };
 }

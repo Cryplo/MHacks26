@@ -415,8 +415,9 @@ export function advanceCore(
       }
     } else if (v.phase === "integrate") {
       if (s.movementSubstep < 20) {
-        neighborChecks += moveSubstep(s, nav).neighborChecks;
-        s.movementSubstep++;
+        const movement = moveSubstep(s, nav, 32);
+        neighborChecks += movement.neighborChecks;
+        if (movement.complete) s.movementSubstep++;
       } else v.phase = "persist";
     } else {
       v.simMs += 5000;

@@ -11,11 +11,21 @@ const topology = (grid: Grid) =>
     cellsSha256: grid.cellsSha256,
     grassWalkable: grid.grassWalkable,
   });
+// Cache only immutable derived topology. Never retain a database context or
+// mutable run state across transactions. Cold/restarted modules reload fields.
+const cache = new Map<string, Navigation>();
 export function runtimeNavigation(store: Store, grid: Grid) {
-  const scope = topology(grid);
-  return new Navigation(grid, (cell) =>
-    get<number[]>(store, "navigation", String(cell), scope),
-  );
+  const scope = topology(grid),
+    existing = cache.get(scope);
+  if (existing) return existing;
+  const nav = new Navigation(grid);
+  for (const row of store.list("navigation", scope)) {
+    const cell = Number((JSON.parse(row.key) as string[])[2]);
+    nav.seedField(cell, JSON.parse(row.body) as number[]);
+  }
+  if (cache.size >= 2) cache.delete(cache.keys().next().value!);
+  cache.set(scope, nav);
+  return nav;
 }
 export function prepareFields(store: Store, p: ParkRecord, budget = 1) {
   if (p.summary.status !== "preparing") return;

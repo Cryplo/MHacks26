@@ -67,7 +67,7 @@ export function saveJob(store: Store, j: Job) {
     j.id,
     j,
     j.scope.runId ?? j.scope.experimentId ?? "",
-    j.status,
+    `${j.status}:${j.kind}`,
     j.lease?.expiresAtEpochMs ?? j.retryAt,
   );
 }
@@ -117,7 +117,16 @@ export function claim(
   if (kinds.includes("experiment")) requireRole(store, ctx, ["coordinator"]);
   if (kinds.some((k) => k !== "experiment"))
     requireRole(store, ctx, ["worker"]);
-  const jobs = list<Job>(store, "work")
+  const jobs = store
+    .list("work")
+    .filter((row) => {
+      const [status, kind] = row.status.split(":");
+      return (
+        (status === "pending" || status === "leased") &&
+        (!kind || kinds.includes(kind as C.WorkKind))
+      );
+    })
+    .map((row) => JSON.parse(row.body) as Job)
     .filter(
       (j) =>
         kinds.includes(j.kind) &&
