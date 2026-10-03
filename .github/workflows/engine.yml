@@ -1,0 +1,28 @@
+name: Engine
+on:
+  push:
+    paths: ['engine/**', 'integration/**', '.github/workflows/engine.yml']
+  pull_request:
+    paths: ['engine/**', 'integration/**', '.github/workflows/engine.yml']
+permissions:
+  contents: read
+jobs:
+  pure-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: engine/package-lock.json
+      - run: npm ci
+        working-directory: engine
+      - run: node integration/check-contracts.mjs --partial
+      - run: npm run typecheck && npm run lint && npm run build && npm run test:coverage
+        working-directory: engine
+      - run: git diff --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: engine-coverage
+          path: engine/coverage/

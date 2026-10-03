@@ -18,7 +18,12 @@
     "test:replay": "vitest run tests/replay",
     "test:coverage": "vitest run --coverage",
     "dev:db": "spacetime start --listen-addr 127.0.0.1:3000",
-    "dev:seed": "tsx tools/seed.ts"
+    "dev:seed": "tsx tools/seed.ts",
+    "test:server": "tsx tools/runtime-smoke.ts",
+    "benchmark": "tsx tools/benchmark.ts",
+    "compile:park": "tsx tools/compile-park.ts",
+    "provision": "tsx tools/provision.ts",
+    "export:run": "tsx tools/export-run.ts"
   },
   "dependencies": {
     "@noble/hashes": "2.4.0",

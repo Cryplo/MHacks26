@@ -1,0 +1,109 @@
+{
+  "recordedAt": "2026-10-03T21:58:03.396Z",
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "results": [
+    {
+      "guests": 200,
+      "grid": [
+        200,
+        150
+      ],
+      "destinationFields": 15,
+      "simulatedMs": 60000,
+      "mode": "Node pure engine + normalized MemoryStore (NOT database reducer latency)",
+      "fieldBuildMs": 221.15387499999997,
+      "invocations": 26,
+      "completedSteps": 12,
+      "stepsPerInvocation": 0.46153846153846156,
+      "p50Ms": 51.698999999999955,
+      "p95Ms": 97.10424999999998,
+      "p99Ms": 100.00641700000006,
+      "elapsedMs": 1333.135209,
+      "simulatedSpeed": 45.00668768999559,
+      "neighborChecks": 315908,
+      "rowWrites": 4356,
+      "serializedRowBytes": 12208690,
+      "storedRows": 1108,
+      "publicationBytes": 1221904,
+      "estimatedEgressBytes": {
+        "oneViewer": 1221904,
+        "fourViewers": 4887616
+      },
+      "heapUsedBytes": 45766328,
+      "barriers": 12,
+      "provider": "engine fixture; no network inference",
+      "barrierNetworkDelayMs": 0
+    },
+    {
+      "guests": 300,
+      "grid": [
+        200,
+        150
+      ],
+      "destinationFields": 15,
+      "simulatedMs": 60000,
+      "mode": "Node pure engine + normalized MemoryStore (NOT database reducer latency)",
+      "fieldBuildMs": 264.342208,
+      "invocations": 38,
+      "completedSteps": 12,
+      "stepsPerInvocation": 0.3157894736842105,
+      "p50Ms": 48.82533299999977,
+      "p95Ms": 155.049708,
+      "p99Ms": 216.91033400000015,
+      "elapsedMs": 2341.320292,
+      "simulatedSpeed": 25.626566431347534,
+      "neighborChecks": 389361,
+      "rowWrites": 6169,
+      "serializedRowBytes": 19445422,
+      "storedRows": 1440,
+      "publicationBytes": 1655746,
+      "estimatedEgressBytes": {
+        "oneViewer": 1655746,
+        "fourViewers": 6622984
+      },
+      "heapUsedBytes": 106280016,
+      "barriers": 12,
+      "provider": "engine fixture; no network inference",
+      "barrierNetworkDelayMs": 0
+    },
+    {
+      "guests": 400,
+      "grid": [
+        200,
+        150
+      ],
+      "destinationFields": 15,
+      "simulatedMs": 60000,
+      "mode": "Node pure engine + normalized MemoryStore (NOT database reducer latency)",
+      "fieldBuildMs": 182.2047080000002,
+      "invocations": 38,
+      "completedSteps": 12,
+      "stepsPerInvocation": 0.3157894736842105,
+      "p50Ms": 54.207042,
+      "p95Ms": 109.72770800000035,
+      "p99Ms": 152.54241599999932,
+      "elapsedMs": 2280.6970420000007,
+      "simulatedSpeed": 26.307746664758458,
+      "neighborChecks": 456057,
+      "rowWrites": 7940,
+      "serializedRowBytes": 24907971,
+      "storedRows": 1776,
+      "publicationBytes": 2089749,
+      "estimatedEgressBytes": {
+        "oneViewer": 2089749,
+        "fourViewers": 8358996
+      },
+      "heapUsedBytes": 136534864,
+      "barriers": 12,
+      "provider": "engine fixture; no network inference",
+      "barrierNetworkDelayMs": 0
+    }
+  ],
+  "unrun": [
+    "real database load",
+    "real-provider mode",
+    "measured network egress"
+  ]
+}

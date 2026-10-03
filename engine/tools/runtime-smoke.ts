@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { operatorConfig } from "./local-client.js";
 import { randomUUID } from "node:crypto";
 import { strict as assert } from "node:assert";
 import type * as C from "../contract/behavior-v1.js";
@@ -6,20 +6,7 @@ import { Client } from "../client/index.js";
 import { tinyPark, tinyPopulation, tinyManifest } from "../fixtures/tiny.js";
 import { mockResponse } from "../fixtures/mock-driver.js";
 import { hash } from "../src/domain/primitives.js";
-const cli =
-  process.env.SPACETIME_CLI ?? "/tmp/mhacks-spacetime-2.10.2/spacetimedb-cli";
-const captured = execFileSync(cli, ["login", "show", "--token"], {
-  encoding: "utf8",
-});
-const token =
-  process.env.SPACETIME_OPERATOR_TOKEN ??
-  captured.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/)?.[0];
-assert(token, "Local operator identity required");
-const config = {
-  uri: process.env.SPACETIME_URI ?? "http://127.0.0.1:3099",
-  database: process.env.SPACETIME_DATABASE ?? "mhacks-engine-runtime",
-  token,
-};
+const config = operatorConfig();
 const op = new Client(config),
   worker = new Client({ ...config, token: null }),
   viewer = new Client({ ...config, token: null });
@@ -38,7 +25,10 @@ try {
   const park = tinyPark(),
     population = tinyPopulation(park, 3),
     manifest = tinyManifest(park, population);
-  manifest.config.horizonMs = 360000;
+  manifest.config.horizonMs = Number(process.env.SMOKE_HORIZON_MS ?? 360000);
+  manifest.config.visualFrameEveryMs = Number(
+    process.env.SMOKE_FRAME_MS ?? 5000,
+  );
   manifest.park = await op.putArtifact({
     kind: "park",
     mediaType: "application/json",
@@ -70,6 +60,7 @@ try {
   const { runId } = unwrap(
     await op.command("createRun", { manifest }, randomUUID()),
   );
+  unwrap(await op.command("scheduleEvents",{runId,expectedScenarioRevision:manifest.scenario.revision,draftId:null,events:[{id:"smoke-board",atMs:5000,order:0,change:{kind:"board",placeId:"ride",display:{kind:"fixed",text:"Test ride — 2 minutes",lowerMin:2,upperMin:2}}}]},randomUUID()));
   let snapshots = 0,
     patches = 0,
     lastRevision = -1;
@@ -121,13 +112,16 @@ try {
   let steps = 0;
   const stage = new Map<string, number>();
   while (run.status !== "completed") {
-    assert(++steps < 1000, "Smoke iteration limit");
+    assert(
+      ++steps < (manifest.config.horizonMs / 5000) * 5 + 100,
+      "Smoke iteration limit",
+    );
     const commandId = randomUUID(),
       input = {
         lease,
         expectedStep: run.stepIndex,
         expectedPhase: run.phase,
-        maxSteps: 1,
+        maxSteps: Number(process.env.SMOKE_MAX_STEPS ?? 1),
       };
     const a = unwrap(await op.command("advanceRun", input, commandId));
     assert.deepEqual(
@@ -201,6 +195,10 @@ try {
   assert.equal(final.metrics.measures.rides_per_guest.value, 1);
   assert.equal(final.metrics.measures.satisfaction_0_100.value, null);
   assert(snapshots > 0 && patches > 0);
+  const checkpoint = unwrap(await op.command("checkpointRun",{runId},randomUUID()));
+  const backup = JSON.parse(new TextDecoder().decode(await op.getArtifact(checkpoint.checkpoint)));
+  assert.equal(backup.physicalStateHash,checkpoint.physicalStateHash);
+  assert.equal(backup.state.scenarioApplied.includes("smoke-board"),true);
   unsubscribe();
   console.log(
     JSON.stringify(
@@ -209,6 +207,8 @@ try {
         mode: "real SpacetimeDB + engine-owned mock provider",
         runId,
         steps,
+        horizonMs: manifest.config.horizonMs,
+        visualFrameEveryMs: manifest.config.visualFrameEveryMs,
         snapshots,
         patches,
         revenueCents: 6000,
