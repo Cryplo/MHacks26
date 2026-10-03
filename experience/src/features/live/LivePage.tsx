@@ -87,8 +87,9 @@ export function LivePage() {
           {tab === 'inspector' && (selectedId
             ? <ErrorBoundary label="Inspector error"><InspectorPanel key={selectedId} runId={runId} agentId={selectedId} store={store} park={park} canOperate={canOperate} onSelectAgent={select} isFixture={isFixture} /></ErrorBoundary>
             : <p className="muted">Select a guest on the map or from the Guests tab.</p>)}
-          {tab === 'whatif' && canOperate && <WhatIfPanel runId={runId} store={store} park={park} manifest={manifest} capabilities={rt.capabilities} />}
-          {tab === 'share' && canOperate && <SharePanel runId={runId} />}
+          {/* Kept mounted so drafts, receipts and issued links survive tab switches. */}
+          {canOperate && <div hidden={tab !== 'whatif'}><WhatIfPanel runId={runId} store={store} park={park} manifest={manifest} capabilities={rt.capabilities} /></div>}
+          {canOperate && <div hidden={tab !== 'share'}><SharePanel runId={runId} /></div>}
         </div>
       </aside>
       <div className="feed"><EventFeed store={store} park={park} runId={runId} onAgent={(id) => select(id)} /></div>

@@ -136,11 +136,17 @@ details.explain[open] > summary { margin-bottom: 4px; }
 .tag.sampled { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* Live layout */
-.live-shell { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr) auto; min-height: calc(100vh - 92px); }
+.live-shell { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; flex: 1 1 auto; }
+@media (min-width: 961px) {
+  /* Fixed viewport height so panel content never resizes the map. */
+  .app:has(> main.full) { height: 100vh; }
+  main.full { flex: 1 1 auto; min-height: 0; }
+  .live-shell { height: 100%; }
+}
 .live-shell > .health { grid-column: 1 / -1; }
 .live-shell > .map-area { grid-column: 1; grid-row: 2; position: relative; min-height: 420px; background: #2a3b2a; overflow: hidden; }
-.live-shell > .side { grid-column: 2; grid-row: 2 / span 2; border-left: 1px solid var(--line); background: var(--surface-2); overflow-y: auto; max-height: calc(100vh - 92px); }
-.live-shell > .feed { grid-column: 1; grid-row: 3; border-top: 1px solid var(--line); background: var(--surface); }
+.live-shell > .side { grid-column: 2; grid-row: 2 / span 2; border-left: 1px solid var(--line); background: var(--surface-2); overflow-y: auto; min-height: 0; }
+.live-shell > .feed { grid-column: 1; grid-row: 3; border-top: 1px solid var(--line); background: var(--surface); min-height: 0; }
 .health-strip { display: flex; gap: 6px 16px; align-items: center; flex-wrap: wrap; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--line); font-size: 13px; }
 .health-strip .metric { display: flex; gap: 4px; align-items: baseline; }
 .health-strip .metric b { font-variant-numeric: tabular-nums; }

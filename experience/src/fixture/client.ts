@@ -13,7 +13,10 @@ export type PatchFaults = { duplicateEvery?: number; dropOnceAtCount?: number; r
 type GlobalFaults = FixtureFaults & { patches?: PatchFaults; latencyMs?: number };
 declare global {
   var __BEHAVIOR_FIXTURE_FAULTS__: GlobalFaults | undefined;
+  /** Test-only: when a test installs an array here, every client call is appended to it. */
+  var __fixtureCallLog: string[] | undefined;
 }
+const logCall = (what: string) => { globalThis.__fixtureCallLog?.push(what); };
 
 const STORAGE_KEY = 'behavior-engine.fixture-server.v1';
 export function browserFixtureStorage(): FixtureStorage {
@@ -47,6 +50,7 @@ export class FixtureRuntimeClient implements RuntimeClient {
 
   async command<K extends keyof import('../../contract/behavior-v1').Commands>(name: K, input: import('../../contract/behavior-v1').Commands[K]['input'], commandId: Id) {
     this.guard();
+    logCall(`command:${name}`);
     await this.latency();
     const { receipt, dropAck } = this.server.command(this.identity, name, input, commandId);
     if (dropAck) throw makeRuntimeClientError(domainError('DEPENDENCY_UNAVAILABLE', 'Fixture fault: acknowledgement lost after commit.', true), true);
@@ -55,6 +59,7 @@ export class FixtureRuntimeClient implements RuntimeClient {
 
   async query<K extends keyof import('../../contract/behavior-v1').Queries>(name: K, input: import('../../contract/behavior-v1').Queries[K]['input']) {
     this.guard();
+    logCall(`query:${name}`);
     await this.latency();
     try {
       return this.server.query(this.identity, name, input);
@@ -68,6 +73,7 @@ export class FixtureRuntimeClient implements RuntimeClient {
     snapshot: (value: LiveSnapshot) => void; patch: (value: LivePatch) => void;
     status: (value: 'connecting' | 'live' | 'reconnecting' | 'closed') => void; error: (value: DomainError) => void;
   }): () => void {
+    logCall('subscribeLive');
     let stopped = false;
     let last: LiveSnapshot | null = null;
     let patchCount = 0;
@@ -125,6 +131,7 @@ export class FixtureRuntimeClient implements RuntimeClient {
 
   async getArtifact(ref: import('../../contract/behavior-v1').ArtifactRef): Promise<Uint8Array> {
     this.guard();
+    logCall(`artifact:${ref.kind}`);
     await this.latency();
     try {
       return this.server.getArtifactBytes(this.identity, ref);

@@ -281,7 +281,7 @@ export function CrowdEditor(props: {
       <details className="panel tight">
         <summary style={{ cursor: 'pointer' }}><b>Describe the crowd in words</b> <span className="small muted">(proposal only)</span></summary>
         <div className="stack" style={{ marginTop: 8 }}>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. 350 guests, mostly families, fewer teens, hot Saturday" maxLength={500} />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. 350 guests, mostly families, fewer teens, hot Saturday" maxLength={500} aria-label="Describe the crowd in words" />
           <ActionButton small onClick={() => void parse()} busy={proposal === 'pending'} disabledReason={!text.trim() ? 'Write a description first.' : null}>Propose changes</ActionButton>
           {proposal && proposal !== 'pending' && 'error' in proposal && <ErrorBox error={proposal.error} />}
           {proposal && proposal !== 'pending' && 'proposal' in proposal && (

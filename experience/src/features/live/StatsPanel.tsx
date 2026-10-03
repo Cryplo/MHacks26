@@ -29,7 +29,7 @@ export function StatsPanel(props: { store: LiveStore; openLocal: string; isFixtu
       <p className="small muted">Engine metrics as of {formatSimClock(m.simMs, props.openLocal)} (definition {m.definitionVersion}){props.isFixture ? ' — fixture values from a scripted scene' : ''}.</p>
       <div className="stat-grid">
         <Tile label="Admitted guests" value={formatCount(m.admittedGuests)} sub="entered the park so far" testId="stat-admitted" />
-        <Tile label="In park now" value={formatCount(m.guestsInPark)} sub="current occupancy (not the revenue denominator)" />
+        <Tile label="In park now" value={formatCount(m.guestsInPark)} sub="current occupancy (not the revenue denominator)" testId="stat-inpark" />
         <Tile label="Net ancillary revenue" value={v('net_revenue_cents')} explain={def('net_revenue_cents')} sub="excludes admission; not profit" testId="stat-revenue" />
         <Tile label="Revenue / admitted guest" value={v('revenue_per_guest_cents')} explain={def('revenue_per_guest_cents')} />
         <Tile label="Queue minutes / guest" value={v('queue_minutes_per_guest')} explain={def('queue_minutes_per_guest')} sub="all queued time incl. abandoned" />

@@ -16,6 +16,10 @@ type Props = { runId: Id; agentId: Id; store: LiveStore; park: ParkBundle; canOp
 export function InspectorPanel(props: Props) {
   const rt = useRuntime();
   const latestEvidence = useLiveSelector(props.store, (s) => s.agents.get(props.agentId)?.latestEvidenceId ?? null);
+  // While pinned (e.g. after requesting narration) the card stays on one evidence record.
+  const [follow, setFollow] = useState(true);
+  const [pinnedTo, setPinnedTo] = useState<string | null>(null);
+  const refreshKey = follow ? latestEvidence : pinnedTo;
   const [state, setState] = useState<{ detail: AgentDetail | null; error: ReturnType<typeof classifyError> | null; loading: boolean }>({ detail: null, error: null, loading: true });
   const req = useRef(0);
   useEffect(() => {
@@ -25,7 +29,7 @@ export function InspectorPanel(props: Props) {
       (detail) => { if (my === req.current) setState({ detail, error: null, loading: false }); },
       (e: unknown) => { if (my === req.current) setState({ detail: null, error: classifyError(e), loading: false }); },
     );
-  }, [rt.client, props.runId, props.agentId, latestEvidence]);
+  }, [rt.client, props.runId, props.agentId, refreshKey]);
 
   const d = state.detail?.agent.agentId === props.agentId ? state.detail : null;
   if (!d) {
@@ -88,7 +92,13 @@ export function InspectorPanel(props: Props) {
       </section>
       {props.canOperate && <OperatorTruth detail={d} store={props.store} placeName={placeName} />}
       {d.evidence ? <EvidenceView e={d.evidence} detail={d} openLocal={openLocal} isFixture={props.isFixture} /> : <p className="muted">No decision evidence yet.</p>}
-      {d.evidence && <Narration runId={props.runId} agentId={d.agent.agentId} e={d.evidence} />}
+      {!follow && (
+        <Alert tone="info">
+          <p>Pinned to evidence <span className="mono">{pinnedTo}</span>. {latestEvidence !== pinnedTo ? 'This guest has made newer decisions since.' : ''}</p>
+          <button type="button" className="btn small" onClick={() => { setFollow(true); setPinnedTo(null); }}>Follow latest decision</button>
+        </Alert>
+      )}
+      {d.evidence && <Narration runId={props.runId} agentId={d.agent.agentId} e={d.evidence} onRequest={() => { setFollow(false); setPinnedTo(d.evidence!.evidenceId); }} />}
       <section aria-label="Chronology">
         <h4>What happened (recorded events, chronological)</h4>
         <ul className="feed-list" style={{ maxHeight: 220 }}>
@@ -193,14 +203,14 @@ function EvidenceView(props: { e: AppliedDecision; detail: AgentDetail; openLoca
   );
 }
 
-function Narration(props: { runId: Id; agentId: Id; e: AppliedDecision }) {
+function Narration(props: { runId: Id; agentId: Id; e: AppliedDecision; onRequest: () => void }) {
   const rt = useRuntime();
   const { state, request } = useNarration(rt.client, rt.runner, props.runId, props.e.evidenceId, props.agentId);
   return (
     <section aria-label="Narration" data-testid="narration" data-narration-for={`${props.e.evidenceId}|${props.agentId}`}>
       <div className="spread">
         <h4 style={{ margin: 0 }}>Narration</h4>
-        <button type="button" className="btn small" onClick={() => void request()} disabled={state.kind === 'loading'} data-testid="narrate">Narrate this decision</button>
+        <button type="button" className="btn small" onClick={() => { props.onRequest(); void request(); }} disabled={state.kind === 'loading'} data-testid="narrate">Narrate this decision</button>
       </div>
       <p className="small muted">Requested only for this evidence record. Narration describes recorded state; it is not recovered private reasoning.</p>
       {state.kind === 'loading' && <Spinner label="Requesting narration…" />}
