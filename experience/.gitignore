@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+public/runtime/
+test-results/
+playwright-report/
+.env
+.env.local
+.env.*.local
+*.log
+artifacts/screenshots/*.tmp.png
