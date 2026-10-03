@@ -108,7 +108,6 @@ try {
     (await viewer.command("startRun", { runId }, randomUUID())).ok,
     false,
   );
-  unwrap(await op.command("startRun", { runId }, randomUUID()));
   let lease = unwrap(
       await op.command(
         "acquireDriver",
@@ -117,6 +116,8 @@ try {
       ),
     ),
     run = await op.query("getRun", { runId });
+  unwrap(await op.command("startRun", { runId }, randomUUID()));
+  run = await op.query("getRun", { runId });
   let steps = 0;
   const stage = new Map<string, number>();
   while (run.status !== "completed") {

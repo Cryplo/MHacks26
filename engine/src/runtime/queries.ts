@@ -17,7 +17,7 @@ import {
   type ExperimentRecord,
 } from "./runtime.js";
 import { findJob, type Job } from "./work.js";
-import { heatmap } from "../accounting/metrics.js";
+import { heatmap, snapshot } from "../accounting/metrics.js";
 function page<T>(
   items: T[],
   cursor: string | null,
@@ -149,7 +149,7 @@ function dispatchQuery(
         p = s.persons[agentId];
       ensure(p, "Unknown agent");
       return {
-        agent: p,
+        agent: snapshot(s).agents.find((x) => x.agentId === agentId)!,
         persona: s.population.personas.find((x) => x.agentId === agentId)!,
         group: s.groups[p.groupId]!.manifest,
         observedFacts: p.facts,

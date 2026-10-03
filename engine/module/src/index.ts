@@ -1,3 +1,4 @@
+import { scheduleLive } from "../../src/runtime/scheduler.js";
 import { schema, table, t } from "spacetimedb/server";
 import { ScheduleAt } from "spacetimedb";
 import type {
@@ -131,6 +132,11 @@ export const tick = db.reducer(
     ctx.db.clock.id.update({
       id: 0,
       now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
+    });
+    scheduleLive(storeFor(ctx.db.record, ctx.db.record), {
+      identity: ctx.identity.toHexString(),
+      now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
+      nonce: () => ctx.newUuidV4().toString(),
     });
   },
 );
