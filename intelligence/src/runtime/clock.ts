@@ -81,6 +81,18 @@ export class ManualClock implements Clock {
   }
 }
 
+/** Test clock whose sleeps complete immediately while advancing virtual time and recording durations. */
+export class InstantClock implements Clock {
+  readonly sleeps: number[] = [];
+  constructor(private now = 1_700_000_000_000) {}
+  nowEpochMs(): number { return this.now; }
+  async sleep(ms: number, signal?: AbortSignal): Promise<void> {
+    if (signal?.aborted) throw abortError();
+    this.sleeps.push(ms);
+    this.now += Math.max(0, ms);
+  }
+}
+
 export class SequenceJitter implements Jitter {
   private i = 0;
   constructor(private readonly values: number[] = [0.5]) {}

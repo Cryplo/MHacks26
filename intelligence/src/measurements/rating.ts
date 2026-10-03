@@ -42,9 +42,9 @@ export function validateRatingOutput(req: RatingRequest, probabilities: unknown[
   if (sum === 0) return { ok: false, reason: 'all-zero rating distribution' };
   if (Math.abs(sum - 1) > PROBABILITY_SUM_TOLERANCE) return { ok: false, reason: `rating probabilities sum to ${sum}` };
   if (typeof score !== 'number' || !Number.isFinite(score)) return { ok: false, reason: 'missing score' };
-  const idx = Math.round(score);
-  if (Math.abs(score - idx) > 1e-9 || idx < 0 || idx > k - 1) return { ok: false, reason: `score ${score} is not a level index in 0..${k - 1}` };
-  return { ok: true, probabilities: ps, sum, scoreIndex: idx };
+  if (score < 0 || score > k - 1) return { ok: false, reason: `score ${score} outside level range 0..${k - 1}` };
+  // A fractional provider score maps to its nearest level index; the raw score stays in the response artifact.
+  return { ok: true, probabilities: ps, sum, scoreIndex: Math.round(score) };
 }
 
 /** Display mapping `100 * index / (K-1)`; null when the rating is missing. */

@@ -1,0 +1,20 @@
+{
+  "provenance": "DOCUMENTATION-DERIVED response shapes, adapted to this lane's question keys from the public examples at https://jevtypesafeai.com/skill/SKILL.md (fetched 2026-10-03). These are NOT captured vendor responses; no live Jev call has been made from this lane. Replace or supplement with sanitized captures from `npm run smoke:jev -- --billable` once credentials are authorized.",
+  "choiceObjectMap": {
+    "answers": {
+      "action": {
+        "type": "choice",
+        "choice": "travel_splash",
+        "confidence": 0.7,
+        "probabilities": { "travel_splash": 0.7, "browse": 0.2, "leave": 0.1 }
+      }
+    },
+    "usage": { "input_tokens": 612, "cost_usd": 0.000257, "credits_remaining_usd": 4.99 }
+  },
+  "scoreSparseMap": {
+    "answers": {
+      "rating": { "type": "score", "score": 3.0, "probabilities": { "0": 0.0, "3": 1.0 } }
+    },
+    "usage": { "input_tokens": 540, "cost_usd": 0.000226, "credits_remaining_usd": 4.98 }
+  }
+}
