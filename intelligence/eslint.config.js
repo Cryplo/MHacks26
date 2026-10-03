@@ -4,6 +4,11 @@ export default tseslint.config(
   { ignores: ['dist/**', 'node_modules/**', 'coverage/**', '.data/**', 'contract/**'] },
   ...tseslint.configs.recommended,
   {
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' }],
+    },
+  },
+  {
     files: ['src/**/*.ts'],
     rules: {
       'no-restricted-properties': ['error',
