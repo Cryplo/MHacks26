@@ -3,6 +3,7 @@ import type { Id, ParkBundle, Vec2 } from '../../../contract/behavior-v1';
 import { decorFor, HARBOR_LIGHTS_PARK_ID, LAYOUT } from '../../content/harborLights';
 import type { LiveStore } from '../../data/liveStore';
 import { useLiveSelector } from '../../data/hooks';
+import { queueLabel } from './queueAndNotices';
 import type { ColorMode } from '../../renderer/colors';
 import { paintParkCanvas } from '../../renderer/parkCanvas';
 import { ParkScene } from '../../renderer/ParkScene';
@@ -100,13 +101,14 @@ export function ParkMap(props: Props) {
 
   const scene = sceneRef.current;
   const places = useLiveSelector(store, (st) => st.places);
+  const queues = useLiveSelector(store, (st) => st.queues);
   const labels = scene && status.kind === 'ready' ? park.places.filter((p) => p.kind !== 'entrance').map((p) => {
     const lp = LAYOUT.places.find((x) => x.id === p.id);
     const anchor = lp?.footprint && park.parkId === HARBOR_LIGHTS_PARK_ID
       ? { xM: lp.footprint.x + lp.footprint.w / 2, yM: lp.footprint.y + lp.footprint.h / 2 } : p.entrance;
     const s = scene.camera.worldToScreen(anchor);
     const view = places.get(p.id);
-    return { p, s, closed: view?.closed ?? false, wait: view?.predictedWaitMs ?? null };
+    return { p, s, closed: view?.closed ?? false, wait: view?.predictedWaitMs ?? null, queue: queueLabel(queues.get(p.id)) };
   }) : [];
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -125,11 +127,12 @@ export function ParkMap(props: Props) {
     <div className="map-canvas" ref={host} role="application" aria-roledescription="park map" tabIndex={0} onKeyDown={onKey}
       aria-label="Park map. Use plus and minus to zoom, 0 to fit, arrow keys to pan, Escape to clear selection. Select guests from the Guests tab with the keyboard."
       data-testid="park-map" data-map-status={status.kind}>
-      {labels.map(({ p, s, closed, wait }) => (
+      {labels.map(({ p, s, closed, wait, queue }) => (
         <div key={p.id} aria-hidden="true" style={{ position: 'absolute', left: s.x, top: s.y, transform: 'translate(-50%, -50%)', pointerEvents: 'none',
           fontSize: 11, fontWeight: 700, color: '#fff', textShadow: '0 1px 2px #000, 0 0 3px #000', whiteSpace: 'nowrap', textAlign: 'center' }}>
           {p.name}
           {closed && <div style={{ background: '#9b2a1f', borderRadius: 3, padding: '0 4px', marginTop: 2 }}>{'✕'} CLOSED</div>}
+          {queue && <div style={{ fontWeight: 400 }}>{queue}</div>}
           {props.showOperatorTruth && wait !== null && wait > 0 && p.kind === 'ride' && <div style={{ fontWeight: 400, opacity: 0.9 }}>operator est. {Math.round(wait / 60_000)} min</div>}
         </div>
       ))}

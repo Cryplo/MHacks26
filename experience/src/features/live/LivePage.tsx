@@ -14,6 +14,7 @@ import { EventFeed } from './EventFeed';
 import { GuestList } from './GuestList';
 import { HealthStrip } from './HealthStrip';
 import { Legend } from './Legend';
+import { NoticeObservers } from './NoticeObservers';
 import { ParkMap } from './ParkMap';
 import { StatsPanel } from './StatsPanel';
 
@@ -88,7 +89,7 @@ export function LivePage() {
             ? <ErrorBoundary label="Inspector error"><InspectorPanel key={selectedId} runId={runId} agentId={selectedId} store={store} park={park} canOperate={canOperate} onSelectAgent={select} isFixture={isFixture} /></ErrorBoundary>
             : <p className="muted">Select a guest on the map or from the Guests tab.</p>)}
           {/* Kept mounted so drafts, receipts and issued links survive tab switches. */}
-          {canOperate && <div hidden={tab !== 'whatif'}><WhatIfPanel runId={runId} store={store} park={park} manifest={manifest} capabilities={rt.capabilities} /></div>}
+          {canOperate && <div hidden={tab !== 'whatif'} className="stack"><WhatIfPanel runId={runId} store={store} park={park} manifest={manifest} capabilities={rt.capabilities} /><NoticeObservers store={store} park={park} onAgent={select} /></div>}
           {canOperate && <div hidden={tab !== 'share'}><SharePanel runId={runId} /></div>}
         </div>
       </aside>
