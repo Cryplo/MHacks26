@@ -141,3 +141,7 @@ export function sample(probabilities: Distribution, u: number): string {
   }
   return normalized[normalized.length - 1]!.optionId;
 }
+
+export function cloneJson<T>(value: T): T {
+  return JSON.parse(canonical(value)) as T;
+}

@@ -10,7 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default {
-  commandId: __t.string(),
-  payload: __t.string(),
-};
+export default __t.row({
+  kind: __t.string(),
+  count: __t.u32(),
+});

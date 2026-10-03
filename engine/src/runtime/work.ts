@@ -1,3 +1,4 @@
+import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import { DomainFault, ensure, hash } from "../domain/primitives.js";
 import { get, put, list, type Store } from "./store.js";
@@ -189,7 +190,7 @@ export function finishJob(
     return { workId: j.id, status: j.status };
   }
   validate(j);
-  j.result = structuredClone(item.result);
+  j.result = cloneJson(item.result);
   j.status = "ready";
   j.error = null;
   saveJob(store, j);

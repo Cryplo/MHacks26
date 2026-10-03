@@ -1,3 +1,4 @@
+import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import type { CoreState, GroupState } from "../domain/state.js";
 import { MOMENT_PRIORITY } from "../domain/state.js";
@@ -69,7 +70,7 @@ export function acceptDecision(s: CoreState, result: C.DecisionResult) {
     ensure(hash(slot.response) === hash(result), "Conflicting response");
     return;
   }
-  slot.response = structuredClone(result);
+  slot.response = cloneJson(result);
   slot.status = "ready";
 }
 function scenario(s: CoreState, e: C.ScenarioEvent) {
@@ -237,6 +238,7 @@ export function advanceCore(
   s: CoreState,
   nav: Navigation,
   maxWork = 100,
+  maxCompletedSteps = Number.POSITIVE_INFINITY,
 ): { completedSteps: number; neighborChecks: number; work: number } {
   ensure(
     Number.isSafeInteger(maxWork) && maxWork > 0 && maxWork <= 10000,
@@ -422,6 +424,7 @@ export function advanceCore(
         s.pauseRequested = false;
         break;
       }
+      if (completedSteps >= maxCompletedSteps) break;
     }
   }
   return { completedSteps, neighborChecks, work };

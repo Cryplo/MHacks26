@@ -34,29 +34,45 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
-import ProbeReducer from "./probe_reducer";
+import InvokeReducer from "./invoke_reducer";
 
 // Import all procedure arg schemas
 
 // Import all table schema definitions
-import MyReceiptsRow from "./my_receipts_table";
+import LiveRunsRow from "./live_runs_table";
+import MyRepliesRow from "./my_replies_table";
+import WorkAvailableRow from "./work_available_table";
 
 /** Type-only namespace exports for generated type groups. */
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema({
-  myReceipts: __table({
-    name: 'my_receipts',
+  liveRuns: __table({
+    name: 'live_runs',
     indexes: [
     ],
     constraints: [
     ],
-  }, MyReceiptsRow),
+  }, LiveRunsRow),
+  myReplies: __table({
+    name: 'my_replies',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, MyRepliesRow),
+  workAvailable: __table({
+    name: 'work_available',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, WorkAvailableRow),
 });
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
-  __reducerSchema("probe", ProbeReducer),
+  __reducerSchema("invoke", InvokeReducer),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

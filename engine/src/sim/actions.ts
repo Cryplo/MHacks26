@@ -1,3 +1,4 @@
+import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import type { CoreState, GroupState, QueueEntry } from "../domain/state.js";
 import {
@@ -77,12 +78,10 @@ export function charge(
     placeId,
     {
       saleId: id,
-      allocation: [...beneficiaries]
-        .sort()
-        .map((agentId, i) => ({
-          agentId,
-          amountCents: each + (i < remainder ? 1 : 0),
-        })),
+      allocation: [...beneficiaries].sort().map((agentId, i) => ({
+        agentId,
+        amountCents: each + (i < remainder ? 1 : 0),
+      })),
     },
     { amountCents: amount, causationId },
   );
@@ -383,7 +382,7 @@ export function applyAction(
           action.cart.length,
         "Duplicate product",
       );
-      enqueue(s, g, action.placeId, "standard", structuredClone(action.cart));
+      enqueue(s, g, action.placeId, "standard", cloneJson(action.cart));
       break;
     }
     case "rest": {

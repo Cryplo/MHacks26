@@ -1,3 +1,4 @@
+import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import type { CoreState } from "../domain/state.js";
 import { asciiCompare, ensure, hash } from "../domain/primitives.js";
@@ -183,7 +184,7 @@ export function snapshot(s: CoreState): C.LiveSnapshot {
       })),
     };
   });
-  return structuredClone({
+  return cloneJson({
     contractVersion: "behavior.v1",
     run: s.view,
     agents,
@@ -266,7 +267,7 @@ export function acceptRating(s: CoreState, result: C.RatingResult) {
     ensure(hash(rating.result) === hash(result), "Conflicting rating");
     return;
   }
-  rating.result = structuredClone(result);
+  rating.result = cloneJson(result);
   s.view.quality.pendingRatings--;
   if (rating.request.endpoint !== "periodic")
     s.view.quality.terminalRatingsComplete++;

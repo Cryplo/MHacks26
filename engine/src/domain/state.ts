@@ -1,3 +1,4 @@
+import { cloneJson } from "./primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import { hash } from "./primitives.js";
 import {
@@ -190,7 +191,7 @@ export function createCore(
   const state: CoreState = {
     schema: "engine-state-v1",
     runId,
-    manifest: structuredClone(manifest),
+    manifest: cloneJson(manifest),
     park,
     population,
     view: {
@@ -295,7 +296,7 @@ export function createCore(
     };
   for (const p of park.places)
     state.places[p.id] = {
-      definition: structuredClone(p),
+      definition: cloneJson(p),
       closed: false,
       revision: 0,
       boardVersion: "board:0",

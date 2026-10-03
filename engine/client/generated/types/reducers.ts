@@ -6,6 +6,6 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
-import ProbeReducer from "../probe_reducer";
+import InvokeReducer from "../invoke_reducer";
 
-export type ProbeParams = __Infer<typeof ProbeReducer>;
+export type InvokeParams = __Infer<typeof InvokeReducer>;

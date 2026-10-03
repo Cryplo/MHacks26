@@ -10,20 +10,58 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export const MyReceipts = __t.object("MyReceipts", {});
-export type MyReceipts = __Infer<typeof MyReceipts>;
-
-export const Owner = __t.object("Owner", {
+export const Clock = __t.object("Clock", {
   id: __t.u32(),
-  identity: __t.identity(),
+  now: __t.f64(),
 });
-export type Owner = __Infer<typeof Owner>;
+export type Clock = __Infer<typeof Clock>;
 
-export const Receipt = __t.object("Receipt", {
-  id: __t.string(),
-  caller: __t.identity(),
-  commandId: __t.string(),
-  payloadHash: __t.string(),
+export const LiveRuns = __t.object("LiveRuns", {});
+export type LiveRuns = __Infer<typeof LiveRuns>;
+
+export const MyReplies = __t.object("MyReplies", {});
+export type MyReplies = __Infer<typeof MyReplies>;
+
+export const Publication = __t.object("Publication", {
+  runId: __t.string(),
+  revision: __t.f64(),
   body: __t.string(),
 });
-export type Receipt = __Infer<typeof Receipt>;
+export type Publication = __Infer<typeof Publication>;
+
+export const Record = __t.object("Record", {
+  key: __t.string(),
+  family: __t.string(),
+  scope: __t.string(),
+  familyScope: __t.string(),
+  status: __t.string(),
+  due: __t.u64(),
+  sequence: __t.f64(),
+  body: __t.string(),
+});
+export type Record = __Infer<typeof Record>;
+
+export const Reply = __t.object("Reply", {
+  key: __t.string(),
+  caller: __t.identity(),
+  id: __t.string(),
+  digest: __t.string(),
+  body: __t.string(),
+  atMs: __t.f64(),
+});
+export type Reply = __Infer<typeof Reply>;
+
+export const Wake = __t.object("Wake", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+});
+export type Wake = __Infer<typeof Wake>;
+
+export const WorkAvailability = __t.object("WorkAvailability", {
+  kind: __t.string(),
+  count: __t.u32(),
+});
+export type WorkAvailability = __Infer<typeof WorkAvailability>;
+
+export const WorkAvailable = __t.object("WorkAvailable", {});
+export type WorkAvailable = __Infer<typeof WorkAvailable>;

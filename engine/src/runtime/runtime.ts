@@ -1,3 +1,4 @@
+import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import { createCore, type CoreState } from "../domain/state.js";
 import {
@@ -184,18 +185,35 @@ export function command<K extends keyof C.Commands>(
   return receipt;
 }
 function publish(store: Store, s: CoreState) {
+  if (
+    s.view.phase === "prepare" ||
+    s.view.phase === "barrier" ||
+    s.view.status === "cancelled"
+  ) {
+    const old = get<C.LiveSnapshot>(store, "publication", s.runId, s.runId);
+    const next = snapshot(s);
+    const comparable = (x: C.LiveSnapshot) => ({
+      ...x,
+      run: { ...x.run, revision: 0 },
+      metrics: { ...x.metrics, revision: 0 },
+    });
+    if (!old || hash(comparable(old)) !== hash(comparable(next))) {
+      s.view.revision = (old?.run.revision ?? 0) + 1;
+      next.run.revision = s.view.revision;
+      next.metrics.revision = s.view.revision;
+      put(
+        store,
+        "publication",
+        s.runId,
+        next,
+        s.runId,
+        "",
+        s.view.simMs,
+        s.view.revision,
+      );
+    }
+  }
   saveCore(store, s);
-  if (s.view.phase === "prepare" || s.view.phase === "barrier")
-    put(
-      store,
-      "publication",
-      s.runId,
-      snapshot(s),
-      s.runId,
-      "",
-      s.view.simMs,
-      s.view.revision,
-    );
 }
 function syncWork(store: Store, ctx: Context, s: CoreState) {
   const scope = {
@@ -329,7 +347,7 @@ function dispatchCommand(
           "Checkpoint input mismatch",
         );
         s = restore(c, runId);
-        s.manifest = structuredClone(manifest);
+        s.manifest = cloneJson(manifest);
         s.view.manifestHash = hash(manifest);
         s.view.mode = manifest.config.mode;
         s.view.scenarioRevision = manifest.scenario.revision;
@@ -579,6 +597,7 @@ function dispatchCommand(
         s,
         new Navigation(s.park.grid),
         Math.min(500, a.maxSteps * 40),
+        a.maxSteps,
       );
       syncWork(store, ctx, s);
       publish(store, s);

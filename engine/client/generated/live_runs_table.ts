@@ -11,9 +11,7 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  id: __t.string().primaryKey(),
-  caller: __t.identity(),
-  commandId: __t.string().name("command_id"),
-  payloadHash: __t.string().name("payload_hash"),
+  runId: __t.string().name("run_id"),
+  revision: __t.f64(),
   body: __t.string(),
 });

@@ -31,3 +31,5 @@ Third slice: 28 tests PASS, including 12-person completed mock visit, wallet/rev
 Early real SDK probe PASS (2.10.2, loopback 3099): SHA-256 shared core execution, private caller receipts, explicit domain denial, idempotent retry. The full module remains in progress.
 
 Protocol slice: 36 tests total; durable runtime test uses normalized in-memory Store with the real engine, explicit upload/claim/complete/advance commands, receipt retries/conflicts, conservation and read-only denial. Not a real-server full-day test. Full runtime handlers and checkpoint primitives now present; exhaustive acceptance and server adapter remain in progress.
+
+Server-backed transport slice PASS: tools/runtime-smoke.ts on SpacetimeDB 2.10.2 local 3099, 3 guests / 6 simulated minutes, 79 advancement invocations, 1 snapshot + 86 monotonic patches, 6000 cents reconciled, all 3 physical exits; read-only control denial and durable retry checked. Build/typecheck/lint + 36 tests PASS. Browser/Node adapters built. Full-day, load, reconnect fault injection and full acceptance suites still pending.
