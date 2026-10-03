@@ -266,10 +266,17 @@ export function advanceCore(
       if (v.simMs >= s.manifest.config.horizonMs) {
         // Settle work whose physical interval ends exactly at the horizon;
         // do not dispatch, admit arrivals, or manufacture cleanup exits.
-        for (const session of [...s.sessions].sort((a,b)=>a.endMs-b.endMs||asciiCompare(a.id,b.id)))
-          if (session.endMs <= v.simMs) completeSession(s,session);
+        for (const session of [...s.sessions].sort(
+          (a, b) => a.endMs - b.endMs || asciiCompare(a.id, b.id),
+        ))
+          if (session.endMs <= v.simMs) completeSession(s, session);
         for (const g of groups(s))
-          if (g.leaving && g.target === null && members(s,g).every(p=>p.state === "deciding")) depart(s,g,nav);
+          if (
+            g.leaving &&
+            g.target === null &&
+            members(s, g).every((p) => p.state === "deciding")
+          )
+            depart(s, g, nav);
         for (const p of Object.values(s.persons))
           if (p.admittedAtMs !== null && p.departedAtMs === null) {
             p.censored = true;

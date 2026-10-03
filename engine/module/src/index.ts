@@ -129,10 +129,21 @@ export const tick = db.reducer(
   { arg: wake.rowType },
   (ctx, _args) => {
     if (!ctx.sender.isEqual(ctx.identity)) throw new Error("Scheduler only");
-    ctx.db.clock.id.update({
-      id: 0,
-      now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
-    });
+    const now = Number(ctx.timestamp.microsSinceUnixEpoch / 1000n);
+    const previousClock = ctx.db.clock.id.find(0)?.now ?? 0;
+    // The view clock is an expiry invalidation marker, not a live timer. A
+    // 250ms write otherwise recomputes every viewer projection while idle.
+    const expiryCrossed = [...ctx.db.record.family.filter("grant")].some(
+      (row) => {
+        const grant = JSON.parse(row.body) as { expiresAt: number | null };
+        return (
+          grant.expiresAt !== null &&
+          grant.expiresAt > previousClock &&
+          grant.expiresAt <= now
+        );
+      },
+    );
+    if (expiryCrossed) ctx.db.clock.id.update({ id: 0, now });
     scheduleLive(storeFor(ctx.db.record, ctx.db.record), {
       identity: ctx.identity.toHexString(),
       now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
@@ -167,6 +178,10 @@ export const invoke = db.reducer(
       } catch {
         throw new DomainFault("INVALID_INPUT", "Malformed JSON");
       }
+      ensure(
+        input !== null && typeof input === "object" && !Array.isArray(input),
+        "Operation payload must be an object",
+      );
       if (args.kind === "command")
         body = command(
           store,

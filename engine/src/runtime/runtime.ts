@@ -1,3 +1,4 @@
+import { prepareFields, runtimeNavigation } from "./navigation.js";
 import { resolveLiveTimeouts } from "./fallback.js";
 import { health } from "./health.js";
 import { makeTape, validateTape, type ResponseTape } from "../replay/tape.js";
@@ -21,9 +22,10 @@ import {
   validatePopulation,
   validateScenario,
   crowdSchema,
+  parkSchema,
   parse,
 } from "../domain/schemas.js";
-import { validatePark, Navigation } from "../navigation/grid.js";
+import { validatePark } from "../navigation/grid.js";
 import { startCore, advanceCore, acceptDecision } from "../sim/engine.js";
 import { acceptRating, snapshot, metrics } from "../accounting/metrics.js";
 import { checkpoint, restore, type Checkpoint } from "../replay/checkpoint.js";
@@ -99,6 +101,7 @@ export const CAPABILITIES: C.Capabilities = {
   maxChunkBytes: MAX_CHUNK_BYTES,
 };
 export type ParkRecord = {
+  fieldCursor?: number;
   summary: C.ParkSummary;
   park: C.ParkBundle;
   owner: string;
@@ -128,9 +131,13 @@ export function provision(
       ctx.identity,
     "Only publisher may provision",
   );
-  ensure(/^[0-9a-f]{64}$/.test(identity), "Invalid identity");
   ensure(
-    roles.length > 0 &&
+    typeof identity === "string" && /^[0-9a-f]{64}$/.test(identity),
+    "Invalid identity",
+  );
+  ensure(
+    Array.isArray(roles) &&
+      roles.length > 0 &&
       roles.every((x) => ["operator", "worker", "coordinator"].includes(x)),
     "Invalid trusted role",
   );
@@ -308,7 +315,14 @@ function dispatchCommand(
       requireRole(store, ctx, ["operator"]);
       const a = input as C.Commands["registerPark"]["input"];
       const artifact = readJSON<unknown>(store, ctx, a.artifact, "park");
-      const { park } = validatePark(artifact);
+      const park = parse(parkSchema, artifact);
+      let issue: string | null = null;
+      try {
+        validatePark(park);
+      } catch (e) {
+        if (!(e instanceof DomainFault)) throw e;
+        issue = e.message;
+      }
       const existing = get<ParkRecord>(
         store,
         "park",
@@ -326,15 +340,19 @@ function dispatchCommand(
         revision: park.revision,
         label: park.label,
         artifact: a.artifact,
-        status: "ready",
-        issues: [],
+        status: issue ? "invalid" : "preparing",
+        issues: issue ? [issue] : [],
       };
-      put(store, "park", `${park.parkId}:${park.revision}`, {
+      const record: ParkRecord = {
         summary,
         park,
         owner: ctx.identity,
-      } satisfies ParkRecord);
-      return summary;
+        fieldCursor: 0,
+      };
+      put(store, "park", `${park.parkId}:${park.revision}`, record);
+      if (!issue && park.grid.width * park.grid.height <= 4096)
+        prepareFields(store, record, 64);
+      return record.summary;
     }
     case "createRun": {
       const { manifest } = input as C.Commands["createRun"]["input"];
@@ -357,6 +375,30 @@ function dispatchCommand(
         ensure(
           e.spec.seeds.includes(manifest.replicateSeed),
           "Unexpected experiment seed",
+        );
+        const pair = e.report.pairs.find(
+          (p) => p.pairId === manifest.experiment!.pairId,
+        );
+        ensure(
+          pair?.seed === manifest.replicateSeed,
+          "Experiment pair/seed mismatch",
+        );
+        ensure(
+          hash(manifest.park) === hash(e.spec.park),
+          "Experiment park mismatch",
+        );
+        ensure(
+          hash(manifest.config) === hash(e.spec.config),
+          "Experiment config mismatch",
+        );
+        ensure(
+          hash(manifest.scenario) ===
+            hash(
+              manifest.experiment.arm === "A"
+                ? e.spec.baseline
+                : e.spec.variant,
+            ),
+          "Experiment arm scenario mismatch",
         );
       } else requireRole(store, ctx, ["operator"]);
       const p = parkFor(store, manifest.park),
@@ -534,7 +576,10 @@ function dispatchCommand(
             ensure(item.result.ratingId === r.ratingId, "Wrong rating request");
             acceptRating(s, item.result);
           }
-          publish(store, s, ctx);
+          if (item.kind === "rating") {
+            s.metrics.push(metrics(s));
+            publish(store, s, ctx);
+          } else saveCore(store, s);
         } else if (item.kind === "population") {
           const payload = j.payload as C.WorkPayloads["population"],
             park = parkFor(store, payload.park).park,
@@ -653,7 +698,7 @@ function dispatchCommand(
       }
       const result = advanceCore(
         s,
-        new Navigation(s.park.grid),
+        runtimeNavigation(store, s.park.grid),
         Math.min(500, a.maxSteps * 40),
         a.maxSteps,
       );
@@ -803,6 +848,72 @@ function dispatchCommand(
             a.report.pairs.filter((p) => p.status === "complete").length,
         "Incorrect pair coverage",
       );
+      ensure(
+        a.report.pairs.length === e.report.pairs.length &&
+          new Set(a.report.pairs.map((p) => p.pairId)).size ===
+            a.report.pairs.length,
+        "Pair inventory changed",
+      );
+      for (const pair of a.report.pairs) {
+        ensure(
+          e.report.pairs.some(
+            (p) => p.pairId === pair.pairId && p.seed === pair.seed,
+          ),
+          "Unexpected pair",
+        );
+        for (const arm of ["A", "B"] as const) {
+          const id = arm === "A" ? pair.aRunId : pair.bRunId;
+          const measured = arm === "A" ? pair.a : pair.b;
+          if (!id) {
+            ensure(
+              measured === null && pair.status !== "complete",
+              "Missing completed arm",
+            );
+            continue;
+          }
+          const child = core(store, id),
+            assignment = child.manifest.experiment;
+          ensure(
+            assignment?.experimentId === a.experimentId &&
+              assignment.pairId === pair.pairId &&
+              assignment.arm === arm,
+            "Foreign experiment arm",
+          );
+          ensure(
+            child.manifest.population.sha256 === pair.populationHash,
+            "Pair population mismatch",
+          );
+          if (measured)
+            ensure(
+              hash(measured) === hash(metrics(child)),
+              "Metrics differ from authoritative engine",
+            );
+          if (pair.status === "complete")
+            ensure(
+              child.view.status === "completed" &&
+                child.view.quality.comparisonEligible &&
+                measured !== null,
+              "Incomplete or degraded arm",
+            );
+        }
+        for (const [metric, delta] of Object.entries(pair.deltas)) {
+          const aValue = pair.a?.measures[metric as C.MetricId].value,
+            bValue = pair.b?.measures[metric as C.MetricId].value;
+          ensure(
+            aValue !== null &&
+              aValue !== undefined &&
+              bValue !== null &&
+              bValue !== undefined &&
+              delta === bValue - aValue,
+            "Invalid paired difference",
+          );
+        }
+      }
+      if (a.report.status === "complete")
+        ensure(
+          a.report.completePairs === a.report.requestedPairs,
+          "Incomplete coverage cannot be complete",
+        );
       e.report = a.report;
       put(store, "experiment", a.experimentId, e);
       return { revision: a.report.revision };

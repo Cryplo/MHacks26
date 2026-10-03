@@ -223,7 +223,38 @@ it("A-18 individual terminal rating delivery never changes physical hashes", () 
   expect(metrics(s).measures.satisfaction_0_100.value).toBe(75);
   expect(metrics(s).measures.satisfaction_0_100.coverage).toBeCloseTo(1 / 3);
 });
-it('A-14 a replayed or early service completion cannot duplicate rewards',()=>{
- const {s,g,nav}=setup();applyAction(s,g,{kind:'join_queue',placeId:'ride',lane:'standard',riderIds:g.manifest.memberIds},nav,'join');dispatch(s,'ride');const session=s.sessions[0]!;
- completeSession(s,session);expect(s.totals.completedRiders).toBe(0);s.view.simMs=session.endMs;completeSession(s,session);const hash=physicalHash(s);completeSession(s,session);expect(physicalHash(s)).toBe(hash);expect(s.totals.completedRiders).toBe(3);
+it("A-14 a replayed or early service completion cannot duplicate rewards", () => {
+  const { s, g, nav } = setup();
+  applyAction(
+    s,
+    g,
+    {
+      kind: "join_queue",
+      placeId: "ride",
+      lane: "standard",
+      riderIds: g.manifest.memberIds,
+    },
+    nav,
+    "join",
+  );
+  dispatch(s, "ride");
+  const session = s.sessions[0]!;
+  completeSession(s, session);
+  expect(s.totals.completedRiders).toBe(0);
+  s.view.simMs = session.endMs;
+  completeSession(s, session);
+  const hash = physicalHash(s);
+  completeSession(s, session);
+  expect(physicalHash(s)).toBe(hash);
+  expect(s.totals.completedRiders).toBe(3);
+});
+it('A-14 multiple vehicles respect occupied cycles and closure completes only existing sessions',()=>{
+ const {s,g,nav}=setup();const service=s.places.ride!.definition.service;if(service.kind!=='ride')throw new Error('fixture');service.vehicles=2;service.dispatchMs=60000;s.places.ride!.vehicleReadyMs=[0,0];
+ applyAction(s,g,{kind:'join_queue',placeId:'ride',lane:'standard',riderIds:g.manifest.memberIds},nav,'join');dispatch(s,'ride');const first=s.sessions[0]!;expect(first.vehicle).toBe(0);s.view.simMs=60000;dispatch(s,'ride');expect(s.sessions[1]!.vehicle).toBe(1);expect(s.places.ride!.vehicleReadyMs).toEqual([120000,180000]);
+ s.places.ride!.closed=true;s.view.simMs=90000;completeSession(s,first);expect(s.totals.completedRiders).toBe(3);s.view.simMs=120000;dispatch(s,'ride');expect(s.sessions).toHaveLength(1);
+});
+it('A-14 unfinished occupied sessions are censored at horizon without fabricated exits or completions',async()=>{
+ const {startCore,advanceCore}=await import('../../src/sim/engine.js');const {s,g,nav}=setup();s.manifest.config.horizonMs=5000;
+ applyAction(s,g,{kind:'join_queue',placeId:'ride',lane:'standard',riderIds:g.manifest.memberIds},nav,'join');dispatch(s,'ride');startCore(s);advanceCore(s,nav,100);
+ expect(s.view.status).toBe('completed');expect(s.totals.completedRiders).toBe(0);expect(s.totals.departed).toBe(0);expect(s.sessions).toHaveLength(1);expect(Object.values(s.persons).every(p=>p.censored)).toBe(true);expect(Object.values(s.ratings)).toHaveLength(3);
 });

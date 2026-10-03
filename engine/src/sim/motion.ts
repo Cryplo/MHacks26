@@ -34,6 +34,15 @@ export function moveSubstep(
     bins.set(key, list);
   }
   const proposed = new Map<string, Vec2>();
+  const tieDirections = new Map(
+    ordered.map((p) => {
+      const angle =
+        random(s.manifest.replicateSeed, "movement", p.agentId, "separation") *
+        2 *
+        Math.PI;
+      return [p.agentId, { x: Math.cos(angle), y: Math.sin(angle) }] as const;
+    }),
+  );
   let neighborChecks = 0;
   const traits = new Map(s.population.personas.map((p) => [p.agentId, p]));
   for (const p of ordered) {
@@ -86,14 +95,18 @@ export function moveSubstep(
       if (d < 1.5) near++;
       if (d < 0.55) {
         if (d < 1e-9) {
-          const pair = [p.agentId, other.agentId].sort(asciiCompare),
-            angle =
-              random(s.manifest.replicateSeed, "movement", ...pair) *
-              2 *
-              Math.PI,
-            sign = p.agentId === pair[0] ? 1 : -1;
-          dx = Math.cos(angle) * sign;
-          dy = Math.sin(angle) * sign;
+          const mine = tieDirections.get(p.agentId)!,
+            theirs = tieDirections.get(other.agentId)!;
+          dx = mine.x - theirs.x;
+          dy = mine.y - theirs.y;
+          const norm = Math.hypot(dx, dy);
+          if (norm < 1e-9) {
+            dx = asciiCompare(p.agentId, other.agentId) < 0 ? 1 : -1;
+            dy = 0;
+          } else {
+            dx /= norm;
+            dy /= norm;
+          }
           d = 1;
         }
         const force = Math.min(0.35, (0.55 - Math.min(0.55, d)) * 0.6 + 0.01);

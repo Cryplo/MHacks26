@@ -403,11 +403,18 @@ export function validateScenario(input: unknown, park: ParkBundle): Scenario {
         places.get(c.placeId)!.service.kind === "ride",
         "Pass share requires a ride",
       );
-    if (c.kind === "show_schedule")
-      ensure(
-        places.get(c.placeId)!.service.kind === "show",
-        "Schedule requires a show",
-      );
+    if (c.kind === "show_schedule") {
+      const service = places.get(c.placeId)!.service;
+      ensure(service.kind === "show", "Schedule requires a show");
+      const times = [...c.startsAtMs].sort((a, b) => a - b);
+      for (let i = 0; i < times.length; i++)
+        ensure(
+          times[i]! >= e.atMs &&
+            times[i]! < park.closeAfterMs &&
+            (i === 0 || times[i]! - times[i - 1]! >= service.durationMs),
+          "Overlapping or past show schedule",
+        );
+    }
     if (c.kind === "app_message") {
       ensure(c.discount === null, "Discounts unsupported");
       ensure(c.expiresAtMs > e.atMs, "Message already expired");

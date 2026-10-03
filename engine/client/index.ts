@@ -59,10 +59,11 @@ export class Client implements C.RuntimeClient {
   connect(): Promise<void> {
     if (this.connecting) return this.connecting;
     this.connecting = new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(
-        () => reject(transportError("Connection deadline exceeded")),
-        10000,
-      );
+      const timeout = setTimeout(() => {
+        this.connecting = null;
+        this.connection?.disconnect();
+        reject(transportError("Connection deadline exceeded"));
+      }, 10000);
       let builder = DbConnection.builder()
         .withUri(this.config.uri)
         .withDatabaseName(this.config.database)
@@ -109,6 +110,8 @@ export class Client implements C.RuntimeClient {
             })
             .onError((ctx) => {
               clearTimeout(timeout);
+              this.connecting = null;
+              connection.disconnect();
               reject(transportError(String(ctx.event)));
             })
             .subscribe([

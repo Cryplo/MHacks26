@@ -40,7 +40,10 @@ export const UNREACHABLE = -1;
 export class Navigation {
   readonly cells: Uint8Array;
   private fields = new Map<string, Float64Array>();
-  constructor(readonly grid: Grid) {
+  constructor(
+    readonly grid: Grid,
+    private readonly loadField?: (cell: number) => number[] | undefined,
+  ) {
     this.cells = decodeBase64(grid.cellsBase64);
     ensure(
       this.cells.length === grid.width * grid.height,
@@ -126,6 +129,18 @@ export class Navigation {
     const cached = this.fields.get(key);
     if (cached) return cached;
     ensure(this.walkable(target, queue), "Destination is not walkable");
+    if (!queue && this.loadField) {
+      const loaded = this.loadField(target);
+      if (loaded) {
+        ensure(
+          loaded.length === this.cells.length,
+          "Stored field dimensions mismatch",
+        );
+        const field = Float64Array.from(loaded);
+        this.fields.set(key, field);
+        return field;
+      }
+    }
     const distances = new Float64Array(this.cells.length).fill(UNREACHABLE);
     distances[target] = 0;
     const heap = new MinHeap();

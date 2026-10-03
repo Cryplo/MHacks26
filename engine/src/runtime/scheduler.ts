@@ -1,17 +1,19 @@
+import { initializeParks } from "./navigation.js";
 import type { CoreState } from "../domain/state.js";
 import type { Context, Grant } from "./access.js";
 import type { Store } from "./store.js";
-import { list, get, put } from "./store.js";
+import { get, put } from "./store.js";
 import { command } from "./runtime.js";
 import type { DriverRecord } from "./driver.js";
 export function scheduleLive(store: Store, ctx: Context): void {
+  initializeParks(store);
   // This entry is called only by the module's authenticated scheduled reducer.
   // A coordinator-owned run is never eligible for scheduler ownership.
-  const active = list<CoreState>(store, "run").filter(
-    (s) =>
-      !s.manifest.experiment &&
-      ["running", "blocked", "draining"].includes(s.view.status),
-  );
+  const active = store
+    .list("run")
+    .filter((r) => ["running", "blocked", "draining"].includes(r.status))
+    .map((r) => JSON.parse(r.body) as CoreState)
+    .filter((s) => !s.manifest.experiment);
   const cursor =
     get<{ offset: number }>(store, "rate", "scheduler-cursor")?.offset ?? 0;
   const selected = Array.from(

@@ -58,6 +58,9 @@ export function enqueue(
   return job;
 }
 export function saveJob(store: Store, j: Job) {
+  put(store, "work_locator", j.id, {
+    scope: j.scope.runId ?? j.scope.experimentId ?? "",
+  });
   put(
     store,
     "work",
@@ -69,7 +72,10 @@ export function saveJob(store: Store, j: Job) {
   );
 }
 export function findJob(store: Store, id: string): Job | undefined {
-  return list<Job>(store, "work").find((x) => x.id === id);
+  const locator = get<{ scope: string }>(store, "work_locator", id);
+  return locator
+    ? get<Job>(store, "work", id, locator.scope)
+    : list<Job>(store, "work").find((x) => x.id === id);
 }
 export function leaseMs(ms: number) {
   ensure(

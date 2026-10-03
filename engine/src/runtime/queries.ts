@@ -133,17 +133,16 @@ function dispatchQuery(
     return factBundle(store, ctx, input as C.Queries["getFactBundle"]["input"]);
   const a = input as { runId: string };
   requireRun(store, ctx, a.runId);
+  if (name === "getRun" || name === "getManifest") {
+    const metadata=get<{view:C.RunView;manifest:C.RunManifest}>(store,"run",a.runId,a.runId);
+    ensure(metadata,"Run not found");return name === "getRun" ? metadata.view : metadata.manifest;
+  }
+  if (name === "getLiveSnapshot") {
+    const publication=get<C.LiveSnapshot>(store,"publication",a.runId,a.runId);
+    ensure(publication,"Run publication unavailable");return publication;
+  }
   const s = core(store, a.runId);
   switch (name) {
-    case "getRun":
-      return s.view;
-    case "getManifest":
-      return s.manifest;
-    case "getLiveSnapshot": {
-      const p = get<C.LiveSnapshot>(store, "publication", a.runId, a.runId);
-      ensure(p, "Run publication unavailable");
-      return p;
-    }
     case "getAgent": {
       const { agentId } = input as C.Queries["getAgent"]["input"],
         p = s.persons[agentId];

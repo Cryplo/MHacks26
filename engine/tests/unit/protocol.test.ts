@@ -229,20 +229,73 @@ describe("Durable protocol primitives", () => {
     expect(store.list("attempt")).toHaveLength(1);
   });
 });
-it('A-20 assigned setup work grants exact input access and attaches output only to its requester',async()=>{
- const {writeJSON,attachArtifactReader}=await import('../../src/runtime/artifacts.js');
- const {store,ctx}=setup(),scope={runId:null,experimentId:null};
- const input=writeJSON(store,ctx,'park',scope,{fixture:1}),secret=writeJSON(store,ctx,'population',scope,{private:2});
- enqueue(store,ctx,'setup','population',scope,{park:input,closeAfterMs:3600000,crowd:tinyPopulation(tinyPark()).crowd});
- const worker={...ctx,identity:'worker1'};claim(store,worker,['population'],1,1000,'long-worker-nonce');
- expect(readArtifact(store,worker,input).length).toBeGreaterThan(0);expect(()=>readArtifact(store,worker,secret)).toThrow();
- const result=writeJSON(store,worker,'population',scope,{result:1});expect(()=>readArtifact(store,ctx,result)).toThrow();attachArtifactReader(store,worker,result,ctx.identity);expect(readArtifact(store,ctx,result).length).toBeGreaterThan(0);expect(()=>readArtifact(store,{...ctx,identity:'worker2'},result)).toThrow();
+it("A-20 assigned setup work grants exact input access and attaches output only to its requester", async () => {
+  const { writeJSON, attachArtifactReader } =
+    await import("../../src/runtime/artifacts.js");
+  const { store, ctx } = setup(),
+    scope = { runId: null, experimentId: null };
+  const input = writeJSON(store, ctx, "park", scope, { fixture: 1 }),
+    secret = writeJSON(store, ctx, "population", scope, { private: 2 });
+  enqueue(store, ctx, "setup", "population", scope, {
+    park: input,
+    closeAfterMs: 3600000,
+    crowd: tinyPopulation(tinyPark()).crowd,
+  });
+  const worker = { ...ctx, identity: "worker1" };
+  claim(store, worker, ["population"], 1, 1000, "long-worker-nonce");
+  expect(readArtifact(store, worker, input).length).toBeGreaterThan(0);
+  expect(() => readArtifact(store, worker, secret)).toThrow();
+  const result = writeJSON(store, worker, "population", scope, { result: 1 });
+  expect(() => readArtifact(store, ctx, result)).toThrow();
+  attachArtifactReader(store, worker, result, ctx.identity);
+  expect(readArtifact(store, ctx, result).length).toBeGreaterThan(0);
+  expect(() =>
+    readArtifact(store, { ...ctx, identity: "worker2" }, result),
+  ).toThrow();
 });
-it('A-09 live timeout is labeled fallback and fences a late leased response',async()=>{
- const {resolveLiveTimeouts}=await import('../../src/runtime/fallback.js');
- const {store,ctx}=setup(),p=tinyPark(),pop=tinyPopulation(p,3),m=tinyManifest(p,pop);m.config.mode='live';m.config.fallback='live_timeout_v1';m.config.liveTimeoutMs=1000;
- const s=createCore('run',m,p,pop);startCore(s);advanceCore(s,new Navigation(p.grid),100);const r=s.decisions[s.barrierIds[0]!]!.request;
- enqueue(store,ctx,`run:${r.requestId}`,'decision',{runId:'run',experimentId:null},r);const worker={...ctx,identity:'worker1'};const leased=claim(store,worker,['decision'],1,10000,'long-worker-nonce')[0]!;
- resolveLiveTimeouts(store,{...ctx,now:2001},s);expect(s.decisions[r.requestId]!.response!.source).toBe('fallback');expect(s.view.simMs).toBe(0);
- expect(()=>finishJob(store,{...worker,now:2001},{kind:'decision',lease:leased.lease,result:mockResponse(r,'leave')},()=>{})).toThrow();
+it("A-09 live timeout is labeled fallback and fences a late leased response", async () => {
+  const { resolveLiveTimeouts } = await import("../../src/runtime/fallback.js");
+  const { store, ctx } = setup(),
+    p = tinyPark(),
+    pop = tinyPopulation(p, 3),
+    m = tinyManifest(p, pop);
+  m.config.mode = "live";
+  m.config.fallback = "live_timeout_v1";
+  m.config.liveTimeoutMs = 1000;
+  const s = createCore("run", m, p, pop);
+  startCore(s);
+  advanceCore(s, new Navigation(p.grid), 100);
+  const r = s.decisions[s.barrierIds[0]!]!.request;
+  enqueue(
+    store,
+    ctx,
+    `run:${r.requestId}`,
+    "decision",
+    { runId: "run", experimentId: null },
+    r,
+  );
+  const worker = { ...ctx, identity: "worker1" };
+  const leased = claim(
+    store,
+    worker,
+    ["decision"],
+    1,
+    10000,
+    "long-worker-nonce",
+  )[0]!;
+  resolveLiveTimeouts(store, { ...ctx, now: 2001 }, s);
+  expect(s.decisions[r.requestId]!.response!.source).toBe("fallback");
+  expect(s.view.simMs).toBe(0);
+  expect(() =>
+    finishJob(
+      store,
+      { ...worker, now: 2001 },
+      {
+        kind: "decision",
+        lease: leased.lease,
+        result: mockResponse(r, "leave"),
+      },
+      () => {},
+    ),
+  ).toThrow();
 });

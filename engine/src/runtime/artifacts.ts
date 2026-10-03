@@ -68,7 +68,9 @@ export function beginUpload(
 ) {
   ensure(kinds.includes(input.kind), "Invalid artifact kind");
   ensure(
-    input.id.length <= 160 && /^[A-Za-z0-9_.:-]+$/.test(input.id),
+    typeof input.id === "string" &&
+      input.id.length <= 160 &&
+      /^[A-Za-z0-9_.:-]+$/.test(input.id),
     "Invalid upload ID",
   );
   ensure(
@@ -83,6 +85,14 @@ export function beginUpload(
       input.mediaType === "application/octet-stream",
     "Unsupported artifact media",
   );
+  ensure(
+    input.scope &&
+      typeof input.scope === "object" &&
+      (input.scope.runId === null || typeof input.scope.runId === "string") &&
+      (input.scope.experimentId === null ||
+        typeof input.scope.experimentId === "string"),
+    "Invalid artifact scope",
+  );
   canUpload(store, ctx, input.scope);
   const existing = get<Upload>(store, "upload", input.id, ctx.identity);
   const u = {
@@ -94,7 +104,12 @@ export function beginUpload(
     ensure(canonical(existing) === canonical(u), "Upload ID conflict");
     return { uploadId: input.id };
   }
-  rateLimit(store, ctx, "artifact", 30);
+  const worker = get<{ roles: string[] }>(
+    store,
+    "role",
+    ctx.identity,
+  )?.roles.includes("worker");
+  rateLimit(store, ctx, "artifact", worker ? 3000 : 30);
   put(store, "upload", input.id, u, ctx.identity);
   return { uploadId: input.id };
 }
