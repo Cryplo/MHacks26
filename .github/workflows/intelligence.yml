@@ -31,4 +31,9 @@ jobs:
       - run: npm run test:integration
       - run: npm run test:providers
       - run: npm run test:experiments
+      # Offline CLI smokes (fixture runtime + mock provider, labeled orchestration-only).
+      - run: npm run dev:worker
+      - run: npm run experiment:mock
+      - run: npm run plausibility
+      - run: npm run population:fixture -- --out /tmp/population-300.json
       # No provider credentials in CI: the billable Jev smoke (`npm run smoke:jev -- --billable`) is never run here.
