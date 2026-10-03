@@ -572,7 +572,7 @@ export class FixtureServer {
     const committed = Math.floor(exact / STEP_MS) * STEP_MS;
     const stepIndex = committed / STEP_MS;
     return { status, exactSimMs: exact, committedSimMs: committed, stepIndex, speed, blocked, barrierAge,
-      revision: stepIndex + run.controlRevision + run.scenarioRevision + (barrierDone ? 1 : 0) + (status === 'completed' ? 1 : 0) };
+      revision: stepIndex + run.controlRevision + run.scenarioRevision + (at >= run.readyAt ? 1 : 0) + (barrierDone ? 1 : 0) + (status === 'completed' ? 1 : 0) };
   }
   private revisionAt(run: RunRec, simMs: number) { return simMs / STEP_MS + run.controlRevision + run.scenarioRevision; }
 

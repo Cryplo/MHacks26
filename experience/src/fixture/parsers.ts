@@ -85,7 +85,8 @@ export function parseScenarioText(text: string, ctx: ScenarioContext, openLocal:
       const r = parseParkLocalTime(abs[1]!, openLocal, closeAfterMs);
       return r.ok ? { ms: r.simMs, note: `"${abs[1]}" read as park-local time (opening ${openLocal}), not the device timezone.` } : { error: r.message };
     }
-    return { ms: ctx.earliestSchedulableMs, note: 'No time given: proposed for the earliest schedulable boundary.' };
+    const soon = Math.ceil((ctx.earliestSchedulableMs + 300_000) / 5000) * 5000;
+    return { ms: soon, note: 'No time given: proposed 5 simulated minutes after the earliest schedulable boundary, to leave time for review.' };
   };
   const clauses = text.split(/;|\.\s|\band then\b|\balso\b/i).map((c) => c.trim()).filter(Boolean);
   let order = 0;
