@@ -1,0 +1,43 @@
+name: experience
+on:
+  push:
+    paths: ['experience/**', '.github/workflows/experience.yml']
+  pull_request:
+    paths: ['experience/**', '.github/workflows/experience.yml']
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: experience
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: experience/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test:contract
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run content:validate
+      - run: npm run check:secrets
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:fixture
+      - name: Live profile checks (integrated suite reports NOT RUN without Engine/Intelligence)
+        run: |
+          set +e
+          node scripts/e2e-live.mjs
+          code=$?
+          if [ "$code" -ne 0 ] && [ "$code" -ne 2 ]; then exit "$code"; fi
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experience-playwright
+          path: experience/test-results
