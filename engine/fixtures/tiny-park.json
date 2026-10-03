@@ -1,0 +1,161 @@
+{
+  "contractVersion": "behavior.v1",
+  "parkId": "tiny-synthetic",
+  "revision": "1",
+  "label": "Synthetic engine fixture",
+  "openLocal": "09:00",
+  "closeAfterMs": 3600000,
+  "grid": {
+    "width": 20,
+    "height": 16,
+    "cellM": 1,
+    "encoding": "u8-row-major-v1",
+    "cellsBase64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgICAgICAgICAgICAgICAgICAAACAgICAgICAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgIEBAQCAgICAAACAgICAgICAgICAgQEBAICAgIAAAICAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgICAAACAgICAgICAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgICAAACAgICAgICAgICAgICAgICAgIAAAICAgICAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgICAgICAAACAgICAgICAgICAgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "cellsSha256": "5e63cb4814cf470a1f78866dce4721a44cbb6ce64097e3b808cae1dfb15beee7",
+    "grassWalkable": false
+  },
+  "places": [
+    {
+      "queueZoneId": null,
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "id": "entrance",
+      "name": "Entry",
+      "kind": "entrance",
+      "entrance": {
+        "xM": 2.5,
+        "yM": 2.5
+      },
+      "service": {
+        "kind": "none"
+      }
+    },
+    {
+      "queueZoneId": null,
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "id": "exit",
+      "name": "Exit",
+      "kind": "exit",
+      "entrance": {
+        "xM": 2.5,
+        "yM": 12.5
+      },
+      "service": {
+        "kind": "none"
+      }
+    },
+    {
+      "queueZoneId": "ride-zone",
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": {
+        "kind": "fixed",
+        "lowerMin": 2,
+        "upperMin": 2,
+        "text": "Test ride — 2 minutes"
+      },
+      "notice": null,
+      "id": "ride",
+      "name": "Test ride",
+      "kind": "ride",
+      "entrance": {
+        "xM": 11.5,
+        "yM": 5.5
+      },
+      "service": {
+        "kind": "ride",
+        "seats": 8,
+        "vehicles": 1,
+        "dispatchMs": 120000,
+        "durationMs": 90000,
+        "turnaroundMs": 30000,
+        "passShareBps": 5000,
+        "passEnabled": true
+      }
+    },
+    {
+      "queueZoneId": null,
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "channel": "aroma",
+        "text": "Fresh food",
+        "radiusM": 2,
+        "cooldownMs": 600000
+      },
+      "id": "food",
+      "name": "Test food",
+      "kind": "food",
+      "entrance": {
+        "xM": 15.5,
+        "yM": 11.5
+      },
+      "service": {
+        "kind": "counter",
+        "servers": 2,
+        "serviceMs": 10000,
+        "activityMs": 15000,
+        "products": [
+          {
+            "id": "meal",
+            "label": "Meal",
+            "unitPriceCents": 500
+          }
+        ]
+      }
+    },
+    {
+      "queueZoneId": null,
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null,
+      "id": "rest",
+      "name": "Bench",
+      "kind": "scenery",
+      "entrance": {
+        "xM": 6.5,
+        "yM": 10.5
+      },
+      "service": {
+        "kind": "rest",
+        "durationMs": 30000
+      }
+    }
+  ],
+  "queueZones": [
+    {
+      "id": "ride-zone",
+      "placeId": "ride",
+      "cellIndices": [
+        92,
+        93,
+        94,
+        112,
+        113,
+        114
+      ],
+      "entry": {
+        "xM": 11.5,
+        "yM": 5.5
+      },
+      "exit": {
+        "xM": 11.5,
+        "yM": 4.5
+      }
+    }
+  ],
+  "routeProfiles": [],
+  "pass": {
+    "productId": "day-pass",
+    "unitPriceCents": 1500,
+    "unit": "per_guest",
+    "validity": "remaining_day"
+  }
+}

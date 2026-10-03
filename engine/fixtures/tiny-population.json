@@ -1,0 +1,454 @@
+{
+  "contractVersion": "behavior.v1",
+  "populationId": "tiny-population",
+  "crowd": {
+    "guestCount": 12,
+    "seed": "seed-001",
+    "shares": {
+      "young_family": 1,
+      "teens": 0,
+      "couple": 0,
+      "thrill_seekers": 0,
+      "seniors": 0,
+      "solo": 0
+    },
+    "contextNotes": "Synthetic fixture",
+    "generatorVersion": "fixture-v1"
+  },
+  "parkHash": "f1439e58bd9fc50767bf28cd5783aef651bf7fc0d8ac4995b2381b3fc7ac68b0",
+  "personas": [
+    {
+      "agentId": "a0",
+      "groupId": "g0",
+      "archetype": "young_family",
+      "role": "parent",
+      "ageYears": 35,
+      "heightCm": 170,
+      "walkSpeedMps": 1.3,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": true,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a1",
+      "groupId": "g0",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 9,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a2",
+      "groupId": "g0",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 10,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a3",
+      "groupId": "g3",
+      "archetype": "young_family",
+      "role": "parent",
+      "ageYears": 35,
+      "heightCm": 170,
+      "walkSpeedMps": 1.3,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": true,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a4",
+      "groupId": "g3",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 9,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a5",
+      "groupId": "g3",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 10,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a6",
+      "groupId": "g6",
+      "archetype": "young_family",
+      "role": "parent",
+      "ageYears": 35,
+      "heightCm": 170,
+      "walkSpeedMps": 1.3,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": true,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a7",
+      "groupId": "g6",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 9,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a8",
+      "groupId": "g6",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 10,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a9",
+      "groupId": "g9",
+      "archetype": "young_family",
+      "role": "parent",
+      "ageYears": 35,
+      "heightCm": 170,
+      "walkSpeedMps": 1.3,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": true,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a10",
+      "groupId": "g9",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 9,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    },
+    {
+      "agentId": "a11",
+      "groupId": "g9",
+      "archetype": "young_family",
+      "role": "child",
+      "ageYears": 10,
+      "heightCm": 125,
+      "walkSpeedMps": 1,
+      "thrillPreference": 0.5,
+      "initialNeeds": {
+        "hunger": 30,
+        "fatigue": 10,
+        "patience": 80,
+        "fun": 50
+      },
+      "hungerPerHour": 10,
+      "fatiguePerKm": 8,
+      "patiencePerMinute": 1,
+      "familiarity": 0.5,
+      "hasApp": false,
+      "language": "en",
+      "phoneActiveUntilMs": null,
+      "stroller": false,
+      "mobilityRestricted": false,
+      "occasion": "fixture",
+      "mustDoPlaceIds": [
+        "ride"
+      ],
+      "backstory": "Synthetic test guest."
+    }
+  ],
+  "groups": [
+    {
+      "groupId": "g0",
+      "memberIds": [
+        "a0",
+        "a1",
+        "a2"
+      ],
+      "leaderId": "a0",
+      "guardianIds": [
+        "a0"
+      ],
+      "rallyPlaceId": "rest",
+      "walletId": "w0",
+      "startingBalanceCents": 20000,
+      "arrivalMs": 0,
+      "plannedDepartureMs": 1800000
+    },
+    {
+      "groupId": "g3",
+      "memberIds": [
+        "a3",
+        "a4",
+        "a5"
+      ],
+      "leaderId": "a3",
+      "guardianIds": [
+        "a3"
+      ],
+      "rallyPlaceId": "rest",
+      "walletId": "w3",
+      "startingBalanceCents": 20000,
+      "arrivalMs": 5000,
+      "plannedDepartureMs": 1800000
+    },
+    {
+      "groupId": "g6",
+      "memberIds": [
+        "a6",
+        "a7",
+        "a8"
+      ],
+      "leaderId": "a6",
+      "guardianIds": [
+        "a6"
+      ],
+      "rallyPlaceId": "rest",
+      "walletId": "w6",
+      "startingBalanceCents": 20000,
+      "arrivalMs": 10000,
+      "plannedDepartureMs": 1800000
+    },
+    {
+      "groupId": "g9",
+      "memberIds": [
+        "a9",
+        "a10",
+        "a11"
+      ],
+      "leaderId": "a9",
+      "guardianIds": [
+        "a9"
+      ],
+      "rallyPlaceId": "rest",
+      "walletId": "w9",
+      "startingBalanceCents": 20000,
+      "arrivalMs": 15000,
+      "plannedDepartureMs": 1800000
+    }
+  ],
+  "proseVersion": "fixture-v1",
+  "randomVersion": "behavior-rng-v1",
+  "diversity": []
+}

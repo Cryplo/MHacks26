@@ -7,7 +7,7 @@ an isolated worktree from that commit. No existing AGENTS.md was found.
 Starting toolchain: Node 25.9.0, npm 11.12.1; SpacetimeDB CLI not installed.
 
 - [x] Bootstrap: frozen contract, fixtures, canonicalization and golden checks
-- [ ] Validated manifests, pure state/phase model, 12-guest synthetic park
+- [x] Validated manifests, pure state/phase model, 12-guest synthetic park
 - [ ] Mock vertical slice: arrival, free motion, admission, service, purchase, exit
 - [ ] Navigation, PNG compilation, simultaneous motion and group invariants
 - [ ] Observations, action options, notices, scenarios and decision barriers
@@ -22,3 +22,6 @@ authorized credentials and budget. These do not block owned offline work.
 
 Bootstrap validation: typecheck, lint and 6 contract tests PASS. TypeScript 6.0.2
 pinned for typescript-eslint compatibility; Node 24 is lane-local for Vitest 5.
+
+Second slice: 19 validation/navigation tests + 6 golden checks PASS; typecheck/lint PASS.
+Base: adf003b5eaebdf7a790446daeec0d672ce6e7434. Isolated worktree: ~/.codex/worktrees/mhacks-engine/MHacks26.
