@@ -222,7 +222,7 @@ export class Worker {
       return;
     }
     if (e instanceof ProviderError && e.permanent) {
-      const code: DomainError['code'] = e.kind === 'unsupported_model' ? 'UNSUPPORTED' : e.kind === 'schema' ? 'INTERNAL' : 'DEPENDENCY_UNAVAILABLE';
+      const code: DomainError['code'] = e.kind === 'unsupported_model' ? 'UNSUPPORTED' : e.kind === 'schema' ? 'INTERNAL' : e.kind === 'budget' ? 'RATE_LIMITED' : 'DEPENDENCY_UNAVAILABLE';
       await this.fail({ lease: rec.lease, workId }, domainError(code, `provider ${e.kind}: ${e.message}`, false), null, cmd);
       await this.deps.journal.update(workId, attempt, { state: 'failed', note: e.kind }, this.now());
       this.count(`provider_permanent:${e.kind}`);

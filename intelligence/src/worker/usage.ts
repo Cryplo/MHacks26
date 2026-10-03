@@ -40,34 +40,49 @@ export class UsageLedger {
 
   async get(callId: Id): Promise<LedgerRecord | null> { return getJson<LedgerRecord>(this.store, this.key(callId)); }
 
+  private readonly locks = new Map<Id, Promise<unknown>>();
+
+  /** Serializes read-modify-write of one call's record within this process. */
+  private update<T>(callId: Id, fn: (prior: LedgerRecord | null) => Promise<T>): Promise<T> {
+    const prev = this.locks.get(callId) ?? Promise.resolve();
+    const run = prev.catch(() => undefined).then(async () => fn(await this.get(callId)));
+    this.locks.set(callId, run);
+    return run.finally(() => { if (this.locks.get(callId) === run) this.locks.delete(callId); });
+  }
+
   /** Persist locally, then submit the started record. Throws if it cannot be submitted (no billable call then). */
   async started(attempt: ProviderAttempt): Promise<void> {
     if (attempt.phase !== 'started') throw new Error('started() requires phase started');
-    const prior = await this.get(attempt.callId);
-    if (prior) return;
-    const rec: LedgerRecord = { attempt, beneficiaries: [attempt.workId], costBasis: 'unknown', telemetry: { started: false, finished: false } };
-    await putJson(this.store, this.key(attempt.callId), rec);
-    await this.submit(rec, 'started');
+    const rec = await this.update(attempt.callId, async (prior) => {
+      if (prior) return null;
+      const r: LedgerRecord = { attempt, beneficiaries: [attempt.workId], costBasis: 'unknown', telemetry: { started: false, finished: false } };
+      await putJson(this.store, this.key(attempt.callId), r);
+      return r;
+    });
+    if (rec) await this.submit(rec, 'started');
   }
 
   /** Persist the finished record (never regressing), then try to submit; failures are retried by flush(). */
   async finished(attempt: ProviderAttempt, costBasis: LedgerRecord['costBasis']): Promise<void> {
-    const prior = await this.get(attempt.callId);
-    const rec: LedgerRecord = {
-      attempt: { ...attempt, phase: 'finished' }, beneficiaries: prior?.beneficiaries ?? [attempt.workId], costBasis,
-      telemetry: { started: prior?.telemetry.started ?? false, finished: false },
-    };
-    await putJson(this.store, this.key(attempt.callId), rec);
+    const rec = await this.update(attempt.callId, async (prior) => {
+      const r: LedgerRecord = {
+        attempt: { ...attempt, phase: 'finished' }, beneficiaries: prior?.beneficiaries ?? [attempt.workId], costBasis,
+        telemetry: { started: prior?.telemetry.started ?? false, finished: false },
+      };
+      await putJson(this.store, this.key(attempt.callId), r);
+      return r;
+    });
     try { await this.submit(rec, 'finished'); } catch (e) {
       this.ops.logger?.log('warn', 'usage.telemetry_deferred', { callId: attempt.callId, error: (e as Error).message });
     }
   }
 
   async addBeneficiary(callId: Id, workId: Id): Promise<void> {
-    const rec = await this.get(callId);
-    if (!rec || rec.beneficiaries.includes(workId)) return;
-    rec.beneficiaries.push(workId);
-    await putJson(this.store, this.key(callId), rec);
+    await this.update(callId, async (rec) => {
+      if (!rec || rec.beneficiaries.includes(workId)) return;
+      rec.beneficiaries.push(workId);
+      await putJson(this.store, this.key(callId), rec);
+    });
   }
 
   private async submit(rec: LedgerRecord, phase: 'started' | 'finished'): Promise<void> {
@@ -81,9 +96,11 @@ export class UsageLedger {
       this.ops.logger?.log('error', 'usage.telemetry_rejected', { callId: rec.attempt.callId, phase, code: receipt.error.code });
       if (phase === 'started') throw new Error(`started telemetry rejected: ${receipt.error.code}`);
     }
-    const cur = (await this.get(rec.attempt.callId)) ?? rec;
-    cur.telemetry[phase] = true;
-    await putJson(this.store, this.key(rec.attempt.callId), cur);
+    await this.update(rec.attempt.callId, async (prior) => {
+      const cur = prior ?? rec;
+      cur.telemetry[phase] = true;
+      await putJson(this.store, this.key(rec.attempt.callId), cur);
+    });
   }
 
   /** Re-submit any telemetry not yet acknowledged (e.g. after reconnect). Started-only calls stay unknown. */

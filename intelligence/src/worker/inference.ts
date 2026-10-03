@@ -220,7 +220,9 @@ export class InferenceService {
         originalSource: provider.source, probabilities: v.probabilities, score: v.score, confidence: v.confidence, responseArtifact: artifact!,
         normalization: { rawSum: v.rawSum, sumError: v.sumError, appliedBy: 'engine' }, callId, createdAtEpochMs: clock.nowEpochMs(),
       };
-      const { entry: winner } = await this.cache.putIfAbsent(entry);
+      const stored = await this.cache.putIfAbsent(entry);
+      const winner = this.acceptable(stored.entry) ? stored.entry : entry;
+      if (winner !== stored.entry) logger.log('warn', 'cache.write_conflict_provenance', { key, existing: stored.entry.originalSource });
       return {
         entry: winner, callId,
         usage: {

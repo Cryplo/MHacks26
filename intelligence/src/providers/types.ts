@@ -22,9 +22,9 @@ export type ProviderRating = {
 
 export type ProviderErrorKind =
   | 'transient' | 'timeout' | 'rate_limited' | 'aborted'
-  | 'auth' | 'payment' | 'unsupported_model' | 'schema' | 'invalid_output' | 'too_large';
+  | 'auth' | 'payment' | 'unsupported_model' | 'schema' | 'invalid_output' | 'too_large' | 'budget';
 
-const PERMANENT: ReadonlySet<ProviderErrorKind> = new Set(['auth', 'payment', 'unsupported_model', 'schema']);
+const PERMANENT: ReadonlySet<ProviderErrorKind> = new Set(['auth', 'payment', 'unsupported_model', 'schema', 'budget']);
 
 export class ProviderError extends Error {
   override name = 'ProviderError';

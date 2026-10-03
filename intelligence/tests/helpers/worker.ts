@@ -27,6 +27,7 @@ export async function settle(rounds = 20): Promise<void> {
 export async function pump<T>(clock: ManualClock, p: Promise<T>, maxSteps = 500): Promise<T> {
   let done = false;
   const wrapped = p.finally(() => { done = true; });
+  wrapped.catch(() => undefined);
   for (let i = 0; i < maxSteps && !done; i++) {
     await settle(5);
     if (!done) clock.advanceToNext();
