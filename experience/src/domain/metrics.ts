@@ -80,7 +80,7 @@ export const METRIC_ORDER: MetricId[] = [
  */
 export function describeDelta(id: MetricId, delta: number | null | undefined): string {
   if (delta === null || delta === undefined || !Number.isFinite(delta)) return 'not available';
-  if (delta === 0) return 'no change';
+  if (Math.abs(delta) < 1e-9) return 'no change'; // float noise from averaging is not a direction
   const up = delta > 0;
   switch (METRICS[id].direction) {
     case 'guest_better_when_higher': return up ? 'higher (better for guests in the model)' : 'lower (worse for guests in the model)';
