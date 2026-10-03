@@ -1,0 +1,7277 @@
+{
+  "definitions": {
+    "Commands": {
+      "type": "object",
+      "properties": {
+        "registerPark": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "artifact": {
+                  "$ref": "#/definitions/ArtifactRef"
+                }
+              },
+              "required": [
+                "artifact"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/ParkSummary"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "requestProductWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "request": {
+                  "$ref": "#/definitions/ProductRequest"
+                }
+              },
+              "required": [
+                "request"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "workId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "workId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "createRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "manifest": {
+                  "$ref": "#/definitions/RunManifest"
+                }
+              },
+              "required": [
+                "manifest"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "startRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "pauseRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "expectedControlRevision": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "expectedControlRevision"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "resumeRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "expectedControlRevision": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "expectedControlRevision"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "setSpeed": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "requestedSpeed": {
+                  "type": "number"
+                },
+                "expectedControlRevision": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "requestedSpeed",
+                "expectedControlRevision"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "cancelRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "expectedControlRevision": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "expectedControlRevision"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "scheduleEvents": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "expectedScenarioRevision": {
+                  "type": "string"
+                },
+                "draftId": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ScenarioEvent"
+                  }
+                }
+              },
+              "required": [
+                "runId",
+                "expectedScenarioRevision",
+                "draftId",
+                "events"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "scenarioRevision": {
+                  "type": "string"
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ScenarioEvent"
+                  }
+                }
+              },
+              "required": [
+                "scenarioRevision",
+                "events"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "claimWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "kinds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/WorkKind"
+                  }
+                },
+                "limit": {
+                  "type": "number"
+                },
+                "workerNonce": {
+                  "type": "string"
+                },
+                "leaseMs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "kinds",
+                "limit",
+                "workerNonce",
+                "leaseMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/LeasedWork"
+                  }
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "renewWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "leases": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/WorkLease"
+                  }
+                },
+                "leaseMs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "leases",
+                "leaseMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "leases": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/WorkLease"
+                  }
+                }
+              },
+              "required": [
+                "leases"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "completeWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "$ref": "#/definitions/CompletedWork"
+                }
+              },
+              "required": [
+                "item"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "workId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "leased",
+                    "ready",
+                    "applied",
+                    "failed",
+                    "cancelled",
+                    "superseded"
+                  ]
+                }
+              },
+              "required": [
+                "workId",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "recordProviderAttempt": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "attempt": {
+                  "$ref": "#/definitions/ProviderAttempt"
+                }
+              },
+              "required": [
+                "attempt"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "callId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "phase": {
+                  "type": "string",
+                  "enum": [
+                    "started",
+                    "finished"
+                  ]
+                }
+              },
+              "required": [
+                "callId",
+                "phase"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "failWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "lease": {
+                  "$ref": "#/definitions/WorkLease"
+                },
+                "error": {
+                  "$ref": "#/definitions/DomainError"
+                },
+                "retryAtEpochMs": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "lease",
+                "error",
+                "retryAtEpochMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "workId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "leased",
+                    "ready",
+                    "applied",
+                    "failed",
+                    "cancelled",
+                    "superseded"
+                  ]
+                }
+              },
+              "required": [
+                "workId",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "acquireDriver": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "leaseMs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "leaseMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/DriverLease"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "renewDriver": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "lease": {
+                  "$ref": "#/definitions/DriverLease"
+                },
+                "leaseMs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "lease",
+                "leaseMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/DriverLease"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "advanceRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "lease": {
+                  "$ref": "#/definitions/DriverLease"
+                },
+                "expectedStep": {
+                  "type": "number"
+                },
+                "expectedPhase": {
+                  "$ref": "#/definitions/BoundaryPhase"
+                },
+                "maxSteps": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "lease",
+                "expectedStep",
+                "expectedPhase",
+                "maxSteps"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/AdvanceResult"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "releaseDriver": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "lease": {
+                  "$ref": "#/definitions/DriverLease"
+                }
+              },
+              "required": [
+                "lease"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "released": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "released"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "checkpointRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "checkpoint": {
+                  "$ref": "#/definitions/ArtifactRef"
+                },
+                "physicalStateHash": {
+                  "$ref": "#/definitions/Hash"
+                }
+              },
+              "required": [
+                "checkpoint",
+                "physicalStateHash"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "createExperiment": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "spec": {
+                  "$ref": "#/definitions/ExperimentSpec"
+                }
+              },
+              "required": [
+                "spec"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "experimentId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "workId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "experimentId",
+                "workId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "recordExperimentProgress": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "experimentId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "lease": {
+                  "$ref": "#/definitions/WorkLease"
+                },
+                "report": {
+                  "$ref": "#/definitions/ExperimentReport"
+                }
+              },
+              "required": [
+                "experimentId",
+                "lease",
+                "report"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "revision": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "issueShare": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "access": {
+                  "type": "string",
+                  "enum": [
+                    "viewer",
+                    "operator"
+                  ]
+                },
+                "tokenHash": {
+                  "$ref": "#/definitions/Hash"
+                },
+                "expiresAtEpochMs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "access",
+                "tokenHash",
+                "expiresAtEpochMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "grantId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "grantId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "redeemShare": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "token"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "viewer",
+                    "operator"
+                  ]
+                }
+              },
+              "required": [
+                "runId",
+                "role"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "revokeShare": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "grantId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "grantId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "revoked": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "revoked"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "registerPark",
+        "requestProductWork",
+        "createRun",
+        "startRun",
+        "pauseRun",
+        "resumeRun",
+        "setSpeed",
+        "cancelRun",
+        "scheduleEvents",
+        "claimWork",
+        "renewWork",
+        "completeWork",
+        "recordProviderAttempt",
+        "failWork",
+        "acquireDriver",
+        "renewDriver",
+        "advanceRun",
+        "releaseDriver",
+        "checkpointRun",
+        "createExperiment",
+        "recordExperimentProgress",
+        "issueShare",
+        "redeemShare",
+        "revokeShare"
+      ],
+      "additionalProperties": false
+    },
+    "ArtifactRef": {
+      "type": "object",
+      "properties": {
+        "artifactId": {
+          "$ref": "#/definitions/Id"
+        },
+        "kind": {
+          "$ref": "#/definitions/ArtifactKind"
+        },
+        "sha256": {
+          "$ref": "#/definitions/Hash"
+        },
+        "byteLength": {
+          "type": "number"
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        }
+      },
+      "required": [
+        "artifactId",
+        "kind",
+        "sha256",
+        "byteLength",
+        "mediaType",
+        "contractVersion"
+      ],
+      "additionalProperties": false
+    },
+    "Id": {
+      "type": "string"
+    },
+    "ArtifactKind": {
+      "type": "string",
+      "enum": [
+        "park",
+        "population",
+        "model_response",
+        "checkpoint",
+        "response_tape",
+        "fact_bundle",
+        "experiment_report",
+        "narrative",
+        "frames"
+      ]
+    },
+    "Hash": {
+      "type": "string"
+    },
+    "ContractVersion": {
+      "type": "string",
+      "const": "behavior.v1"
+    },
+    "ParkSummary": {
+      "type": "object",
+      "properties": {
+        "parkId": {
+          "$ref": "#/definitions/Id"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "artifact": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "preparing",
+            "ready",
+            "invalid"
+          ]
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "parkId",
+        "revision",
+        "label",
+        "artifact",
+        "status",
+        "issues"
+      ],
+      "additionalProperties": false
+    },
+    "ProductRequest": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "population"
+            },
+            "crowd": {
+              "$ref": "#/definitions/CrowdSpec"
+            },
+            "park": {
+              "$ref": "#/definitions/ArtifactRef"
+            }
+          },
+          "required": [
+            "kind",
+            "crowd",
+            "park"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_crowd"
+            },
+            "text": {
+              "type": "string"
+            },
+            "current": {
+              "$ref": "#/definitions/CrowdSpec"
+            }
+          },
+          "required": [
+            "kind",
+            "text",
+            "current"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_scenario"
+            },
+            "text": {
+              "type": "string"
+            },
+            "runId": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "park": {
+              "$ref": "#/definitions/ArtifactRef"
+            },
+            "expectedScenarioRevision": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "text",
+            "runId",
+            "park",
+            "expectedScenarioRevision"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "thought"
+            },
+            "runId": {
+              "$ref": "#/definitions/Id"
+            },
+            "evidenceId": {
+              "$ref": "#/definitions/Id"
+            },
+            "agentId": {
+              "$ref": "#/definitions/Id"
+            }
+          },
+          "required": [
+            "kind",
+            "runId",
+            "evidenceId",
+            "agentId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "report"
+            },
+            "runId": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "experimentId": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "runId",
+            "experimentId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "CrowdSpec": {
+      "type": "object",
+      "properties": {
+        "guestCount": {
+          "type": "number"
+        },
+        "seed": {
+          "type": "string"
+        },
+        "shares": {
+          "$ref": "#/definitions/Record%3CArchetype%2Cnumber%3E"
+        },
+        "contextNotes": {
+          "type": "string"
+        },
+        "generatorVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "guestCount",
+        "seed",
+        "shares",
+        "contextNotes",
+        "generatorVersion"
+      ],
+      "additionalProperties": false
+    },
+    "Record<Archetype,number>": {
+      "type": "object",
+      "properties": {
+        "young_family": {
+          "type": "number"
+        },
+        "teens": {
+          "type": "number"
+        },
+        "couple": {
+          "type": "number"
+        },
+        "thrill_seekers": {
+          "type": "number"
+        },
+        "seniors": {
+          "type": "number"
+        },
+        "solo": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "young_family",
+        "teens",
+        "couple",
+        "thrill_seekers",
+        "seniors",
+        "solo"
+      ],
+      "additionalProperties": false
+    },
+    "RunManifest": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "park": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "population": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "scenario": {
+          "$ref": "#/definitions/Scenario"
+        },
+        "replicateSeed": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/definitions/RunConfig"
+        },
+        "experiment": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "experimentId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "pairId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "arm": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B"
+                  ]
+                }
+              },
+              "required": [
+                "experimentId",
+                "pairId",
+                "arm"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "initialCheckpoint": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replayTape": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "contractVersion",
+        "park",
+        "population",
+        "scenario",
+        "replicateSeed",
+        "config",
+        "experiment",
+        "initialCheckpoint",
+        "replayTape"
+      ],
+      "additionalProperties": false
+    },
+    "Scenario": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioEvent"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "revision",
+        "label",
+        "events"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "order": {
+          "type": "number"
+        },
+        "change": {
+          "$ref": "#/definitions/ScenarioChange"
+        }
+      },
+      "required": [
+        "id",
+        "atMs",
+        "order",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "SimMs": {
+      "type": "number"
+    },
+    "ScenarioChange": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "pass_price"
+            },
+            "unitPriceCents": {
+              "$ref": "#/definitions/Cents"
+            }
+          },
+          "required": [
+            "kind",
+            "unitPriceCents"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "pass_share"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "shareBps": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "shareBps"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "board"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "display": {
+              "$ref": "#/definitions/WaitDisplay"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "display"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "notice"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "notice": {
+              "$ref": "#/definitions/Notice"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "notice"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "closure"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "closed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "closed"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "show_schedule"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "startsAtMs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SimMs"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "startsAtMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "app_message"
+            },
+            "messageId": {
+              "$ref": "#/definitions/Id"
+            },
+            "text": {
+              "type": "string"
+            },
+            "expiresAtMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "suggestedPlaceId": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "discount": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "productIds": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Id"
+                      }
+                    },
+                    "discountBps": {
+                      "type": "number"
+                    },
+                    "maxUsesPerGroup": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "productIds",
+                    "discountBps",
+                    "maxUsesPerGroup"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "messageId",
+            "text",
+            "expiresAtMs",
+            "suggestedPlaceId",
+            "discount"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Cents": {
+      "type": "number"
+    },
+    "WaitDisplay": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "rounded_estimate"
+            },
+            "roundToMin": {
+              "type": "number"
+            },
+            "template": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "roundToMin",
+            "template"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "range_estimate"
+            },
+            "roundToMin": {
+              "type": "number"
+            },
+            "spreadMin": {
+              "type": "number"
+            },
+            "template": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "roundToMin",
+            "spreadMin",
+            "template"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "fixed"
+            },
+            "lowerMin": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "upperMin": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "lowerMin",
+            "upperMin",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Notice": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string",
+          "enum": [
+            "visual",
+            "aroma"
+          ]
+        },
+        "radiusM": {
+          "type": "number"
+        },
+        "cooldownMs": {
+          "$ref": "#/definitions/SimMs"
+        }
+      },
+      "required": [
+        "text",
+        "channel",
+        "radiusM",
+        "cooldownMs"
+      ],
+      "additionalProperties": false
+    },
+    "RunConfig": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/Mode"
+        },
+        "horizonMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "logicalStepMs": {
+          "type": "number",
+          "const": 5000
+        },
+        "movementStepMs": {
+          "type": "number",
+          "const": 250
+        },
+        "requestedSpeed": {
+          "type": "number"
+        },
+        "temperature": {
+          "type": "number",
+          "const": 1
+        },
+        "earlyDepartureThresholdMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "ratingEveryMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "visualFrameEveryMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "checkpointEveryMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "fallback": {
+          "type": "string",
+          "enum": [
+            "forbidden",
+            "live_timeout_v1"
+          ]
+        },
+        "liveTimeoutMs": {
+          "type": "number"
+        },
+        "features": {
+          "$ref": "#/definitions/FeatureFlags"
+        },
+        "versions": {
+          "$ref": "#/definitions/VersionSet"
+        }
+      },
+      "required": [
+        "mode",
+        "horizonMs",
+        "logicalStepMs",
+        "movementStepMs",
+        "requestedSpeed",
+        "temperature",
+        "earlyDepartureThresholdMs",
+        "ratingEveryMs",
+        "visualFrameEveryMs",
+        "checkpointEveryMs",
+        "fallback",
+        "liveTimeoutMs",
+        "features",
+        "versions"
+      ],
+      "additionalProperties": false
+    },
+    "Mode": {
+      "type": "string",
+      "enum": [
+        "mock",
+        "live",
+        "experiment",
+        "replay"
+      ]
+    },
+    "FeatureFlags": {
+      "type": "object",
+      "properties": {
+        "routeChoice": {
+          "type": "boolean"
+        },
+        "bumpReactions": {
+          "type": "boolean"
+        },
+        "splitGroups": {
+          "type": "boolean"
+        },
+        "speechBubbles": {
+          "type": "boolean"
+        },
+        "discountMessages": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "routeChoice",
+        "bumpReactions",
+        "splitGroups",
+        "speechBubbles",
+        "discountMessages"
+      ],
+      "additionalProperties": false
+    },
+    "VersionSet": {
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string"
+        },
+        "observation": {
+          "type": "string"
+        },
+        "options": {
+          "type": "string"
+        },
+        "random": {
+          "type": "string"
+        },
+        "persona": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "requestedModel": {
+          "type": "string"
+        },
+        "meter": {
+          "type": "string"
+        },
+        "loading": {
+          "type": "string"
+        },
+        "metrics": {
+          "type": "string"
+        },
+        "rubric": {
+          "type": "string"
+        },
+        "replay": {
+          "type": "string"
+        },
+        "sourceCommit": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "engine",
+        "observation",
+        "options",
+        "random",
+        "persona",
+        "prompt",
+        "requestedModel",
+        "meter",
+        "loading",
+        "metrics",
+        "rubric",
+        "replay",
+        "sourceCommit"
+      ],
+      "additionalProperties": false
+    },
+    "RunView": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "controlRevision": {
+          "type": "number"
+        },
+        "manifestHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "mode": {
+          "$ref": "#/definitions/Mode"
+        },
+        "status": {
+          "$ref": "#/definitions/RunStatus"
+        },
+        "simMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "stepIndex": {
+          "type": "number"
+        },
+        "phase": {
+          "$ref": "#/definitions/BoundaryPhase"
+        },
+        "scenarioRevision": {
+          "type": "string"
+        },
+        "earliestSchedulableMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "requestedSpeed": {
+          "type": "number"
+        },
+        "achievedSpeed": {
+          "type": "number"
+        },
+        "blockedWorkIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "quality": {
+          "$ref": "#/definitions/Quality"
+        }
+      },
+      "required": [
+        "runId",
+        "revision",
+        "controlRevision",
+        "manifestHash",
+        "mode",
+        "status",
+        "simMs",
+        "stepIndex",
+        "phase",
+        "scenarioRevision",
+        "earliestSchedulableMs",
+        "requestedSpeed",
+        "achievedSpeed",
+        "blockedWorkIds",
+        "quality"
+      ],
+      "additionalProperties": false
+    },
+    "RunStatus": {
+      "type": "string",
+      "enum": [
+        "preparing",
+        "ready",
+        "running",
+        "paused",
+        "blocked",
+        "draining",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "BoundaryPhase": {
+      "type": "string",
+      "enum": [
+        "prepare",
+        "requests",
+        "barrier",
+        "apply",
+        "dispatch",
+        "integrate",
+        "persist"
+      ]
+    },
+    "Quality": {
+      "type": "object",
+      "properties": {
+        "comparisonEligible": {
+          "type": "boolean"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "behaviorCounts": {
+          "$ref": "#/definitions/Record%3CSource%2Cnumber%3E"
+        },
+        "invalidAttempts": {
+          "type": "number"
+        },
+        "staleAttempts": {
+          "type": "number"
+        },
+        "pendingRatings": {
+          "type": "number"
+        },
+        "terminalRatingsExpected": {
+          "type": "number"
+        },
+        "terminalRatingsComplete": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "comparisonEligible",
+        "reasons",
+        "behaviorCounts",
+        "invalidAttempts",
+        "staleAttempts",
+        "pendingRatings",
+        "terminalRatingsExpected",
+        "terminalRatingsComplete"
+      ],
+      "additionalProperties": false
+    },
+    "Record<Source,number>": {
+      "type": "object",
+      "properties": {
+        "jev": {
+          "type": "number"
+        },
+        "cache": {
+          "type": "number"
+        },
+        "mock": {
+          "type": "number"
+        },
+        "fallback": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "jev",
+        "cache",
+        "mock",
+        "fallback"
+      ],
+      "additionalProperties": false
+    },
+    "WorkKind": {
+      "type": "string",
+      "enum": [
+        "decision",
+        "rating",
+        "population",
+        "parse_crowd",
+        "parse_scenario",
+        "thought",
+        "experiment",
+        "report"
+      ]
+    },
+    "LeasedWork": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "decision"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "$ref": "#/definitions/DecisionRequest"
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "rating"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "$ref": "#/definitions/RatingRequest"
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "population"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "crowd": {
+                  "$ref": "#/definitions/CrowdSpec"
+                },
+                "park": {
+                  "$ref": "#/definitions/ArtifactRef"
+                },
+                "closeAfterMs": {
+                  "$ref": "#/definitions/SimMs"
+                }
+              },
+              "required": [
+                "crowd",
+                "park",
+                "closeAfterMs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_crowd"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "current": {
+                  "$ref": "#/definitions/CrowdSpec"
+                }
+              },
+              "required": [
+                "text",
+                "current"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_scenario"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "context": {
+                  "$ref": "#/definitions/ScenarioContext"
+                }
+              },
+              "required": [
+                "text",
+                "context"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "thought"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "evidence": {
+                  "$ref": "#/definitions/AppliedDecision"
+                },
+                "agentId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "evidence",
+                "agentId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "experiment"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "$ref": "#/definitions/ExperimentSpec"
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "report"
+            },
+            "scope": {
+              "$ref": "#/definitions/Scope"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "facts": {
+                  "$ref": "#/definitions/FactBundle"
+                }
+              },
+              "required": [
+                "facts"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "lease",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "experimentId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "runId",
+        "experimentId"
+      ],
+      "additionalProperties": false
+    },
+    "WorkLease": {
+      "type": "object",
+      "properties": {
+        "workId": {
+          "$ref": "#/definitions/Id"
+        },
+        "attempt": {
+          "type": "number"
+        },
+        "leaseToken": {
+          "type": "string"
+        },
+        "expiresAtEpochMs": {
+          "type": "number"
+        },
+        "ownerIdentity": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "workId",
+        "attempt",
+        "leaseToken",
+        "expiresAtEpochMs",
+        "ownerIdentity"
+      ],
+      "additionalProperties": false
+    },
+    "DecisionRequest": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "requestId": {
+          "$ref": "#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "groupId": {
+          "$ref": "#/definitions/Id"
+        },
+        "agentIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "moment": {
+          "$ref": "#/definitions/Moment"
+        },
+        "decisionSeq": {
+          "type": "number"
+        },
+        "momentSeq": {
+          "type": "number"
+        },
+        "requestRevision": {
+          "type": "number"
+        },
+        "createdAtMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "applyAtMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "planRevision": {
+          "type": "number"
+        },
+        "dependencyRevisions": {
+          "$ref": "#/definitions/Record%3Cstring%2Cstring%3E"
+        },
+        "observationHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "optionsHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "observation": {
+          "$ref": "#/definitions/GuestObservation"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionOption"
+          }
+        },
+        "promptOptionOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "candidateAudit": {
+          "type": "object",
+          "properties": {
+            "considered": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Id"
+              }
+            },
+            "excluded": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/definitions/Id"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "considered",
+            "excluded"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contractVersion",
+        "requestId",
+        "runId",
+        "groupId",
+        "agentIds",
+        "moment",
+        "decisionSeq",
+        "momentSeq",
+        "requestRevision",
+        "createdAtMs",
+        "applyAtMs",
+        "planRevision",
+        "dependencyRevisions",
+        "observationHash",
+        "optionsHash",
+        "policyVersion",
+        "observation",
+        "options",
+        "promptOptionOrder",
+        "candidateAudit"
+      ],
+      "additionalProperties": false
+    },
+    "Moment": {
+      "type": "string",
+      "enum": [
+        "forced_replan",
+        "what_next",
+        "noticed",
+        "join_line",
+        "stay_line",
+        "hungry_tired",
+        "message_seen",
+        "closing_soon",
+        "route_choice",
+        "bumped",
+        "separated"
+      ]
+    },
+    "Record<string,string>": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "GuestObservation": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "observation.v1"
+        },
+        "groupId": {
+          "$ref": "#/definitions/Id"
+        },
+        "leaderId": {
+          "$ref": "#/definitions/Id"
+        },
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "persona": {
+                "$ref": "#/definitions/Persona"
+              },
+              "needs": {
+                "$ref": "#/definitions/Needs"
+              }
+            },
+            "required": [
+              "persona",
+              "needs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "wallet": {
+          "type": "object",
+          "properties": {
+            "walletId": {
+              "$ref": "#/definitions/Id"
+            },
+            "balanceCents": {
+              "$ref": "#/definitions/Cents"
+            }
+          },
+          "required": [
+            "walletId",
+            "balanceCents"
+          ],
+          "additionalProperties": false
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObservationFact"
+          }
+        },
+        "knownDestinations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KnownDestination"
+          }
+        },
+        "recentEventSummaries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventId": {
+                "$ref": "#/definitions/Id"
+              },
+              "atMs": {
+                "$ref": "#/definitions/SimMs"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventId",
+              "atMs",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "currentActivity": {
+          "type": "string"
+        },
+        "plannedDepartureMs": {
+          "$ref": "#/definitions/SimMs"
+        }
+      },
+      "required": [
+        "schema",
+        "groupId",
+        "leaderId",
+        "atMs",
+        "members",
+        "wallet",
+        "facts",
+        "knownDestinations",
+        "recentEventSummaries",
+        "currentActivity",
+        "plannedDepartureMs"
+      ],
+      "additionalProperties": false
+    },
+    "Persona": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "$ref": "#/definitions/Id"
+        },
+        "groupId": {
+          "$ref": "#/definitions/Id"
+        },
+        "archetype": {
+          "$ref": "#/definitions/Archetype"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "parent",
+            "child",
+            "teen",
+            "adult",
+            "senior"
+          ]
+        },
+        "ageYears": {
+          "type": "number"
+        },
+        "heightCm": {
+          "type": "number"
+        },
+        "walkSpeedMps": {
+          "type": "number"
+        },
+        "thrillPreference": {
+          "type": "number"
+        },
+        "initialNeeds": {
+          "$ref": "#/definitions/Needs"
+        },
+        "hungerPerHour": {
+          "type": "number"
+        },
+        "fatiguePerKm": {
+          "type": "number"
+        },
+        "patiencePerMinute": {
+          "type": "number"
+        },
+        "familiarity": {
+          "type": "number"
+        },
+        "hasApp": {
+          "type": "boolean"
+        },
+        "language": {
+          "type": "string"
+        },
+        "phoneActiveUntilMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stroller": {
+          "type": "boolean"
+        },
+        "mobilityRestricted": {
+          "type": "boolean"
+        },
+        "occasion": {
+          "type": "string"
+        },
+        "mustDoPlaceIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "backstory": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "agentId",
+        "groupId",
+        "archetype",
+        "role",
+        "ageYears",
+        "heightCm",
+        "walkSpeedMps",
+        "thrillPreference",
+        "initialNeeds",
+        "hungerPerHour",
+        "fatiguePerKm",
+        "patiencePerMinute",
+        "familiarity",
+        "hasApp",
+        "language",
+        "phoneActiveUntilMs",
+        "stroller",
+        "mobilityRestricted",
+        "occasion",
+        "mustDoPlaceIds",
+        "backstory"
+      ],
+      "additionalProperties": false
+    },
+    "Archetype": {
+      "type": "string",
+      "enum": [
+        "young_family",
+        "teens",
+        "couple",
+        "thrill_seekers",
+        "seniors",
+        "solo"
+      ]
+    },
+    "Needs": {
+      "type": "object",
+      "properties": {
+        "hunger": {
+          "type": "number"
+        },
+        "fatigue": {
+          "type": "number"
+        },
+        "patience": {
+          "type": "number"
+        },
+        "fun": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "hunger",
+        "fatigue",
+        "patience",
+        "fun"
+      ],
+      "additionalProperties": false
+    },
+    "ObservationFact": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "board",
+            "notice",
+            "message",
+            "price",
+            "crowd",
+            "closure",
+            "experience"
+          ]
+        },
+        "placeId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "sight",
+            "aroma",
+            "app",
+            "memory",
+            "static_map",
+            "self"
+          ]
+        },
+        "observedAtMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "contentVersion": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "waitLowerMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "waitUpperMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "priceCents": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Cents"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "placeId",
+        "source",
+        "observedAtMs",
+        "contentVersion",
+        "text",
+        "waitLowerMs",
+        "waitUpperMs",
+        "priceCents"
+      ],
+      "additionalProperties": false
+    },
+    "KnownDestination": {
+      "type": "object",
+      "properties": {
+        "placeId": {
+          "$ref": "#/definitions/Id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "walkEstimateMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lastObservedFactIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "knownRestrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "placeId",
+        "name",
+        "walkEstimateMs",
+        "lastObservedFactIds",
+        "knownRestrictions"
+      ],
+      "additionalProperties": false
+    },
+    "ActionOption": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/Action"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "description",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "Action": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "travel"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "routeProfileId": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "routeProfileId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "browse"
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "rest"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "join_queue"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "lane": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "pass"
+              ]
+            },
+            "riderIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Id"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "lane",
+            "riderIds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "leave_queue"
+            },
+            "queueEntryId": {
+              "$ref": "#/definitions/Id"
+            }
+          },
+          "required": [
+            "kind",
+            "queueEntryId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "buy_pass_and_join"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "riderIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Id"
+              }
+            },
+            "quote": {
+              "$ref": "#/definitions/Quote"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "riderIds",
+            "quote"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "order"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "cart": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Quote"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "cart"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "leave_park"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "continue"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "notice_stop"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "notice_enter"
+            },
+            "placeId": {
+              "$ref": "#/definitions/Id"
+            }
+          },
+          "required": [
+            "kind",
+            "placeId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "route"
+            },
+            "profileId": {
+              "$ref": "#/definitions/Id"
+            }
+          },
+          "required": [
+            "kind",
+            "profileId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "bump_response"
+            },
+            "response": {
+              "type": "string",
+              "enum": [
+                "continue",
+                "step_aside"
+              ]
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "response",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "regroup"
+            },
+            "rallyPlaceId": {
+              "$ref": "#/definitions/Id"
+            }
+          },
+          "required": [
+            "kind",
+            "rallyPlaceId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Quote": {
+      "type": "object",
+      "properties": {
+        "quoteId": {
+          "$ref": "#/definitions/Id"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "productId": {
+          "$ref": "#/definitions/Id"
+        },
+        "unitPriceCents": {
+          "$ref": "#/definitions/Cents"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "totalCents": {
+          "$ref": "#/definitions/Cents"
+        },
+        "beneficiaryIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "validUntilMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "discountMessageId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "quoteId",
+        "revision",
+        "productId",
+        "unitPriceCents",
+        "quantity",
+        "totalCents",
+        "beneficiaryIds",
+        "validUntilMs",
+        "discountMessageId"
+      ],
+      "additionalProperties": false
+    },
+    "RatingRequest": {
+      "type": "object",
+      "properties": {
+        "ratingId": {
+          "$ref": "#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "agentId": {
+          "$ref": "#/definitions/Id"
+        },
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "endpoint": {
+          "type": "string",
+          "enum": [
+            "periodic",
+            "departure",
+            "horizon"
+          ]
+        },
+        "evidenceHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "observation": {
+          "$ref": "#/definitions/GuestObservation"
+        },
+        "rubricVersion": {
+          "type": "string"
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "ratingId",
+        "runId",
+        "agentId",
+        "atMs",
+        "endpoint",
+        "evidenceHash",
+        "observation",
+        "rubricVersion",
+        "levels"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioContext": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentSimMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "earliestSchedulableMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "scenarioRevision": {
+          "type": "string"
+        },
+        "park": {
+          "$ref": "#/definitions/ParkSummary"
+        },
+        "places": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Pick%3CPlace%2C(%22id%22%7C%22name%22%7C%22kind%22)%3E"
+          }
+        },
+        "capabilities": {
+          "$ref": "#/definitions/Capabilities"
+        }
+      },
+      "required": [
+        "runId",
+        "currentSimMs",
+        "earliestSchedulableMs",
+        "scenarioRevision",
+        "park",
+        "places",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    },
+    "Pick<Place,(\"id\"|\"name\"|\"kind\")>": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ride",
+            "food",
+            "shop",
+            "restroom",
+            "show",
+            "scenery",
+            "entrance",
+            "exit"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "Capabilities": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "eventKinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "pass_price",
+              "pass_share",
+              "board",
+              "notice",
+              "closure",
+              "show_schedule",
+              "app_message"
+            ]
+          }
+        },
+        "workKinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "population",
+              "parse_crowd",
+              "parse_scenario",
+              "thought",
+              "report"
+            ]
+          }
+        },
+        "features": {
+          "$ref": "#/definitions/FeatureFlags"
+        },
+        "maxGuests": {
+          "type": "number"
+        },
+        "maxArtifactBytes": {
+          "type": "number"
+        },
+        "maxChunkBytes": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "contractVersion",
+        "eventKinds",
+        "workKinds",
+        "features",
+        "maxGuests",
+        "maxArtifactBytes",
+        "maxChunkBytes"
+      ],
+      "additionalProperties": false
+    },
+    "AppliedDecision": {
+      "type": "object",
+      "properties": {
+        "evidenceId": {
+          "$ref": "#/definitions/Id"
+        },
+        "request": {
+          "$ref": "#/definitions/DecisionRequest"
+        },
+        "response": {
+          "$ref": "#/definitions/DecisionResult"
+        },
+        "appliedProbabilities": {
+          "$ref": "#/definitions/Distribution"
+        },
+        "draw": {
+          "type": "number"
+        },
+        "chosenOptionId": {
+          "$ref": "#/definitions/Id"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "committed",
+            "failed_precondition"
+          ]
+        },
+        "failureReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "committedAtMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "causedEventIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        }
+      },
+      "required": [
+        "evidenceId",
+        "request",
+        "response",
+        "appliedProbabilities",
+        "draw",
+        "chosenOptionId",
+        "outcome",
+        "failureReason",
+        "committedAtMs",
+        "causedEventIds"
+      ],
+      "additionalProperties": false
+    },
+    "DecisionResult": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "$ref": "#/definitions/Id"
+        },
+        "observationHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "optionsHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "modelRequested": {
+          "type": "string"
+        },
+        "modelReturned": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "probabilities": {
+          "$ref": "#/definitions/Distribution"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "responseArtifact": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "usage": {
+          "$ref": "#/definitions/Usage"
+        },
+        "cacheKey": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Hash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "originalSource": {
+          "$ref": "#/definitions/Exclude%3CSource%2C%22cache%22%3E"
+        }
+      },
+      "required": [
+        "requestId",
+        "observationHash",
+        "optionsHash",
+        "modelRequested",
+        "modelReturned",
+        "source",
+        "probabilities",
+        "confidence",
+        "responseArtifact",
+        "usage",
+        "cacheKey",
+        "originalSource"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "type": "string",
+      "enum": [
+        "jev",
+        "cache",
+        "mock",
+        "fallback"
+      ]
+    },
+    "Distribution": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "$ref": "#/definitions/Id"
+          },
+          "probability": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "optionId",
+          "probability"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Usage": {
+      "type": "object",
+      "properties": {
+        "callId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inputTokens": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "outputTokens": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "estimatedCostUsd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "priceVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "queueMs": {
+          "type": "number"
+        },
+        "httpMs": {
+          "type": "number"
+        },
+        "attemptCount": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "callId",
+        "inputTokens",
+        "outputTokens",
+        "estimatedCostUsd",
+        "priceVersion",
+        "queueMs",
+        "httpMs",
+        "attemptCount"
+      ],
+      "additionalProperties": false
+    },
+    "Exclude<Source,\"cache\">": {
+      "type": "string",
+      "enum": [
+        "jev",
+        "mock",
+        "fallback"
+      ]
+    },
+    "ExperimentSpec": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "experimentId": {
+          "$ref": "#/definitions/Id"
+        },
+        "park": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "crowd": {
+          "$ref": "#/definitions/Omit%3CCrowdSpec%2C%22seed%22%3E"
+        },
+        "seeds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline": {
+          "$ref": "#/definitions/Scenario"
+        },
+        "variant": {
+          "$ref": "#/definitions/Scenario"
+        },
+        "config": {
+          "$ref": "#/definitions/RunConfig"
+        },
+        "interventionLabel": {
+          "type": "string"
+        },
+        "changedLever": {
+          "type": "string"
+        },
+        "analysis": {
+          "type": "string",
+          "enum": [
+            "paired_descriptive",
+            "paired_t"
+          ]
+        },
+        "alpha": {
+          "type": "number",
+          "const": 0.05
+        },
+        "operationBudgetMs": {
+          "type": "number"
+        },
+        "maxConcurrentArms": {
+          "type": "number",
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "start": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "const": "opening"
+                }
+              },
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "const": "warmup"
+                },
+                "toMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "warmupScenario": {
+                  "$ref": "#/definitions/Scenario"
+                }
+              },
+              "required": [
+                "kind",
+                "toMs",
+                "warmupScenario"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "contractVersion",
+        "experimentId",
+        "park",
+        "crowd",
+        "seeds",
+        "baseline",
+        "variant",
+        "config",
+        "interventionLabel",
+        "changedLever",
+        "analysis",
+        "alpha",
+        "operationBudgetMs",
+        "maxConcurrentArms",
+        "start"
+      ],
+      "additionalProperties": false
+    },
+    "Omit<CrowdSpec,\"seed\">": {
+      "$ref": "#/definitions/Pick%3CCrowdSpec%2CExclude%3C(%22guestCount%22%7C%22seed%22%7C%22shares%22%7C%22contextNotes%22%7C%22generatorVersion%22)%2C%22seed%22%3E%3E"
+    },
+    "Pick<CrowdSpec,Exclude<(\"guestCount\"|\"seed\"|\"shares\"|\"contextNotes\"|\"generatorVersion\"),\"seed\">>": {
+      "type": "object",
+      "properties": {
+        "guestCount": {
+          "type": "number"
+        },
+        "shares": {
+          "$ref": "#/definitions/Record%3CArchetype%2Cnumber%3E"
+        },
+        "contextNotes": {
+          "type": "string"
+        },
+        "generatorVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "guestCount",
+        "shares",
+        "contextNotes",
+        "generatorVersion"
+      ],
+      "additionalProperties": false
+    },
+    "FactBundle": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "asOfMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "sourceHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Fact"
+          }
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Quality"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        }
+      },
+      "required": [
+        "contractVersion",
+        "id",
+        "asOfMs",
+        "sourceHash",
+        "facts",
+        "quality",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "Fact": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "denominator": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "sourceEventIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "metricId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MetricId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "value",
+        "unit",
+        "denominator",
+        "scope",
+        "sourceEventIds",
+        "metricId",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "MetricId": {
+      "type": "string",
+      "enum": [
+        "net_revenue_cents",
+        "revenue_per_guest_cents",
+        "satisfaction_0_100",
+        "queue_minutes_per_guest",
+        "completed_ride_wait_minutes",
+        "rides_per_guest",
+        "abandonment_rate",
+        "queue_time_share",
+        "early_departures",
+        "ride_seat_utilization",
+        "server_utilization"
+      ]
+    },
+    "CompletedWork": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "decision"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "$ref": "#/definitions/DecisionResult"
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "rating"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "$ref": "#/definitions/RatingResult"
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "population"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "artifact": {
+                  "$ref": "#/definitions/ArtifactRef"
+                },
+                "guestCount": {
+                  "type": "number"
+                },
+                "groupCount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "artifact",
+                "guestCount",
+                "groupCount"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_crowd"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "proposal": {
+                  "$ref": "#/definitions/CrowdSpec"
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unsupported": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "proposal",
+                "assumptions",
+                "unsupported"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "parse_scenario"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "$ref": "#/definitions/ScenarioDraft"
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "thought"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "$ref": "#/definitions/Narrative"
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "experiment"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "type": "object",
+              "properties": {
+                "report": {
+                  "$ref": "#/definitions/ArtifactRef"
+                }
+              },
+              "required": [
+                "report"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "report"
+            },
+            "lease": {
+              "$ref": "#/definitions/WorkLease"
+            },
+            "result": {
+              "$ref": "#/definitions/Narrative"
+            }
+          },
+          "required": [
+            "kind",
+            "lease",
+            "result"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "RatingResult": {
+      "type": "object",
+      "properties": {
+        "ratingId": {
+          "$ref": "#/definitions/Id"
+        },
+        "evidenceHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "rubricVersion": {
+          "type": "string"
+        },
+        "scoreIndex": {
+          "type": "number"
+        },
+        "probabilities": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "modelReturned": {
+          "type": "string"
+        },
+        "responseArtifact": {
+          "$ref": "#/definitions/ArtifactRef"
+        },
+        "usage": {
+          "$ref": "#/definitions/Usage"
+        }
+      },
+      "required": [
+        "ratingId",
+        "evidenceHash",
+        "rubricVersion",
+        "scoreIndex",
+        "probabilities",
+        "source",
+        "modelReturned",
+        "responseArtifact",
+        "usage"
+      ],
+      "additionalProperties": false
+    },
+    "ScenarioDraft": {
+      "type": "object",
+      "properties": {
+        "draftId": {
+          "$ref": "#/definitions/Id"
+        },
+        "contextRevision": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioEvent"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unsupported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiresConfirmation": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": [
+        "draftId",
+        "contextRevision",
+        "events",
+        "assumptions",
+        "unsupported",
+        "requiresConfirmation"
+      ],
+      "additionalProperties": false
+    },
+    "Narrative": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "evidenceHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "template",
+            "llm"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "enum": [
+            "narrated from state",
+            "modeled-results report"
+          ]
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "heading": {
+                "type": "string"
+              },
+              "segments": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "text"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "fact"
+                        },
+                        "factId": {
+                          "$ref": "#/definitions/Id"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "factId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "heading",
+              "segments"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "evidenceHash",
+        "origin",
+        "label",
+        "sections",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "ProviderAttempt": {
+      "type": "object",
+      "properties": {
+        "callId": {
+          "$ref": "#/definitions/Id"
+        },
+        "workId": {
+          "$ref": "#/definitions/Id"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "started",
+            "finished"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "jev",
+            "prose"
+          ]
+        },
+        "modelRequested": {
+          "type": "string"
+        },
+        "modelReturned": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "startedAtEpochMs": {
+          "type": "number"
+        },
+        "durationMs": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "outcome": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "enum": [
+            null,
+            "success",
+            "timeout",
+            "rate_limited",
+            "invalid",
+            "error"
+          ]
+        },
+        "inputTokens": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "outputTokens": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "estimatedCostUsd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "priceVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "billingOwnerRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "callId",
+        "workId",
+        "phase",
+        "provider",
+        "modelRequested",
+        "modelReturned",
+        "startedAtEpochMs",
+        "durationMs",
+        "outcome",
+        "inputTokens",
+        "outputTokens",
+        "estimatedCostUsd",
+        "priceVersion",
+        "billingOwnerRunId"
+      ],
+      "additionalProperties": false
+    },
+    "DomainError": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "INVALID_INPUT",
+            "UNAUTHORIZED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "CONFLICT",
+            "STALE_REVISION",
+            "STALE_LEASE",
+            "INVALID_STATE",
+            "UNSUPPORTED",
+            "RATE_LIMITED",
+            "DEPENDENCY_UNAVAILABLE",
+            "INCOMPLETE",
+            "INTERNAL"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "fieldErrors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "fieldErrors"
+      ],
+      "additionalProperties": false
+    },
+    "DriverLease": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "epoch": {
+          "type": "number"
+        },
+        "token": {
+          "type": "string"
+        },
+        "expiresAtEpochMs": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "runId",
+        "epoch",
+        "token",
+        "expiresAtEpochMs"
+      ],
+      "additionalProperties": false
+    },
+    "AdvanceResult": {
+      "type": "object",
+      "properties": {
+        "run": {
+          "$ref": "#/definitions/RunView"
+        },
+        "completedSteps": {
+          "type": "number"
+        },
+        "physicalStateHash": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Hash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blockedWorkIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        }
+      },
+      "required": [
+        "run",
+        "completedSteps",
+        "physicalStateHash",
+        "blockedWorkIds"
+      ],
+      "additionalProperties": false
+    },
+    "ExperimentReport": {
+      "type": "object",
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/ExperimentSpec"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "running",
+            "complete",
+            "incomplete"
+          ]
+        },
+        "pairs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PairResult"
+          }
+        },
+        "summaries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PairedSummary"
+          }
+        },
+        "requestedPairs": {
+          "type": "number"
+        },
+        "completePairs": {
+          "type": "number"
+        },
+        "exploratory": {
+          "type": "boolean"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "facts": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "responseTape": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "spec",
+        "revision",
+        "status",
+        "pairs",
+        "summaries",
+        "requestedPairs",
+        "completePairs",
+        "exploratory",
+        "limitations",
+        "facts",
+        "responseTape"
+      ],
+      "additionalProperties": false
+    },
+    "PairResult": {
+      "type": "object",
+      "properties": {
+        "pairId": {
+          "$ref": "#/definitions/Id"
+        },
+        "seed": {
+          "type": "string"
+        },
+        "populationHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "initialStateHash": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Hash"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "aRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bRunId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "complete",
+            "incomplete",
+            "degraded",
+            "failed"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "a": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MetricSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "b": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MetricSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deltas": {
+          "$ref": "#/definitions/Partial%3CRecord%3CMetricId%2Cnumber%3E%3E"
+        }
+      },
+      "required": [
+        "pairId",
+        "seed",
+        "populationHash",
+        "initialStateHash",
+        "aRunId",
+        "bRunId",
+        "status",
+        "reasons",
+        "a",
+        "b",
+        "deltas"
+      ],
+      "additionalProperties": false
+    },
+    "MetricSnapshot": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "simMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "revision": {
+          "type": "number"
+        },
+        "definitionVersion": {
+          "type": "string"
+        },
+        "admittedGuests": {
+          "type": "number"
+        },
+        "guestsInPark": {
+          "type": "number"
+        },
+        "measures": {
+          "$ref": "#/definitions/Record%3CMetricId%2CMetricValue%3E"
+        }
+      },
+      "required": [
+        "runId",
+        "simMs",
+        "revision",
+        "definitionVersion",
+        "admittedGuests",
+        "guestsInPark",
+        "measures"
+      ],
+      "additionalProperties": false
+    },
+    "Record<MetricId,MetricValue>": {
+      "type": "object",
+      "properties": {
+        "net_revenue_cents": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "revenue_per_guest_cents": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "satisfaction_0_100": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "queue_minutes_per_guest": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "completed_ride_wait_minutes": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "rides_per_guest": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "abandonment_rate": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "queue_time_share": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "early_departures": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "ride_seat_utilization": {
+          "$ref": "#/definitions/MetricValue"
+        },
+        "server_utilization": {
+          "$ref": "#/definitions/MetricValue"
+        }
+      },
+      "required": [
+        "net_revenue_cents",
+        "revenue_per_guest_cents",
+        "satisfaction_0_100",
+        "queue_minutes_per_guest",
+        "completed_ride_wait_minutes",
+        "rides_per_guest",
+        "abandonment_rate",
+        "queue_time_share",
+        "early_departures",
+        "ride_seat_utilization",
+        "server_utilization"
+      ],
+      "additionalProperties": false
+    },
+    "MetricValue": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/MetricId"
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "cents",
+            "score",
+            "minutes",
+            "ratio",
+            "guests"
+          ]
+        },
+        "numerator": {
+          "type": "number"
+        },
+        "denominator": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "n": {
+          "type": "number"
+        },
+        "coverage": {
+          "type": "number"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "missingReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "value",
+        "unit",
+        "numerator",
+        "denominator",
+        "n",
+        "coverage",
+        "complete",
+        "missingReason"
+      ],
+      "additionalProperties": false
+    },
+    "Partial<Record<MetricId,number>>": {
+      "type": "object",
+      "properties": {
+        "net_revenue_cents": {
+          "type": "number"
+        },
+        "revenue_per_guest_cents": {
+          "type": "number"
+        },
+        "satisfaction_0_100": {
+          "type": "number"
+        },
+        "queue_minutes_per_guest": {
+          "type": "number"
+        },
+        "completed_ride_wait_minutes": {
+          "type": "number"
+        },
+        "rides_per_guest": {
+          "type": "number"
+        },
+        "abandonment_rate": {
+          "type": "number"
+        },
+        "queue_time_share": {
+          "type": "number"
+        },
+        "early_departures": {
+          "type": "number"
+        },
+        "ride_seat_utilization": {
+          "type": "number"
+        },
+        "server_utilization": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PairedSummary": {
+      "type": "object",
+      "properties": {
+        "metricId": {
+          "$ref": "#/definitions/MetricId"
+        },
+        "pairCount": {
+          "type": "number"
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "mean": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sampleSd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "const": "paired_t_mean"
+                },
+                "lower": {
+                  "type": "number"
+                },
+                "upper": {
+                  "type": "number"
+                },
+                "level": {
+                  "type": "number",
+                  "const": 0.95
+                }
+              },
+              "required": [
+                "kind",
+                "lower",
+                "upper",
+                "level"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "metricId",
+        "pairCount",
+        "differences",
+        "mean",
+        "min",
+        "max",
+        "sampleSd",
+        "interval"
+      ],
+      "additionalProperties": false
+    },
+    "Queries": {
+      "type": "object",
+      "properties": {
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/definitions/Record%3Cstring%2Cnever%3E"
+            },
+            "output": {
+              "$ref": "#/definitions/Capabilities"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/definitions/Record%3Cstring%2Cnever%3E"
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Role"
+                  }
+                },
+                "runIds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Id"
+                  }
+                }
+              },
+              "required": [
+                "identity",
+                "roles",
+                "runIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "listParks": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "cursor": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "cursor"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/Page%3CParkSummary%3E"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getRun": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunView"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getManifest": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/RunManifest"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getLiveSnapshot": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/LiveSnapshot"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getAgent": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "agentId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId",
+                "agentId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/AgentDetail"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getDecision": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "evidenceId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "runId",
+                "evidenceId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/AppliedDecision"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getWork": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "workId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "workId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/WorkStatus"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getMetrics": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "fromMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "toMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "cursor": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "runId",
+                "fromMs",
+                "toMs",
+                "cursor"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/Page%3CMetricSnapshot%3E"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getEvents": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "afterSequence": {
+                  "type": "number"
+                },
+                "limit": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "runId",
+                "afterSequence",
+                "limit"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/SequencePage%3CEventRecord%3E"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getHeatmap": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "layer": {
+                  "$ref": "#/definitions/HeatLayer"
+                },
+                "fromMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "toMs": {
+                  "$ref": "#/definitions/SimMs"
+                }
+              },
+              "required": [
+                "runId",
+                "layer",
+                "fromMs",
+                "toMs"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/Heatmap"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getFrames": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "$ref": "#/definitions/Id"
+                },
+                "fromMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "toMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "cursor": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "runId",
+                "fromMs",
+                "toMs",
+                "cursor"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/Page%3CReplayFrame%3E"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getExperiment": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "experimentId": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "required": [
+                "experimentId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/ExperimentReport"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        },
+        "getFactBundle": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "experimentId": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Id"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "runId",
+                "experimentId"
+              ],
+              "additionalProperties": false
+            },
+            "output": {
+              "$ref": "#/definitions/FactBundle"
+            }
+          },
+          "required": [
+            "input",
+            "output"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "capabilities",
+        "session",
+        "listParks",
+        "getRun",
+        "getManifest",
+        "getLiveSnapshot",
+        "getAgent",
+        "getDecision",
+        "getWork",
+        "getMetrics",
+        "getEvents",
+        "getHeatmap",
+        "getFrames",
+        "getExperiment",
+        "getFactBundle"
+      ],
+      "additionalProperties": false
+    },
+    "Record<string,never>": {
+      "type": "object",
+      "additionalProperties": {
+        "not": {}
+      }
+    },
+    "Role": {
+      "type": "string",
+      "enum": [
+        "viewer",
+        "operator",
+        "worker",
+        "coordinator"
+      ]
+    },
+    "Page<ParkSummary>": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParkSummary"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "additionalProperties": false
+    },
+    "LiveSnapshot": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "run": {
+          "$ref": "#/definitions/RunView"
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AgentView"
+          }
+        },
+        "places": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PlaceView"
+          }
+        },
+        "queues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QueueView"
+          }
+        },
+        "metrics": {
+          "$ref": "#/definitions/MetricSnapshot"
+        },
+        "health": {
+          "$ref": "#/definitions/Health"
+        },
+        "recentEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventRecord"
+          }
+        }
+      },
+      "required": [
+        "contractVersion",
+        "run",
+        "agents",
+        "places",
+        "queues",
+        "metrics",
+        "health",
+        "recentEvents"
+      ],
+      "additionalProperties": false
+    },
+    "AgentView": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "$ref": "#/definitions/Id"
+        },
+        "groupId": {
+          "$ref": "#/definitions/Id"
+        },
+        "position": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "velocity": {
+          "$ref": "#/definitions/Velocity"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "not_arrived",
+            "walking",
+            "browsing",
+            "queueing",
+            "riding",
+            "eating",
+            "shopping",
+            "resting",
+            "watching",
+            "deciding",
+            "left"
+          ]
+        },
+        "targetPlaceId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "needs": {
+          "$ref": "#/definitions/Needs"
+        },
+        "experienceValue": {
+          "type": "number"
+        },
+        "rating": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "number"
+                },
+                "atMs": {
+                  "$ref": "#/definitions/SimMs"
+                },
+                "source": {
+                  "$ref": "#/definitions/Source"
+                }
+              },
+              "required": [
+                "value",
+                "atMs",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "latestEvidenceId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "agentId",
+        "groupId",
+        "position",
+        "velocity",
+        "state",
+        "targetPlaceId",
+        "needs",
+        "experienceValue",
+        "rating",
+        "latestEvidenceId"
+      ],
+      "additionalProperties": false
+    },
+    "Vec2": {
+      "type": "object",
+      "properties": {
+        "xM": {
+          "type": "number"
+        },
+        "yM": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "xM",
+        "yM"
+      ],
+      "additionalProperties": false
+    },
+    "Velocity": {
+      "type": "object",
+      "properties": {
+        "xMps": {
+          "type": "number"
+        },
+        "yMps": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "xMps",
+        "yMps"
+      ],
+      "additionalProperties": false
+    },
+    "PlaceView": {
+      "type": "object",
+      "properties": {
+        "placeId": {
+          "$ref": "#/definitions/Id"
+        },
+        "closed": {
+          "type": "boolean"
+        },
+        "boardText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "boardVersion": {
+          "type": "string"
+        },
+        "noticeVersion": {
+          "type": "string"
+        },
+        "predictedWaitMs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SimMs"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "placeId",
+        "closed",
+        "boardText",
+        "boardVersion",
+        "noticeVersion",
+        "predictedWaitMs"
+      ],
+      "additionalProperties": false
+    },
+    "QueueView": {
+      "type": "object",
+      "properties": {
+        "placeId": {
+          "$ref": "#/definitions/Id"
+        },
+        "standardPersons": {
+          "type": "number"
+        },
+        "passPersons": {
+          "type": "number"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entryId": {
+                "$ref": "#/definitions/Id"
+              },
+              "agentIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Id"
+                }
+              },
+              "lane": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "pass"
+                ]
+              },
+              "sequence": {
+                "type": "number"
+              },
+              "joinedAtMs": {
+                "$ref": "#/definitions/SimMs"
+              },
+              "positions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "agentId": {
+                      "$ref": "#/definitions/Id"
+                    },
+                    "position": {
+                      "$ref": "#/definitions/Vec2"
+                    }
+                  },
+                  "required": [
+                    "agentId",
+                    "position"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "entryId",
+              "agentIds",
+              "lane",
+              "sequence",
+              "joinedAtMs",
+              "positions"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "placeId",
+        "standardPersons",
+        "passPersons",
+        "entries"
+      ],
+      "additionalProperties": false
+    },
+    "Health": {
+      "type": "object",
+      "properties": {
+        "queuedWork": {
+          "type": "number"
+        },
+        "leasedWork": {
+          "type": "number"
+        },
+        "oldestRequestAgeMs": {
+          "type": "number"
+        },
+        "httpP95Ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reducerP95Ms": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "calls": {
+          "type": "number"
+        },
+        "inputTokens": {
+          "type": "number"
+        },
+        "estimatedCostUsd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "tokenCoverage": {
+          "type": "number"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "queuedWork",
+        "leasedWork",
+        "oldestRequestAgeMs",
+        "httpP95Ms",
+        "reducerP95Ms",
+        "calls",
+        "inputTokens",
+        "estimatedCostUsd",
+        "tokenCoverage",
+        "warnings"
+      ],
+      "additionalProperties": false
+    },
+    "EventRecord": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "$ref": "#/definitions/Id"
+        },
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "sequence": {
+          "type": "number"
+        },
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "kind": {
+          "$ref": "#/definitions/EventKind"
+        },
+        "groupId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "agentIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "placeId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "position": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Vec2"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "causationId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "amountCents": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Cents"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "experienceDelta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "details": {
+          "$ref": "#/definitions/Json"
+        }
+      },
+      "required": [
+        "eventId",
+        "runId",
+        "sequence",
+        "atMs",
+        "kind",
+        "groupId",
+        "agentIds",
+        "placeId",
+        "position",
+        "causationId",
+        "amountCents",
+        "experienceDelta",
+        "reason",
+        "details"
+      ],
+      "additionalProperties": false
+    },
+    "EventKind": {
+      "type": "string",
+      "enum": [
+        "arrived",
+        "observed",
+        "queue_joined",
+        "queue_left",
+        "closure_release",
+        "service_started",
+        "service_completed",
+        "purchase",
+        "refund",
+        "experience",
+        "departed",
+        "action_failed",
+        "scenario_applied",
+        "bump",
+        "regrouped"
+      ]
+    },
+    "Json": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Json"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Json"
+          }
+        }
+      ]
+    },
+    "AgentDetail": {
+      "type": "object",
+      "properties": {
+        "agent": {
+          "$ref": "#/definitions/AgentView"
+        },
+        "persona": {
+          "$ref": "#/definitions/Persona"
+        },
+        "group": {
+          "$ref": "#/definitions/GroupManifest"
+        },
+        "observedFacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObservationFact"
+          }
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AppliedDecision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recentEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventRecord"
+          }
+        }
+      },
+      "required": [
+        "agent",
+        "persona",
+        "group",
+        "observedFacts",
+        "evidence",
+        "recentEvents"
+      ],
+      "additionalProperties": false
+    },
+    "GroupManifest": {
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "$ref": "#/definitions/Id"
+        },
+        "memberIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "leaderId": {
+          "$ref": "#/definitions/Id"
+        },
+        "guardianIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Id"
+          }
+        },
+        "rallyPlaceId": {
+          "$ref": "#/definitions/Id"
+        },
+        "walletId": {
+          "$ref": "#/definitions/Id"
+        },
+        "startingBalanceCents": {
+          "$ref": "#/definitions/Cents"
+        },
+        "arrivalMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "plannedDepartureMs": {
+          "$ref": "#/definitions/SimMs"
+        }
+      },
+      "required": [
+        "groupId",
+        "memberIds",
+        "leaderId",
+        "guardianIds",
+        "rallyPlaceId",
+        "walletId",
+        "startingBalanceCents",
+        "arrivalMs",
+        "plannedDepartureMs"
+      ],
+      "additionalProperties": false
+    },
+    "WorkStatus": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "decision"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DecisionResult"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "rating"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RatingResult"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "population"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "artifact": {
+                      "$ref": "#/definitions/ArtifactRef"
+                    },
+                    "guestCount": {
+                      "type": "number"
+                    },
+                    "groupCount": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "guestCount",
+                    "groupCount"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "parse_crowd"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "proposal": {
+                      "$ref": "#/definitions/CrowdSpec"
+                    },
+                    "assumptions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "unsupported": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "proposal",
+                    "assumptions",
+                    "unsupported"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "parse_scenario"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ScenarioDraft"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "thought"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Narrative"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "experiment"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "$ref": "#/definitions/ArtifactRef"
+                    }
+                  },
+                  "required": [
+                    "report"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "workId": {
+              "$ref": "#/definitions/Id"
+            },
+            "kind": {
+              "type": "string",
+              "const": "report"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "leased",
+                "ready",
+                "applied",
+                "failed",
+                "cancelled",
+                "superseded"
+              ]
+            },
+            "result": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Narrative"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "error": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DomainError"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "workId",
+            "kind",
+            "status",
+            "result",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Page<MetricSnapshot>": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetricSnapshot"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "additionalProperties": false
+    },
+    "SequencePage<EventRecord>": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventRecord"
+          }
+        },
+        "nextAfterSequence": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "nextAfterSequence"
+      ],
+      "additionalProperties": false
+    },
+    "HeatLayer": {
+      "type": "string",
+      "enum": [
+        "waiting_person_minutes",
+        "negative_experience",
+        "spending_cents",
+        "early_departures",
+        "bump_episodes"
+      ]
+    },
+    "Heatmap": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "$ref": "#/definitions/Id"
+        },
+        "layer": {
+          "$ref": "#/definitions/HeatLayer"
+        },
+        "fromMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "toMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "cellM": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "total": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "denominator": {
+          "type": "string"
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "runId",
+        "layer",
+        "fromMs",
+        "toMs",
+        "cellM",
+        "width",
+        "height",
+        "values",
+        "total",
+        "unit",
+        "denominator",
+        "complete"
+      ],
+      "additionalProperties": false
+    },
+    "Page<ReplayFrame>": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReplayFrame"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayFrame": {
+      "type": "object",
+      "properties": {
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "frameSchema": {
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/definitions/LiveSnapshot"
+        }
+      },
+      "required": [
+        "atMs",
+        "frameSchema",
+        "snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "PopulationManifest": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "populationId": {
+          "$ref": "#/definitions/Id"
+        },
+        "crowd": {
+          "$ref": "#/definitions/CrowdSpec"
+        },
+        "parkHash": {
+          "$ref": "#/definitions/Hash"
+        },
+        "personas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Persona"
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GroupManifest"
+          }
+        },
+        "proseVersion": {
+          "type": "string"
+        },
+        "randomVersion": {
+          "type": "string"
+        },
+        "diversity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "counts": {
+                "$ref": "#/definitions/Record%3Cstring%2Cnumber%3E"
+              }
+            },
+            "required": [
+              "key",
+              "counts"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "contractVersion",
+        "populationId",
+        "crowd",
+        "parkHash",
+        "personas",
+        "groups",
+        "proseVersion",
+        "randomVersion",
+        "diversity"
+      ],
+      "additionalProperties": false
+    },
+    "Record<string,number>": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "ParkBundle": {
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "$ref": "#/definitions/ContractVersion"
+        },
+        "parkId": {
+          "$ref": "#/definitions/Id"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "openLocal": {
+          "type": "string"
+        },
+        "closeAfterMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "grid": {
+          "$ref": "#/definitions/Grid"
+        },
+        "places": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Place"
+          }
+        },
+        "queueZones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QueueZone"
+          }
+        },
+        "routeProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RouteProfile"
+          }
+        },
+        "pass": {
+          "type": "object",
+          "properties": {
+            "productId": {
+              "$ref": "#/definitions/Id"
+            },
+            "unitPriceCents": {
+              "$ref": "#/definitions/Cents"
+            },
+            "unit": {
+              "type": "string",
+              "const": "per_guest"
+            },
+            "validity": {
+              "type": "string",
+              "const": "remaining_day"
+            }
+          },
+          "required": [
+            "productId",
+            "unitPriceCents",
+            "unit",
+            "validity"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contractVersion",
+        "parkId",
+        "revision",
+        "label",
+        "openLocal",
+        "closeAfterMs",
+        "grid",
+        "places",
+        "queueZones",
+        "routeProfiles",
+        "pass"
+      ],
+      "additionalProperties": false
+    },
+    "Grid": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "cellM": {
+          "type": "number"
+        },
+        "encoding": {
+          "type": "string",
+          "const": "u8-row-major-v1"
+        },
+        "cellsBase64": {
+          "type": "string"
+        },
+        "cellsSha256": {
+          "$ref": "#/definitions/Hash"
+        },
+        "grassWalkable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "width",
+        "height",
+        "cellM",
+        "encoding",
+        "cellsBase64",
+        "cellsSha256",
+        "grassWalkable"
+      ],
+      "additionalProperties": false
+    },
+    "Place": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ride",
+            "food",
+            "shop",
+            "restroom",
+            "show",
+            "scenery",
+            "entrance",
+            "exit"
+          ]
+        },
+        "entrance": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "queueZoneId": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "service": {
+          "$ref": "#/definitions/Service"
+        },
+        "minHeightCm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "thrill": {
+          "type": "number"
+        },
+        "board": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/WaitDisplay"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notice": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Notice"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "entrance",
+        "queueZoneId",
+        "service",
+        "minHeightCm",
+        "thrill",
+        "board",
+        "notice"
+      ],
+      "additionalProperties": false
+    },
+    "Service": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "ride"
+            },
+            "seats": {
+              "type": "number"
+            },
+            "vehicles": {
+              "type": "number"
+            },
+            "dispatchMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "turnaroundMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "passShareBps": {
+              "type": "number"
+            },
+            "passEnabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "seats",
+            "vehicles",
+            "dispatchMs",
+            "durationMs",
+            "turnaroundMs",
+            "passShareBps",
+            "passEnabled"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "counter"
+            },
+            "servers": {
+              "type": "number"
+            },
+            "serviceMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "activityMs": {
+              "$ref": "#/definitions/SimMs"
+            },
+            "products": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/definitions/Id"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "unitPriceCents": {
+                    "$ref": "#/definitions/Cents"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "unitPriceCents"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "servers",
+            "serviceMs",
+            "activityMs",
+            "products"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "show"
+            },
+            "seats": {
+              "type": "number"
+            },
+            "startsAtMs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SimMs"
+              }
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "seats",
+            "startsAtMs",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "rest"
+            },
+            "durationMs": {
+              "$ref": "#/definitions/SimMs"
+            }
+          },
+          "required": [
+            "kind",
+            "durationMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "none"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "QueueZone": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "placeId": {
+          "$ref": "#/definitions/Id"
+        },
+        "cellIndices": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "entry": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "exit": {
+          "$ref": "#/definitions/Vec2"
+        }
+      },
+      "required": [
+        "id",
+        "placeId",
+        "cellIndices",
+        "entry",
+        "exit"
+      ],
+      "additionalProperties": false
+    },
+    "RouteProfile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/Id"
+        },
+        "destinationId": {
+          "$ref": "#/definitions/Id"
+        },
+        "via": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Vec2"
+          }
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "destinationId",
+        "via",
+        "label"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

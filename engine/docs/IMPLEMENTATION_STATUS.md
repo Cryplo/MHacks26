@@ -29,3 +29,5 @@ Base: adf003b5eaebdf7a790446daeec0d672ce6e7434. Isolated worktree: ~/.codex/work
 Third slice: 28 tests PASS, including 12-person completed mock visit, wallet/revenue/heat reconciliation, blocked barrier immutability and A/A invariance under work budgets and reversed responses. This is pure-core evidence, not real database or all A-01..A-25 coverage.
 
 Early real SDK probe PASS (2.10.2, loopback 3099): SHA-256 shared core execution, private caller receipts, explicit domain denial, idempotent retry. The full module remains in progress.
+
+Protocol slice: 36 tests total; durable runtime test uses normalized in-memory Store with the real engine, explicit upload/claim/complete/advance commands, receipt retries/conflicts, conservation and read-only denial. Not a real-server full-day test. Full runtime handlers and checkpoint primitives now present; exhaustive acceptance and server adapter remain in progress.
