@@ -410,6 +410,7 @@ export function advanceCore(
       s.barrierIds = [];
       v.blockedWorkIds = [];
       s.lastCompletedHash = physicalHash(s);
+      s.boundaries.push({ atMs: v.simMs, hash: s.lastCompletedHash });
       completedSteps++;
       if (v.simMs % s.manifest.config.visualFrameEveryMs === 0) {
         s.metrics.push(metrics(s));

@@ -1,5 +1,5 @@
 import type { CoreState } from "../domain/state.js";
-import { canonical, hash } from "../domain/primitives.js";
+import { canonical, hash, asciiCompare } from "../domain/primitives.js";
 export type Family =
   | "owner"
   | "role"
@@ -29,7 +29,8 @@ export type Family =
   | "frame"
   | "heat"
   | "publication"
-  | "rate";
+  | "rate"
+  | "boundary";
 export type RecordRow = {
   key: string;
   family: Family;
@@ -57,7 +58,7 @@ export class MemoryStore implements Store {
           x.family === family && (scope === undefined || x.scope === scope),
       )
       .sort(
-        (a, b) => a.sequence - b.sequence || a.key.localeCompare(b.key, "en"),
+        (a, b) => a.sequence - b.sequence || asciiCompare(a.key, b.key),
       );
   }
   put(row: RecordRow) {
@@ -89,7 +90,7 @@ export class TransactionStore implements Store {
         base.set(key, row);
     }
     return [...base.values()].sort(
-      (a, b) => a.sequence - b.sequence || a.key.localeCompare(b.key, "en"),
+      (a, b) => a.sequence - b.sequence || asciiCompare(a.key, b.key),
     );
   }
   put(row: RecordRow) {
@@ -154,6 +155,7 @@ const collections = {
   metrics: "metric",
   frames: "frame",
   heat: "heat",
+  boundaries: "boundary",
 } as const;
 type Collection = keyof typeof collections;
 export function saveCore(store: Store, state: CoreState) {
@@ -220,6 +222,7 @@ export function loadCore(store: Store, runId: string): CoreState | undefined {
         "metrics",
         "frames",
         "heat",
+        "boundaries",
       ].includes(property);
     const value = isArray
       ? rows

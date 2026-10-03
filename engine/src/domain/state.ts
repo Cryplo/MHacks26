@@ -166,6 +166,7 @@ export type CoreState = {
     availableServerMs: number;
     earlyDepartures: number;
   };
+  boundaries: { atMs: number; hash: string }[];
   lastCompletedHash: string | null;
 };
 export function createCore(
@@ -250,6 +251,7 @@ export function createCore(
       availableServerMs: 0,
       earlyDepartures: 0,
     },
+    boundaries: [],
     lastCompletedHash: null,
   };
   const entrance = park.places.find((p) => p.kind === "entrance")!.entrance;

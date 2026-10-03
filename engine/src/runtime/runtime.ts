@@ -1,3 +1,4 @@
+import { makeTape, validateTape, type ResponseTape } from "../replay/tape.js";
 import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
 import { createCore, type CoreState } from "../domain/state.js";
@@ -222,7 +223,10 @@ function syncWork(store: Store, ctx: Context, s: CoreState) {
   };
   for (const slot of Object.values(s.decisions)) {
     const id = `${s.runId}:${slot.request.requestId}`;
-    if (slot.status === "pending" || slot.status === "ready")
+    if (
+      (slot.status === "pending" || slot.status === "ready") &&
+      s.manifest.config.mode !== "replay"
+    )
       enqueue(store, ctx, id, "decision", scope, slot.request);
     else {
       const j = findJob(store, id);
@@ -397,7 +401,8 @@ function dispatchCommand(
           ["running", "blocked", "draining"].includes(s.view.status),
           "Run not active",
         );
-        if (s.view.phase === "prepare") s.view.status = "paused";
+        if (s.view.phase === "prepare" || s.view.phase === "barrier")
+          s.view.status = "paused";
         else s.pauseRequested = true;
       }
       if (name === "resumeRun") {
@@ -593,13 +598,50 @@ function dispatchCommand(
       const s = core(store, a.lease.runId);
       expectedBoundary(s.view, a.expectedStep, a.expectedPhase);
       checkedInt(a.maxSteps, "maxSteps", 1, 100);
+      const beforeBoundaries = s.boundaries.length;
+      let tape: ResponseTape | null = null;
+      if (s.manifest.replayTape) {
+        tape = readJSON<ResponseTape>(
+          store,
+          ctx,
+          s.manifest.replayTape,
+          "response_tape",
+          true,
+        );
+        validateTape(tape, s);
+        for (const slot of Object.values(s.decisions))
+          if (slot.status === "pending") {
+            const response = tape.responses.find(
+              (r) => r.requestId === slot.request.requestId,
+            );
+            ensure(response, "Replay response missing");
+            acceptDecision(s, response);
+          }
+      }
       const result = advanceCore(
         s,
         new Navigation(s.park.grid),
         Math.min(500, a.maxSteps * 40),
         a.maxSteps,
       );
+      if (tape)
+        for (const b of s.boundaries.slice(beforeBoundaries))
+          ensure(
+            tape.boundaries.some((x) => x.atMs === b.atMs && x.hash === b.hash),
+            "Replay physical hash mismatch",
+          );
       syncWork(store, ctx, s);
+      if (s.view.status === "completed")
+        writeJSON(
+          store,
+          ctx,
+          "response_tape",
+          {
+            runId: s.runId,
+            experimentId: s.manifest.experiment?.experimentId ?? null,
+          },
+          makeTape(s),
+        );
       publish(store, s);
       return {
         run: s.view,
