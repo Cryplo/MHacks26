@@ -1,4 +1,4 @@
-import type { RatingRequest, RatingResult } from '../../contract/behavior-v1.ts';
+import type { MetricValue, RatingRequest, RatingResult } from '../../contract/behavior-v1.ts';
 import { isHash } from '../core/canonical.ts';
 import type { FieldError, Validated } from '../core/errors.ts';
 import { fail, ok } from '../core/errors.ts';
@@ -52,6 +52,28 @@ export function displayScore(r: Pick<RatingResult, 'scoreIndex' | 'probabilities
   if (!r) return null;
   const k = r.probabilities.length;
   return k > 1 ? (100 * r.scoreIndex) / (k - 1) : null;
+}
+
+/**
+ * Available-case satisfaction over the expected terminal ratings (one per admitted individual).
+ * Missing or failed ratings reduce coverage; they are never imputed from the experience ledger,
+ * the group leader, or zero. No ratings at all gives value null.
+ */
+export function summarizeTerminalRatings(expectedAgentIds: readonly string[], ratings: ReadonlyMap<string, Pick<RatingResult, 'scoreIndex' | 'probabilities'>>): MetricValue {
+  const values: number[] = [];
+  for (const id of new Set(expectedAgentIds)) {
+    const r = ratings.get(id);
+    const v = r ? displayScore(r) : null;
+    if (v !== null) values.push(v);
+  }
+  const expected = new Set(expectedAgentIds).size;
+  const n = values.length;
+  const numerator = values.reduce((s, v) => s + v, 0);
+  return {
+    id: 'satisfaction_0_100', value: n ? numerator / n : null, unit: 'score', numerator, denominator: n || null, n,
+    coverage: expected ? n / expected : 0, complete: expected > 0 && n === expected,
+    missingReason: n === expected ? (expected ? null : 'no admitted guests') : `${expected - n} of ${expected} terminal ratings missing or failed; available-case value`,
+  };
 }
 
 /** Checks that a result answers exactly the request it claims to (B-13). */

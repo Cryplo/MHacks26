@@ -76,8 +76,9 @@ export function mockDistribution(req: DecisionRequest): { optionId: string; prob
 
 export function mockRatingDistribution(req: RatingRequest): number[] {
   const k = req.levels.length;
-  const me = req.observation.members.find((m) => m.persona.agentId === req.agentId) ?? req.observation.members[0];
-  const needs = me?.needs ?? { hunger: 50, fatigue: 50, patience: 50, fun: 50 };
+  const me = req.observation.members.find((m) => m.persona.agentId === req.agentId);
+  if (!me) throw new Error(`rated member ${req.agentId} is not in the observation`);
+  const needs = me.needs;
   const center = Math.max(0, Math.min(1, (needs.fun * 0.5 + needs.patience * 0.3 + (100 - needs.hunger) * 0.1 + (100 - needs.fatigue) * 0.1) / 100)) * (k - 1);
   const w = Array.from({ length: k }, (_, i) => Math.exp(-((i - center) ** 2) / 1.2));
   const t = w.reduce((s, v) => s + v, 0);
