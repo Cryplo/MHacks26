@@ -92,7 +92,7 @@ change pass price 1500 -> 2500 cents at 60 s. Engine rejected any mock/fallback 
 | Pair | Admitted | Arm A decisions | Arm B decisions | Terminal ratings | Net revenue A -> B |
 |---|---|---|---|---|---|
 | pair:0 (s1) | 35 | 188 Jev | 107 Jev + 97 cached (Jev origin) | 35/35, 35/35 | $43.50 -> $52.50 |
-| pair:1 (s2) | 18 | 207 Jev | (similar) | 18/18 | $34.50 -> $66.00 |
+| pair:1 (s2) | 18 | 207 Jev | 291 Jev + 61 cached (Jev origin) | 18/18, 18/18 | $34.50 -> $66.00 |
 
 Paired differences B - A, mean (min, max) over 2 pairs: net ancillary revenue +$20.25 (+$9.00,
 +$31.50); queue minutes per guest +2.81 (+2.41, +3.21); synthetic satisfaction +1.4 points (0,
