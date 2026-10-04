@@ -27,7 +27,8 @@
     "content:validate": "tsx content/harbor-lights/tools/validate.ts",
     "content:compile": "node scripts/compile-content.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "test:perf": "PERF=1 playwright test --config playwright.fixture.config.ts --grep @perf --workers=1 --project desktop"
+    "test:perf": "PERF=1 playwright test --config playwright.fixture.config.ts --grep @perf --workers=1 --project desktop",
+    "dev:integration": "node scripts/integration.mjs"
   },
   "dependencies": {
     "pixi.js": "^8.22.0",

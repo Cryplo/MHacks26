@@ -19,8 +19,10 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
   await signIn(page);
   await expect(page.getByTestId('fixture-banner')).toHaveCount(0);
   await page.goto('/setup');
-  const ready = page.locator('[data-testid^=choose-park-]:not([disabled])').first();
+  const ready = page.getByTestId('choose-park-harbor-lights-s1-v1');
   await ready.click({ timeout: 120_000 });
+  await page.getByTestId('guest-count').fill('200');
+  await page.getByRole('button', { name: 'Fit to crowd size' }).click();
   await page.getByTestId('request-preview').click();
   await expect(page.getByTestId('population-preview')).toBeVisible({ timeout: 300_000 });
   await page.getByTestId('create-run').click();
@@ -32,6 +34,7 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
 
   // Inspect a guest with real evidence.
   await page.getByTestId('tab-guests').click();
+  await page.getByTestId('only-decided').check();
   await page.locator('[data-agent-id]').first().click({ timeout: 300_000 });
   await expect(page.getByTestId('evidence-source')).toContainText(/Mock provider|Cached distribution/, { timeout: 300_000 });
 
@@ -50,7 +53,7 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
 
   // Approved intervention through parse -> confirm -> receipt -> applied.
   await page.getByTestId('tab-whatif').click();
-  await page.getByTestId('whatif-text').fill('close the carousel in 10 minutes');
+  await page.getByTestId('whatif-text').fill('close the carousel in 2 minutes');
   await page.getByTestId('whatif-parse').click();
   await expect(page.getByTestId('draft-card')).toBeVisible({ timeout: 120_000 });
   await page.getByTestId('whatif-confirm').click();

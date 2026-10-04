@@ -1,0 +1,1010 @@
+{
+  "contractVersion": "behavior.v1",
+  "parkId": "harbor-lights",
+  "revision": "harbor-lights-s1-v1",
+  "label": "Harbor Lights (starter: 5 attractions)",
+  "openLocal": "09:00",
+  "closeAfterMs": 36000000,
+  "grid": {
+    "width": 200,
+    "height": 150,
+    "cellM": 1,
+    "grassWalkable": false
+  },
+  "places": [
+    {
+      "id": "main_gate",
+      "name": "Main Gate",
+      "kind": "entrance",
+      "entrance": {
+        "xM": 100.5,
+        "yM": 145.5
+      },
+      "queueZoneId": null,
+      "service": {
+        "kind": "none"
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null
+    },
+    {
+      "id": "main_exit",
+      "name": "Exit Turnstiles",
+      "kind": "exit",
+      "entrance": {
+        "xM": 106.5,
+        "yM": 145.5
+      },
+      "queueZoneId": null,
+      "service": {
+        "kind": "none"
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null
+    },
+    {
+      "id": "coaster_tempest",
+      "name": "Tempest Coaster",
+      "kind": "ride",
+      "entrance": {
+        "xM": 102.5,
+        "yM": 50.5
+      },
+      "queueZoneId": "q_coaster_tempest",
+      "service": {
+        "kind": "ride",
+        "seats": 8,
+        "vehicles": 2,
+        "dispatchMs": 120000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 3000,
+        "passEnabled": true
+      },
+      "minHeightCm": 122,
+      "thrill": 0.95,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null
+    },
+    {
+      "id": "splash_falls",
+      "name": "Splash Falls",
+      "kind": "ride",
+      "entrance": {
+        "xM": 98.5,
+        "yM": 64.5
+      },
+      "queueZoneId": "q_splash_falls",
+      "service": {
+        "kind": "ride",
+        "seats": 4,
+        "vehicles": 3,
+        "dispatchMs": 80000,
+        "durationMs": 180000,
+        "turnaroundMs": 60000,
+        "passShareBps": 2500,
+        "passEnabled": true
+      },
+      "minHeightCm": 100,
+      "thrill": 0.45,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null
+    },
+    {
+      "id": "harbor_carousel",
+      "name": "Harbor Carousel",
+      "kind": "ride",
+      "entrance": {
+        "xM": 98.5,
+        "yM": 104.5
+      },
+      "queueZoneId": "q_harbor_carousel",
+      "service": {
+        "kind": "ride",
+        "seats": 16,
+        "vehicles": 1,
+        "dispatchMs": 300000,
+        "durationMs": 240000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.1,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null
+    },
+    {
+      "id": "tidepool_teacups",
+      "name": "Tide Pool Teacups",
+      "kind": "ride",
+      "entrance": {
+        "xM": 83.5,
+        "yM": 38.5
+      },
+      "queueZoneId": "q_tidepool_teacups",
+      "service": {
+        "kind": "ride",
+        "seats": 12,
+        "vehicles": 1,
+        "dispatchMs": 180000,
+        "durationMs": 120000,
+        "turnaroundMs": 60000,
+        "passShareBps": 0,
+        "passEnabled": false
+      },
+      "minHeightCm": null,
+      "thrill": 0.3,
+      "board": {
+        "kind": "rounded_estimate",
+        "roundToMin": 5,
+        "template": "About {minutes} min"
+      },
+      "notice": null
+    },
+    {
+      "id": "lantern_theatre",
+      "name": "Lantern Theatre",
+      "kind": "show",
+      "entrance": {
+        "xM": 102.5,
+        "yM": 106.5
+      },
+      "queueZoneId": "q_lantern_theatre",
+      "service": {
+        "kind": "show",
+        "seats": 120,
+        "startsAtMs": [
+          1800000,
+          4500000,
+          7200000,
+          9900000,
+          12600000,
+          15300000,
+          18000000,
+          20700000,
+          23400000,
+          26100000,
+          28800000,
+          31500000
+        ],
+        "durationMs": 1200000
+      },
+      "minHeightCm": null,
+      "thrill": 0.05,
+      "board": null,
+      "notice": {
+        "text": "LANTERN THEATRE - \"Songs of the Harbor\", a 20-minute musical show. Performances every 45 minutes from 9:30 AM; doors open 10 minutes before.",
+        "channel": "visual",
+        "radiusM": 25,
+        "cooldownMs": 1800000
+      }
+    },
+    {
+      "id": "churro_cart",
+      "name": "Churro Cart",
+      "kind": "food",
+      "entrance": {
+        "xM": 88.5,
+        "yM": 97.5
+      },
+      "queueZoneId": "q_churro_cart",
+      "service": {
+        "kind": "counter",
+        "servers": 1,
+        "serviceMs": 60000,
+        "activityMs": 300000,
+        "products": [
+          {
+            "id": "churro",
+            "label": "Cinnamon churro",
+            "unitPriceCents": 450
+          },
+          {
+            "id": "lemonade",
+            "label": "Lemonade",
+            "unitPriceCents": 375
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "The smell of warm cinnamon sugar drifts from a small churro cart at the corner of the central plaza.",
+        "channel": "aroma",
+        "radiusM": 12,
+        "cooldownMs": 1800000
+      }
+    },
+    {
+      "id": "harbor_snacks",
+      "name": "Harbor Snacks",
+      "kind": "food",
+      "entrance": {
+        "xM": 111.5,
+        "yM": 98.5
+      },
+      "queueZoneId": "q_harbor_snacks",
+      "service": {
+        "kind": "counter",
+        "servers": 3,
+        "serviceMs": 120000,
+        "activityMs": 900000,
+        "products": [
+          {
+            "id": "fish_chips",
+            "label": "Fish and chips",
+            "unitPriceCents": 1295
+          },
+          {
+            "id": "tenders",
+            "label": "Chicken tenders",
+            "unitPriceCents": 1150
+          },
+          {
+            "id": "soda",
+            "label": "Fountain soda",
+            "unitPriceCents": 399
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null
+    },
+    {
+      "id": "lighthouse_gifts",
+      "name": "Lighthouse Gifts",
+      "kind": "shop",
+      "entrance": {
+        "xM": 109.5,
+        "yM": 134.5
+      },
+      "queueZoneId": "q_lighthouse_gifts",
+      "service": {
+        "kind": "counter",
+        "servers": 2,
+        "serviceMs": 90000,
+        "activityMs": 300000,
+        "products": [
+          {
+            "id": "lantern",
+            "label": "Glow harbor lantern",
+            "unitPriceCents": 1800
+          },
+          {
+            "id": "plush",
+            "label": "Puffin plush",
+            "unitPriceCents": 2200
+          },
+          {
+            "id": "postcard",
+            "label": "Postcard set",
+            "unitPriceCents": 300
+          }
+        ]
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "LIGHTHOUSE GIFTS - glow-in-the-dark harbor lanterns, puffin plush toys and postcards. Open until close.",
+        "channel": "visual",
+        "radiusM": 18,
+        "cooldownMs": 1800000
+      }
+    },
+    {
+      "id": "restrooms_gate",
+      "name": "Restrooms (Gate)",
+      "kind": "restroom",
+      "entrance": {
+        "xM": 90.5,
+        "yM": 140.5
+      },
+      "queueZoneId": null,
+      "service": {
+        "kind": "rest",
+        "durationMs": 180000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": null
+    },
+    {
+      "id": "quay_garden",
+      "name": "Quay Garden",
+      "kind": "scenery",
+      "entrance": {
+        "xM": 100.5,
+        "yM": 24.5
+      },
+      "queueZoneId": null,
+      "service": {
+        "kind": "rest",
+        "durationMs": 600000
+      },
+      "minHeightCm": null,
+      "thrill": 0,
+      "board": null,
+      "notice": {
+        "text": "QUAY GARDEN - shaded benches facing the harbor. Quiet seating; no rides.",
+        "channel": "visual",
+        "radiusM": 20,
+        "cooldownMs": 1800000
+      }
+    }
+  ],
+  "queueZones": [
+    {
+      "id": "q_coaster_tempest",
+      "placeId": "coaster_tempest",
+      "cellIndices": [
+        12115,
+        12114,
+        12113,
+        12112,
+        12111,
+        12110,
+        12109,
+        12108,
+        12107,
+        12106,
+        12105,
+        12104,
+        12103,
+        11903,
+        11904,
+        11905,
+        11906,
+        11907,
+        11908,
+        11909,
+        11910,
+        11911,
+        11912,
+        11913,
+        11914,
+        11915,
+        11715,
+        11714,
+        11713,
+        11712,
+        11711,
+        11710,
+        11709,
+        11708,
+        11707,
+        11706,
+        11705,
+        11704,
+        11703,
+        11503,
+        11504,
+        11505,
+        11506,
+        11507,
+        11508,
+        11509,
+        11510,
+        11511,
+        11512,
+        11513,
+        11514,
+        11515,
+        11315,
+        11314,
+        11313,
+        11312,
+        11311,
+        11310,
+        11309,
+        11308,
+        11307,
+        11306,
+        11305,
+        11304,
+        11303,
+        11103,
+        11104,
+        11105,
+        11106,
+        11107,
+        11108,
+        11109,
+        11110,
+        11111,
+        11112,
+        11113,
+        11114,
+        11115,
+        10915,
+        10914,
+        10913,
+        10912,
+        10911,
+        10910,
+        10909,
+        10908,
+        10907,
+        10906,
+        10905,
+        10904,
+        10903,
+        10703,
+        10704,
+        10705,
+        10706,
+        10707,
+        10708,
+        10709,
+        10710,
+        10711,
+        10712,
+        10713,
+        10714,
+        10715,
+        10515,
+        10514,
+        10513,
+        10512,
+        10511,
+        10510,
+        10509,
+        10508,
+        10507,
+        10506,
+        10505,
+        10504,
+        10503,
+        10303,
+        10304,
+        10305,
+        10306,
+        10307,
+        10308,
+        10309,
+        10310,
+        10311,
+        10312,
+        10313,
+        10314,
+        10315,
+        10115,
+        10114,
+        10113,
+        10112,
+        10111,
+        10110,
+        10109,
+        10108,
+        10107,
+        10106,
+        10105,
+        10104,
+        10103
+      ],
+      "entry": {
+        "xM": 103.5,
+        "yM": 50.5
+      },
+      "exit": {
+        "xM": 115.5,
+        "yM": 60.5
+      }
+    },
+    {
+      "id": "q_splash_falls",
+      "placeId": "splash_falls",
+      "cellIndices": [
+        14485,
+        14486,
+        14487,
+        14488,
+        14489,
+        14490,
+        14491,
+        14492,
+        14493,
+        14494,
+        14495,
+        14496,
+        14497,
+        14297,
+        14296,
+        14295,
+        14294,
+        14293,
+        14292,
+        14291,
+        14290,
+        14289,
+        14288,
+        14287,
+        14286,
+        14285,
+        14085,
+        14086,
+        14087,
+        14088,
+        14089,
+        14090,
+        14091,
+        14092,
+        14093,
+        14094,
+        14095,
+        14096,
+        14097,
+        13897,
+        13896,
+        13895,
+        13894,
+        13893,
+        13892,
+        13891,
+        13890,
+        13889,
+        13888,
+        13887,
+        13886,
+        13885,
+        13685,
+        13686,
+        13687,
+        13688,
+        13689,
+        13690,
+        13691,
+        13692,
+        13693,
+        13694,
+        13695,
+        13696,
+        13697,
+        13497,
+        13496,
+        13495,
+        13494,
+        13493,
+        13492,
+        13491,
+        13490,
+        13489,
+        13488,
+        13487,
+        13486,
+        13485,
+        13285,
+        13286,
+        13287,
+        13288,
+        13289,
+        13290,
+        13291,
+        13292,
+        13293,
+        13294,
+        13295,
+        13296,
+        13297,
+        13097,
+        13096,
+        13095,
+        13094,
+        13093,
+        13092,
+        13091,
+        13090,
+        13089,
+        13088,
+        13087,
+        13086,
+        13085,
+        12885,
+        12886,
+        12887,
+        12888,
+        12889,
+        12890,
+        12891,
+        12892,
+        12893,
+        12894,
+        12895,
+        12896,
+        12897
+      ],
+      "entry": {
+        "xM": 97.5,
+        "yM": 64.5
+      },
+      "exit": {
+        "xM": 85.5,
+        "yM": 72.5
+      }
+    },
+    {
+      "id": "q_harbor_carousel",
+      "placeId": "harbor_carousel",
+      "cellIndices": [
+        21685,
+        21686,
+        21687,
+        21688,
+        21689,
+        21690,
+        21691,
+        21692,
+        21693,
+        21694,
+        21695,
+        21696,
+        21697,
+        21497,
+        21496,
+        21495,
+        21494,
+        21493,
+        21492,
+        21491,
+        21490,
+        21489,
+        21488,
+        21487,
+        21486,
+        21485,
+        21285,
+        21286,
+        21287,
+        21288,
+        21289,
+        21290,
+        21291,
+        21292,
+        21293,
+        21294,
+        21295,
+        21296,
+        21297,
+        21097,
+        21096,
+        21095,
+        21094,
+        21093,
+        21092,
+        21091,
+        21090,
+        21089,
+        21088,
+        21087,
+        21086,
+        21085,
+        20885,
+        20886,
+        20887,
+        20888,
+        20889,
+        20890,
+        20891,
+        20892,
+        20893,
+        20894,
+        20895,
+        20896,
+        20897
+      ],
+      "entry": {
+        "xM": 97.5,
+        "yM": 104.5
+      },
+      "exit": {
+        "xM": 85.5,
+        "yM": 108.5
+      }
+    },
+    {
+      "id": "q_tidepool_teacups",
+      "placeId": "tidepool_teacups",
+      "cellIndices": [
+        6276,
+        6277,
+        6278,
+        6279,
+        6280,
+        6281,
+        6282,
+        6283,
+        6483,
+        6482,
+        6481,
+        6480,
+        6479,
+        6478,
+        6477,
+        6476,
+        6676,
+        6677,
+        6678,
+        6679,
+        6680,
+        6681,
+        6682,
+        6683,
+        6883,
+        6882,
+        6881,
+        6880,
+        6879,
+        6878,
+        6877,
+        6876,
+        7076,
+        7077,
+        7078,
+        7079,
+        7080,
+        7081,
+        7082,
+        7083,
+        7283,
+        7282,
+        7281,
+        7280,
+        7279,
+        7278,
+        7277,
+        7276,
+        7476,
+        7477,
+        7478,
+        7479,
+        7480,
+        7481,
+        7482,
+        7483
+      ],
+      "entry": {
+        "xM": 83.5,
+        "yM": 37.5
+      },
+      "exit": {
+        "xM": 76.5,
+        "yM": 31.5
+      }
+    },
+    {
+      "id": "q_lantern_theatre",
+      "placeId": "lantern_theatre",
+      "cellIndices": [
+        22516,
+        22515,
+        22514,
+        22513,
+        22512,
+        22511,
+        22510,
+        22509,
+        22508,
+        22507,
+        22506,
+        22505,
+        22504,
+        22503,
+        22303,
+        22304,
+        22305,
+        22306,
+        22307,
+        22308,
+        22309,
+        22310,
+        22311,
+        22312,
+        22313,
+        22314,
+        22315,
+        22316,
+        22116,
+        22115,
+        22114,
+        22113,
+        22112,
+        22111,
+        22110,
+        22109,
+        22108,
+        22107,
+        22106,
+        22105,
+        22104,
+        22103,
+        21903,
+        21904,
+        21905,
+        21906,
+        21907,
+        21908,
+        21909,
+        21910,
+        21911,
+        21912,
+        21913,
+        21914,
+        21915,
+        21916,
+        21716,
+        21715,
+        21714,
+        21713,
+        21712,
+        21711,
+        21710,
+        21709,
+        21708,
+        21707,
+        21706,
+        21705,
+        21704,
+        21703,
+        21503,
+        21504,
+        21505,
+        21506,
+        21507,
+        21508,
+        21509,
+        21510,
+        21511,
+        21512,
+        21513,
+        21514,
+        21515,
+        21516,
+        21316,
+        21315,
+        21314,
+        21313,
+        21312,
+        21311,
+        21310,
+        21309,
+        21308,
+        21307,
+        21306,
+        21305,
+        21304,
+        21303
+      ],
+      "entry": {
+        "xM": 103.5,
+        "yM": 106.5
+      },
+      "exit": {
+        "xM": 116.5,
+        "yM": 112.5
+      }
+    },
+    {
+      "id": "q_churro_cart",
+      "placeId": "churro_cart",
+      "cellIndices": [
+        19482,
+        19483,
+        19484,
+        19485,
+        19486,
+        19487
+      ],
+      "entry": {
+        "xM": 87.5,
+        "yM": 97.5
+      },
+      "exit": {
+        "xM": 82.5,
+        "yM": 97.5
+      }
+    },
+    {
+      "id": "q_harbor_snacks",
+      "placeId": "harbor_snacks",
+      "cellIndices": [
+        19717,
+        19716,
+        19715,
+        19714,
+        19713,
+        19712
+      ],
+      "entry": {
+        "xM": 112.5,
+        "yM": 98.5
+      },
+      "exit": {
+        "xM": 117.5,
+        "yM": 98.5
+      }
+    },
+    {
+      "id": "q_lighthouse_gifts",
+      "placeId": "lighthouse_gifts",
+      "cellIndices": [
+        26915,
+        26914,
+        26913,
+        26912,
+        26911,
+        26910
+      ],
+      "entry": {
+        "xM": 110.5,
+        "yM": 134.5
+      },
+      "exit": {
+        "xM": 115.5,
+        "yM": 134.5
+      }
+    }
+  ],
+  "routeProfiles": [
+    {
+      "id": "rp_coaster_avenue",
+      "destinationId": "coaster_tempest",
+      "via": [
+        {
+          "xM": 100.5,
+          "yM": 90.5
+        },
+        {
+          "xM": 100.5,
+          "yM": 55.5
+        }
+      ],
+      "label": "Main avenue then the north path"
+    },
+    {
+      "id": "rp_coaster_westloop",
+      "destinationId": "coaster_tempest",
+      "via": [
+        {
+          "xM": 55.5,
+          "yM": 90.5
+        },
+        {
+          "xM": 55.5,
+          "yM": 40.5
+        },
+        {
+          "xM": 100.5,
+          "yM": 40.5
+        }
+      ],
+      "label": "West loop past Splash Falls and the Teacups"
+    }
+  ],
+  "pass": {
+    "productId": "harbor_pass",
+    "unitPriceCents": 1500,
+    "unit": "per_guest",
+    "validity": "remaining_day"
+  }
+}

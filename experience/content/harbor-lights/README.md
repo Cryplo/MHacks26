@@ -22,6 +22,7 @@ expectations are labeled *authored hypothesis*; nothing here is a measured outco
 | `scenarios/*.json` | Typed scenario presets (`meta` + contract `Scenario`). |
 | `generated/stage{1,2}/grid.png` | Categorical PNG painted programmatically (`npm run content:paint`). Never hand-edit, never antialias. |
 | `generated/stage{1,2}/queue-zones.json` | Explicit queue cell sets (row-major indices, head to tail), entry and exit points. |
+| `generated/stage{1,2}/metadata.json` | Engine compiler metadata (ParkBundle without cell bytes). |
 | `tools/` | Painter (`paint.ts`), validator (`validate.ts`), fixture bundle assembly (`assemble.ts`). |
 
 Fixture-assembled `ParkBundle`s are written to `experience/fixtures/parks/` for the fixture
@@ -31,11 +32,14 @@ runtime only. Engine's compiler produces the authoritative bundle and validates 
 
 | Code | Meaning | RGB |
 |---|---|---|
-| 0 | blocked (fence, water, buildings, ride footprints) | 31, 41, 51 |
-| 1 | path | 217, 200, 169 |
-| 2 | plaza | 242, 230, 207 |
-| 3 | grass (not walkable in the initial park) | 90, 155, 90 |
-| 4 | queue (entry controlled; ownership via queue-zones.json) | 224, 123, 57 |
+| 0 | blocked (fence, water, buildings, ride footprints) | 0, 0, 0 |
+| 1 | path | 255, 255, 255 |
+| 2 | plaza | 128, 128, 128 |
+| 3 | grass (not walkable in the initial park) | 0, 255, 0 |
+| 4 | queue (entry controlled; ownership via queue-zones.json) | 255, 255, 0 |
+
+This is exactly Engine's compiler palette (`engine/tools/compile-park.ts`), so the source PNG
+compiles without conversion. The display map in the app uses its own softer colours.
 
 Queue ownership is explicit: every queue-coloured cell belongs to exactly one zone, checked
 by the validator. A shared colour alone never implies ownership.
@@ -125,7 +129,7 @@ server capability `features.routeChoice` is true.
 ```bash
 npm run content:paint      # repaint PNGs, queue masks and fixture bundles (deterministic)
 npm run content:validate   # metadata, references, palette coverage, ownership, services, presets
-npm run content:compile    # run Engine's compiler on these assets when engine/ exists (else NOT RUN)
+npm run content:compile    # Engine's compiler -> experience/assets/*.bundle.json (NOT RUN without engine/)
 ```
 
 `dev:seed`/integration tooling (Engine lane) imports the validated bundle through authorized

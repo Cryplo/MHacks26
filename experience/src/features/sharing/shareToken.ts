@@ -3,7 +3,7 @@
  * base64url encoded. Only its SHA-256 is sent to the server when issuing; the raw token
  * lives only in the URL fragment (never sent in requests, logs or analytics).
  */
-import { sha256Hex } from '../../domain/canonical';
+import { canonicalHash } from '../../domain/canonical';
 
 export function generateShareToken(bytes = 32): string {
   const b = new Uint8Array(bytes);
@@ -13,7 +13,8 @@ export function generateShareToken(bytes = 32): string {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export const hashShareToken = (token: string) => sha256Hex(token);
+/** Engine verifies `sha256(canonicalJson(token))` (the canonical JSON string), not raw bytes. */
+export const hashShareToken = (token: string) => canonicalHash(token);
 
 export function buildShareLink(origin: string, token: string): string {
   return `${origin}/share#t=${encodeURIComponent(token)}`;

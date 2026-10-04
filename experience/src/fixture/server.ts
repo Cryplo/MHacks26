@@ -365,7 +365,7 @@ export class FixtureServer {
   }
   private redeemShare(identity: string, token: string) {
     return this.mutate((s) => {
-      const hash = sha256Sync(token);
+      const hash = sha256Sync(canonicalJson(token)); // same binding as Engine
       const g = Object.values(s.grants).find((x) => x.tokenHash === hash);
       if (!g) return fail('NOT_FOUND', 'This share link is not valid.');
       if (g.revoked) fail('FORBIDDEN', 'This share link was revoked.');

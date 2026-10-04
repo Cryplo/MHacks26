@@ -10,7 +10,8 @@ export const ARCHETYPE_LABEL: Record<Archetype, string> = {
   young_family: 'Young families', teens: 'Teen groups', couple: 'Couples', thrill_seekers: 'Thrill seekers', seniors: 'Seniors', solo: 'Solo visitors',
 };
 export const DEFAULT_GUESTS = 300;
-export const GENERATOR_VERSION = 'population-generator-v1';
+// Must match a generator the population service implements (Intelligence: population-v1).
+export const GENERATOR_VERSION = 'population-v1';
 export type GuestMix = Record<Archetype, number>;
 
 export function defaultMix(total = DEFAULT_GUESTS): GuestMix {

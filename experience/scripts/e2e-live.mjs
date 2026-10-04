@@ -3,6 +3,7 @@
 // Exit codes: 0 integrated suite passed; 1 failure; 2 integrated suite NOT RUN.
 import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { installAdapter } from './integration.mjs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +15,7 @@ if (run('missing') !== 0) process.exit(1);
 console.log('== Live profile with a contract stub adapter (adapter swaps in by configuration) ==');
 if (run('stub') !== 0) process.exit(1);
 
+installAdapter(); // copies engine/client/dist/browser.js when Engine has been built
 const adapter = join(root, 'public', 'runtime', 'browser.js');
 const missing = [];
 if (!existsSync(adapter)) missing.push(`Engine browser adapter at ${adapter} (copied by A's integration launcher)`);

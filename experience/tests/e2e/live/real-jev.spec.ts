@@ -11,7 +11,7 @@ test('@real-jev a live run shows a Jev-sourced distribution, never a mock presen
   await page.getByLabel('Session credential').fill(process.env.BEHAVIOR_OPERATOR_TOKEN!);
   await page.getByRole('button', { name: 'Use credential' }).click();
   await page.goto('/setup');
-  await page.locator('[data-testid^=choose-park-]:not([disabled])').first().click();
+  await page.getByTestId('choose-park-harbor-lights-s1-v1').click();
   await page.getByTestId('guest-count').fill('200');
   await page.getByRole('button', { name: 'Fit to crowd size' }).click();
   await page.getByTestId('request-preview').click();
@@ -21,6 +21,7 @@ test('@real-jev a live run shows a Jev-sourced distribution, never a mock presen
   await page.getByTestId('start-run').click({ timeout: 300_000 });
   await expect(page.getByTestId('mode-badges').first()).toContainText('Live Jev');
   await page.getByTestId('tab-guests').click();
+  await page.getByTestId('only-decided').check();
   await page.locator('[data-agent-id]').first().click({ timeout: 300_000 });
   await expect(page.getByTestId('evidence-source')).toContainText(/Jev distribution|Cached distribution, originally from Jev|fallback/, { timeout: 300_000 });
   await expect(page.getByTestId('evidence-source')).not.toContainText('Mock provider');

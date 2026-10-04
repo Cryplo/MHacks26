@@ -39,6 +39,9 @@ for (const stage of [1, 2] as Stage[]) {
   const { bundle, errors } = await assembleBundle(layout, places, park, stage, sha);
   mkdirSync(fixturesDir, { recursive: true });
   writeFileSync(join(fixturesDir, `harbor-lights-stage${stage}.bundle.json`), JSON.stringify(bundle) + '\n');
+  // Engine compiler input: everything except the cell bytes, which come from grid.png.
+  const { cellsBase64: _c, cellsSha256: _h, encoding: _e, ...gridMeta } = bundle.grid;
+  writeFileSync(join(dir, 'metadata.json'), JSON.stringify({ ...bundle, grid: gridMeta }, null, 2) + '\n');
   if (process.argv.includes('--preview')) console.log(asciiPreview(painted, 2));
   console.log(`stage ${stage}: ${bundle.places.length} places, ${bundle.queueZones.length} queue zones, cells sha256 ${bundle.grid.cellsSha256}`);
   if (errors.length) { failed = true; console.error(errors.join('\n')); }

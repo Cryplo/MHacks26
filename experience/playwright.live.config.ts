@@ -8,8 +8,8 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = 4319;
 const mode = process.env.E2E_LIVE_MODE ?? 'missing';
 const outDir = mode === 'missing' ? 'dist/live-check' : mode === 'stub' ? 'dist/live-stub' : 'dist/live';
-const build = mode === 'missing' ? 'npx vite build --mode live --outDir dist/live-check --logLevel error'
-  : mode === 'stub' ? 'npx vite build --mode live --outDir dist/live-stub --logLevel error && mkdir -p dist/live-stub/runtime && cp tests/e2e/live/stub-adapter.js dist/live-stub/runtime/browser.js'
+const build = mode === 'missing' ? 'npx vite build --mode live --outDir dist/live-check --logLevel error && rm -rf dist/live-check/runtime'
+  : mode === 'stub' ? 'npx vite build --mode live --outDir dist/live-stub --logLevel error && rm -rf dist/live-stub/runtime && mkdir -p dist/live-stub/runtime && cp tests/e2e/live/stub-adapter.js dist/live-stub/runtime/browser.js'
     : 'npm run build:live';
 export default defineConfig({
   testDir: 'tests/e2e/live',

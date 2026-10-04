@@ -8,13 +8,16 @@ import type { CellCode, QueueZone, Vec2 } from '../../../contract/behavior-v1';
 
 export const CELL = { blocked: 0, path: 1, plaza: 2, grass: 3, queue: 4 } as const satisfies Record<string, CellCode>;
 
-/** Exact categorical palette. Every PNG pixel must be one of these RGB triples (alpha 255). */
+/**
+ * Exact categorical palette = Engine's compiler palette (engine/tools/compile-park.ts), so
+ * the authored PNG compiles directly. Every pixel must be one of these RGB triples (alpha 255).
+ */
 export const PALETTE: Record<CellCode, readonly [number, number, number]> = {
-  0: [31, 41, 51], // blocked: buildings, ride footprints, water, fence
-  1: [217, 200, 169], // path
-  2: [242, 230, 207], // plaza
-  3: [90, 155, 90], // grass (not walkable in the initial park)
-  4: [224, 123, 57], // queue (entry controlled; ownership in queue-zones.json)
+  0: [0, 0, 0], // blocked: buildings, ride footprints, water, fence
+  1: [255, 255, 255], // path
+  2: [128, 128, 128], // plaza
+  3: [0, 255, 0], // grass (not walkable in the initial park)
+  4: [255, 255, 0], // queue (entry controlled; ownership in queue-zones.json)
 };
 
 export type Stage = 1 | 2;

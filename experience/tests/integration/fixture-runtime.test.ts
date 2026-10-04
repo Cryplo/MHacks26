@@ -10,7 +10,7 @@ import { CommandRunner } from '../../src/runtime/commands';
 import { awaitWork } from '../../src/runtime/work';
 import { LiveConnection } from '../../src/data/liveConnection';
 import { canonicalJson, sha256Hex } from '../../src/domain/canonical';
-import { generateShareToken } from '../../src/features/sharing/shareToken';
+import { generateShareToken, hashShareToken } from '../../src/features/sharing/shareToken';
 import { buildManifest, defaultRunConfig } from '../../src/features/setup/plan';
 
 const crowd: CrowdSpec = { guestCount: 200, seed: 'seed-int', shares: { young_family: 0.4, teens: 0.1, couple: 0.2, thrill_seekers: 0.1, seniors: 0.1, solo: 0.1 }, contextNotes: '', generatorVersion: 'fixture-pop-v1' };
@@ -89,7 +89,7 @@ describe('fixture runtime protocol', () => {
     const runId = created.result.runId;
     await expect(anon.query('getRun', { runId })).rejects.toMatchObject({ error: { code: 'FORBIDDEN' }, transport: false });
     const token = generateShareToken();
-    const issued = await runner.run('issueShare', { runId, access: 'viewer', tokenHash: await sha256Hex(token), expiresAtEpochMs: now + 60_000 }, 'share');
+    const issued = await runner.run('issueShare', { runId, access: 'viewer', tokenHash: await hashShareToken(token), expiresAtEpochMs: now + 60_000 }, 'share');
     expect(issued.kind).toBe('accepted');
     // The server stores only the hash, never the token.
     expect(JSON.stringify(server.query('fixture:operator', 'session', {}))).not.toContain(token);
@@ -105,7 +105,7 @@ describe('fixture runtime protocol', () => {
     await expect(anon.query('getRun', { runId })).rejects.toMatchObject({ error: { code: 'FORBIDDEN', message: expect.stringMatching(/revoked or has expired/) } });
     // Expired link
     const t2 = generateShareToken();
-    await runner.run('issueShare', { runId, access: 'viewer', tokenHash: await sha256Hex(t2), expiresAtEpochMs: now + 1000 }, 'share2');
+    await runner.run('issueShare', { runId, access: 'viewer', tokenHash: await hashShareToken(t2), expiresAtEpochMs: now + 1000 }, 'share2');
     now += 5000;
     expect(await anon.command('redeemShare', { token: t2 }, 'redeem-2')).toMatchObject({ ok: false, error: { code: 'FORBIDDEN', message: expect.stringMatching(/expired/) } });
   });
