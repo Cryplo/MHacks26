@@ -9,6 +9,8 @@ export type ProviderDecision = {
   raw: Uint8Array; modelReturned: string;
   probabilities: { optionId: unknown; probability: unknown }[];
   confidence: number | null; usage: ProviderUsage; httpMs: number;
+  /** Set when a vendor-quantized vector was renormalized at the adapter (raw bytes unchanged). */
+  quantization?: { step: number; rawSum: number } | null;
 };
 
 export type ProviderRating = {
@@ -18,6 +20,7 @@ export type ProviderRating = {
   /** Score as returned by the provider (expected to be a level index). */
   score: unknown;
   usage: ProviderUsage; httpMs: number;
+  quantization?: { step: number; rawSum: number } | null;
 };
 
 export type ProviderErrorKind =

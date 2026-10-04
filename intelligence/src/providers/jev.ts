@@ -17,6 +17,7 @@ import { parseRetryAfter } from '../worker/backoff.ts';
 import type { HttpPort, HttpResponse } from './http.ts';
 import { HttpAbort } from './http.ts';
 import type { BehaviorProvider, ProviderCallContext, ProviderDecision, ProviderRating, ProviderUsage } from './types.ts';
+import { dequantize, JEV_PROBABILITY_STEP } from './quantization.ts';
 import { ProviderError, estimateTokens } from './types.ts';
 
 export const JEV_INSTRUCTIONS_VERSION = 'jev-instructions-v1';
@@ -175,7 +176,9 @@ export class JevProvider implements BehaviorProvider {
     if (!a || (a.type !== undefined && a.type !== 'choice') || !entries) {
       throw new ProviderError('invalid_output', 'Jev response lacks answers.action choice probabilities', { raw: res.body, usage, modelReturned, httpMs });
     }
-    return { raw: res.body, modelReturned, probabilities: entries, confidence: num(a.confidence), usage, httpMs };
+    const dq = dequantize(entries.map((e) => e.probability));
+    const probabilities = dq ? entries.map((e, i) => ({ ...e, probability: dq.values[i]! })) : entries;
+    return { raw: res.body, modelReturned, probabilities, confidence: num(a.confidence), usage, httpMs, quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null };
   }
 
   async rate(req: RatingRequest, ctx: ProviderCallContext): Promise<ProviderRating> {
@@ -186,6 +189,7 @@ export class JevProvider implements BehaviorProvider {
     if (!a || (a.type !== undefined && a.type !== 'score') || !vec) {
       throw new ProviderError('invalid_output', 'Jev response lacks answers.rating score distribution', { raw: res.body, usage, modelReturned, httpMs });
     }
-    return { raw: res.body, modelReturned, probabilities: vec, score: a.score, usage, httpMs };
+    const dq = dequantize(vec);
+    return { raw: res.body, modelReturned, probabilities: dq ? dq.values : vec, score: a.score, usage, httpMs, quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null };
   }
 }

@@ -83,6 +83,7 @@ export class InferenceService {
     const { accepted, source } = await this.resolve('behavior', 'decision', req.policyVersion, workId, scope, req.requestId, key, this.deps.provider.estimateInputTokens(req), signal, hooks,
       (ctx) => this.deps.provider.decide(req, ctx),
       (resp: ProviderDecision) => {
+        if (resp.quantization) this.deps.logger.log('info', 'provider.quantization_normalized', { workId, requestId: req.requestId, rawSum: resp.quantization.rawSum, step: resp.quantization.step });
         const d = validateDistribution(expectedIds, resp.probabilities);
         if (!d.ok) return { ok: false as const, reason: d.errors.map((e) => e.message).join('; ') };
         if (resp.confidence !== null && !(Number.isFinite(resp.confidence) && resp.confidence >= 0 && resp.confidence <= 1)) return { ok: false as const, reason: 'confidence out of range' };
@@ -105,6 +106,7 @@ export class InferenceService {
     const { accepted, source } = await this.resolve('measurement', 'rating', req.rubricVersion, workId, scope, req.ratingId, key, this.deps.provider.estimateInputTokens(req), signal, hooks,
       (ctx) => this.deps.provider.rate(req, ctx),
       (resp: ProviderRating) => {
+        if (resp.quantization) this.deps.logger.log('info', 'provider.quantization_normalized', { workId, ratingId: req.ratingId, rawSum: resp.quantization.rawSum, step: resp.quantization.step });
         const r = validateRatingOutput(req, resp.probabilities, resp.score);
         if (!r.ok) return { ok: false as const, reason: r.reason };
         return { ok: true as const, probabilities: r.probabilities, rawSum: r.sum, sumError: Math.abs(r.sum - 1), confidence: null, score: r.scoreIndex };

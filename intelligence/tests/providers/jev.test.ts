@@ -152,6 +152,21 @@ describe('B-06 request formatting and response mapping', () => {
     expect(r.modelReturned).toBe('jev-1.13.0');
   });
 
+  it('real-shaped two-decimal vector summing to 0.99 is renormalized at the adapter, raw bytes kept', async () => {
+    const body = { model: 'jev-1.13.0', answers: { action: { type: 'choice', confidence: 0.6, probabilities: { browse: 0.6, leave: 0, travel_splash: 0.39 } } }, usage: { input_tokens: 10, output_tokens: 5 } };
+    const t = await setup((_h, _n, res) => json(res, 200, body));
+    const r = await t.inference.decide('w1', scope, req(), new AbortController().signal);
+    expect(r.probabilities.reduce((s, p) => s + p.probability, 0)).toBeCloseTo(1, 12);
+    expect(r.probabilities.find((p) => p.optionId === 'browse')!.probability).toBeCloseTo(0.6 / 0.99, 12);
+    expect(t.logger.entries.some((l) => l.event === 'provider.quantization_normalized')).toBe(true);
+  });
+
+  it('an off-grid vector with a large sum error is still rejected (no silent normalization)', async () => {
+    const body = { model: 'jev-1.13.0', answers: { action: { type: 'choice', probabilities: { browse: 0.333, leave: 0.333, travel_splash: 0.2 } } } };
+    const t = await setup((_h, _n, res) => json(res, 200, body), { maxAttempts: 1 });
+    await expect(t.inference.decide('w1', scope, req(), new AbortController().signal)).rejects.toBeTruthy();
+  });
+
   it('a different returned model fails visibly instead of silently switching', async () => {
     const t = await setup((_h, _n, res) => json(res, 200, { ...docs.choiceObjectMap, model: 'jev-2.0.0' }));
     await expect(t.inference.decide('w1', scope, req(), new AbortController().signal)).rejects.toMatchObject({ kind: 'unsupported_model' });
