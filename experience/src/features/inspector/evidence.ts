@@ -77,3 +77,62 @@ export function narrateFromState(e: AppliedDecision, agentId: Id): string {
     + `The recorded draw selected "${chosen?.label ?? e.chosenOptionId}"${p !== undefined ? `, which had an assigned probability of ${(p * 100).toFixed(1)}%` : ''}. `
     + `Outcome: ${e.outcome === 'committed' ? 'committed' : `failed (${e.failureReason ?? 'precondition'})`}.`;
 }
+
+/** Plain-language name for a decision moment (what prompted the guest to decide). */
+export const MOMENT_LABEL: Record<string, string> = {
+  forced_replan: 'Plans were interrupted', what_next: 'Choosing what to do next', noticed: 'Noticed something',
+  join_line: 'Deciding whether to join a line', stay_line: 'Deciding whether to stay in line', hungry_tired: 'Feeling hungry or tired',
+  message_seen: 'Read an app message', closing_soon: 'Park closing soon', route_choice: 'Choosing a route', bumped: 'Got bumped into',
+  separated: 'Separated from the group',
+};
+export const momentLabel = (m: string) => MOMENT_LABEL[m] ?? m.replace(/_/g, ' ');
+
+/** Engine's recorded explanation (additive `rationale`), read defensively; null when absent. */
+export function recordedRationale(e: AppliedDecision): { summary: string; drivers: string[]; modelReasoning: string | null } | null {
+  const r = (e as { rationale?: unknown }).rationale;
+  const modelText = typeof e.response.reasoning === 'string' && e.response.reasoning.trim() ? e.response.reasoning.trim() : null;
+  if (typeof r === 'string' && r.trim()) return { summary: r.trim(), drivers: [], modelReasoning: modelText };
+  if (r && typeof r === 'object' && typeof (r as { summary?: unknown }).summary === 'string' && (r as { summary: string }).summary.trim()) {
+    const o = r as { summary: string; drivers?: unknown; modelReasoning?: unknown };
+    const drivers = Array.isArray(o.drivers) ? o.drivers.filter((d): d is string => typeof d === 'string' && d.trim() !== '') : [];
+    const mr = typeof o.modelReasoning === 'string' && o.modelReasoning.trim() ? o.modelReasoning.trim() : modelText;
+    return { summary: o.summary.trim(), drivers, modelReasoning: mr };
+  }
+  return null;
+}
+
+export function salientNeeds(n: { hunger: number; fatigue: number; patience: number; fun: number }): string[] {
+  const out: string[] = [];
+  if (n.hunger >= 60) out.push(`hungry (${Math.round(n.hunger)}/100)`);
+  if (n.fatigue >= 60) out.push(`tired (${Math.round(n.fatigue)}/100)`);
+  if (n.patience <= 35) out.push(`low on patience (${Math.round(n.patience)}/100)`);
+  if (n.fun <= 30) out.push(`looking for some fun (${Math.round(n.fun)}/100)`);
+  return out;
+}
+
+const pct = (p: number) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
+
+export function deriveRationale(e: AppliedDecision, agentId: Id): string {
+  const obs = e.request.observation;
+  const self = obs.members.find((m) => m.persona.agentId === agentId) ?? obs.members.find((m) => m.persona.agentId === obs.leaderId) ?? obs.members[0];
+  const group = e.request.agentIds.length > 1;
+  const subject = group ? 'The group' : 'They';
+  const parts: string[] = [];
+  const needs = self ? salientNeeds(self.needs) : [];
+  if (needs.length) parts.push(`${group ? (self?.persona.agentId === agentId ? 'This guest was' : 'The group leader was') : 'They were'} ${needs.join(' and ')}.`);
+  const facts = obs.facts.slice(-2).map((f) => `“${f.text}”`);
+  if (facts.length) parts.push(`${group ? 'The group' : 'They'} had just seen ${facts.join(' and ')}.`);
+  const rows = optionRows(e);
+  const chosen = rows.find((r) => r.sampled);
+  const best = rows.find((r) => r.highest);
+  if (chosen) {
+    const p = chosen.applied ?? 0;
+    let s = `${facts.length || needs.length ? 'So they' : subject} chose “${chosen.label}” (${pct(p)})`;
+    if (chosen.highest) s += rows.length > 1 ? `, the most likely of ${rows.length} options.` : '.';
+    else if (best) s += `, even though “${best.label}” was more likely (${pct(best.applied ?? 0)}); the recorded draw landed on a less likely option.`;
+    else s += '.';
+    parts.push(s);
+  }
+  if (e.outcome !== 'committed') parts.push(`It could not be carried out (${e.failureReason ?? 'precondition failed'}).`);
+  return parts.join(' ');
+}

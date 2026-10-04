@@ -8,11 +8,11 @@ import { expect, test, type Page } from '@playwright/test';
 const token = process.env.BEHAVIOR_OPERATOR_TOKEN;
 test.skip(!token, 'NOT RUN: BEHAVIOR_OPERATOR_TOKEN (from Engine dev:seed) is not set');
 
+/** There is no sign-in UI: install the operator credential the way the runtime stores it. */
 async function signIn(page: Page) {
-  await page.goto('/session');
-  await page.getByLabel('Session credential').fill(token!);
-  await page.getByRole('button', { name: 'Use credential' }).click();
-  await expect(page.getByTestId('session-chip')).toContainText('operator', { timeout: 60_000 });
+  await page.addInitScript((t) => { localStorage.setItem('behavior-engine.session-token.v1', t); localStorage.setItem('behavior-engine.session-explicit.v1', '1'); }, token!);
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'New simulation' }).first()).toBeVisible({ timeout: 60_000 });
 }
 
 test('@integrated registered park -> population -> run -> inspect -> approved intervention -> metrics -> A/B report', async ({ page, context }) => {
@@ -22,13 +22,11 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
   const ready = page.getByTestId('choose-park-harbor-lights-s1-v1');
   await ready.click({ timeout: 120_000 });
   await page.getByTestId('guest-count').fill('200');
-  await page.getByRole('button', { name: 'Fit to crowd size' }).click();
-  await page.getByTestId('request-preview').click();
   await expect(page.getByTestId('population-preview')).toBeVisible({ timeout: 300_000 });
   await page.getByTestId('create-run').click();
   await expect(page.getByTestId('live-page')).toBeVisible();
-  await expect(page.getByTestId('mode-badges').first()).toContainText('Mock');
-  await page.getByTestId('start-run').click({ timeout: 300_000 });
+  // Runs created from setup start automatically once Engine reports them ready.
+  await expect(page.getByTestId('run-status').first()).toContainText(/Running|Blocked/, { timeout: 300_000 });
   await expect(page.getByTestId('connection')).toHaveText('live');
   const runUrl = page.url().split('?')[0]!;
 
@@ -39,7 +37,8 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
   await expect(page.getByTestId('evidence-source')).toContainText(/Mock provider|Cached distribution/, { timeout: 300_000 });
 
   // Viewer link + unauthorized session against real grants (C-14/C-15).
-  await page.getByTestId('tab-share').click();
+  await page.getByTestId('run-menu').click();
+  await page.getByTestId('menu-share').click();
   await page.getByTestId('issue-share').click();
   const link = await page.getByTestId('share-link').inputValue();
   const viewerCtx = await context.browser()!.newContext();
@@ -52,7 +51,9 @@ test('@integrated registered park -> population -> run -> inspect -> approved in
   await expect(stranger.getByText('No access to this run')).toBeVisible({ timeout: 60_000 });
 
   // Approved intervention through parse -> confirm -> receipt -> applied.
-  await page.getByTestId('tab-whatif').click();
+  await page.getByTestId('run-menu').click();
+  await page.getByTestId('menu-whatif').click();
+  await viewer.getByTestId('tab-activity').click();
   await page.getByTestId('whatif-text').fill('close the carousel in 2 minutes');
   await page.getByTestId('whatif-parse').click();
   await expect(page.getByTestId('draft-card')).toBeVisible({ timeout: 120_000 });

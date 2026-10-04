@@ -6,7 +6,7 @@ import { SCENARIO_PRESETS } from '../../content/harborLights';
 import { useAsync } from '../../data/useAsync';
 import { canonicalHash } from '../../domain/canonical';
 import { useRuntime } from '../../runtime/RuntimeProvider';
-import { ActionButton, Alert, ErrorBox, KV, Panel, Spinner } from '../../ui/components';
+import { ActionButton, Alert, Disclosure, ErrorBox, KV, Spinner } from '../../ui/components';
 import { formatDuration } from '../../ui/format';
 import { CrowdEditor } from '../setup/SetupPage';
 import { buildCrowd, DEFAULT_GUESTS, defaultMix, validateCrowd, type GuestMix } from '../setup/crowd';
@@ -63,57 +63,78 @@ export function ExperimentSetupPage() {
     else setError({ error: out.error, transport: out.kind === 'transport' });
   };
   return (
-    <div className="stack" data-testid="experiment-setup">
-      <h1>Compare A/B (paired seeds)</h1>
-      <p className="muted">Each seed produces one frozen population shared by both arms; arm A and arm B differ only in the scenario. The result is unknown in advance and may be neutral or negative.</p>
-      <Panel title="Park and crowd">
-        {!parks.data ? <Spinner label="Loading parks…" /> : (
-          <label className="field"><span className="label">Park</span>
-            <select value={park?.artifact.artifactId ?? ''} onChange={(e) => setParkId(e.target.value)}>
-              {parks.data.items.map((p) => <option key={p.artifact.artifactId} value={p.artifact.artifactId} disabled={p.status !== 'ready'}>{p.label} ({p.status})</option>)}
-            </select>
-          </label>
-        )}
-        <CrowdEditor guestCount={guestCount} setGuestCount={setGuestCount} mix={mix} setMix={setMix} seed="" setSeed={() => undefined} hideSeed notes={notes} setNotes={setNotes} check={check} crowd={crowd} />
-      </Panel>
-      <Panel title="Arms and analysis">
-        <div className="grid-3">
-          <label className="field"><span className="label">Arm A (baseline)</span>
-            <select value={baselineId} onChange={(e) => setBaselineId(e.target.value)}>{SCENARIO_PRESETS.map((p) => <option key={p.scenario.id} value={p.scenario.id}>{p.scenario.label}</option>)}</select></label>
-          <label className="field"><span className="label">Arm B (variant)</span>
-            <select value={variantId} onChange={(e) => setVariantId(e.target.value)} data-testid="variant-select">{SCENARIO_PRESETS.map((p) => <option key={p.scenario.id} value={p.scenario.id}>{p.scenario.label}</option>)}</select></label>
-          <label className="field"><span className="label">Seed pairs</span>
-            <select value={seedCount} onChange={(e) => setSeedCount(Number(e.target.value))}>{[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}{n === 1 ? ' (illustration only)' : n < 3 ? ' (exploratory)' : ' (exploratory, default)'}</option>)}</select></label>
-          <label className="field"><span className="label">Seed prefix</span><input type="text" value={seedPrefix} onChange={(e) => setSeedPrefix(e.target.value.replace(/[^A-Za-z0-9_.:-]/g, ''))} /></label>
-          <label className="field"><span className="label">Horizon</span>
-            <select value={horizon} onChange={(e) => setHorizon(Number(e.target.value))}>{HORIZON_OPTIONS_MS.map((h) => <option key={h} value={h}>{formatDuration(h)}</option>)}</select></label>
-          <label className="field"><span className="label">Behavior provider</span>
-            <select value={provider} onChange={(e) => setProvider(e.target.value as 'mock' | 'jev')} data-testid="experiment-provider">
-              <option value="mock">Mock provider (infrastructure check)</option>
-              <option value="jev" disabled={Boolean(jevReason)}>Real Jev (billable){jevReason ? ' (unavailable)' : ''}</option>
-            </select>
-            {jevReason && <span className="small muted">{jevReason}</span>}
-          </label>
-          <label className="field"><span className="label">Analysis</span>
-            <select value={analysis} onChange={(e) => { setAnalysis(e.target.value as 'paired_descriptive' | 'paired_t'); setTAck(false); }}>
-              <option value="paired_descriptive">Paired descriptive (mean, min, max, SD)</option>
-              <option value="paired_t">Paired t interval (explicit opt-in)</option>
-            </select></label>
+    <div data-testid="experiment-setup">
+      <div className="page-head">
+        <div>
+          <div className="eyebrow"><Link to="/">Simulations</Link><span aria-hidden="true">/</span><span>Compare</span></div>
+          <h1>Compare A/B</h1>
+          <p>Run a baseline and a variant on the same crowds (paired seeds). Only the scenario differs between arms; the result may be neutral or negative.</p>
         </div>
-        {lever.bundled ? <Alert tone="warn" title="Bundled change">{lever.label}</Alert> : <p className="small">Changed lever: <b>{lever.label}</b></p>}
-        {analysis === 'paired_t' && (
-          <Alert tone="warn" title="Paired-t assumptions">
-            <p>Assumes approximately normal paired differences across seeds; with few pairs the interval is wide. It describes variability of modeled mean differences, not calibration to real visitors.</p>
-            <label className="row small"><input type="checkbox" checked={tAck} onChange={(e) => setTAck(e.target.checked)} /> I understand these assumptions.</label>
-          </Alert>
-        )}
-        <KV items={[['Mode', provider === 'jev' ? 'Real Jev (experiment mode; mock and fallback rejected by Engine; billable)' : 'Mock provider (not a real-Jev comparison)'], ['Seeds', seeds.join(', ')], ['Arms run', 'one at a time (maxConcurrentArms 1)'], ['Start', 'park opening']]} />
-        <div className="row" style={{ marginTop: 8 }}>
-          <ActionButton tone="primary" onClick={() => void create()} busy={busy} disabledReason={reason} testId="create-experiment">Create experiment</ActionButton>
-          <Link to="/setup" className="small">Single exploratory run instead</Link>
+      </div>
+      <div className="setup-grid">
+        <div className="setup-form">
+          <section className="setup-step" aria-labelledby="exp-arms">
+            <div className="step-head"><span className="n">01</span><h2 id="exp-arms">Arms</h2></div>
+            <div className="grid-2">
+              <label className="field"><span className="label">Arm A (baseline)</span>
+                <select value={baselineId} onChange={(e) => setBaselineId(e.target.value)}>{SCENARIO_PRESETS.map((p) => <option key={p.scenario.id} value={p.scenario.id}>{p.scenario.label}</option>)}</select></label>
+              <label className="field"><span className="label">Arm B (variant)</span>
+                <select value={variantId} onChange={(e) => setVariantId(e.target.value)} data-testid="variant-select">{SCENARIO_PRESETS.map((p) => <option key={p.scenario.id} value={p.scenario.id}>{p.scenario.label}</option>)}</select></label>
+            </div>
+            {lever.bundled ? <Alert tone="warn" title="Bundled change">{lever.label}</Alert> : <p className="small muted" style={{ margin: 0 }}>Changed lever: <b style={{ color: 'var(--ink)' }}>{lever.label}</b></p>}
+          </section>
+          <section className="setup-step" aria-labelledby="exp-crowd">
+            <div className="step-head"><span className="n">02</span><h2 id="exp-crowd">Crowd</h2></div>
+            {!parks.data ? <Spinner label="Loading parks…" /> : (
+              <label className="field"><span className="label">Park</span>
+                <select value={park?.artifact.artifactId ?? ''} onChange={(e) => setParkId(e.target.value)}>
+                  {parks.data.items.map((p) => <option key={p.artifact.artifactId} value={p.artifact.artifactId} disabled={p.status !== 'ready'}>{p.label} ({p.status})</option>)}
+                </select>
+              </label>
+            )}
+            <CrowdEditor guestCount={guestCount} setGuestCount={setGuestCount} mix={mix} setMix={setMix} notes={notes} setNotes={setNotes} check={check} crowd={crowd} />
+          </section>
+          <Disclosure summary="Seeds, provider and analysis" count={`${seedCount} pairs · ${provider === 'jev' ? 'Jev' : 'mock'}`}>
+            <div className="grid-2">
+              <label className="field"><span className="label">Seed pairs</span>
+                <select value={seedCount} onChange={(e) => setSeedCount(Number(e.target.value))}>{[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}{n === 1 ? ' (illustration only)' : n < 3 ? ' (exploratory)' : ' (exploratory, default)'}</option>)}</select></label>
+              <label className="field"><span className="label">Seed prefix</span><input type="text" value={seedPrefix} onChange={(e) => setSeedPrefix(e.target.value.replace(/[^A-Za-z0-9_.:-]/g, ''))} /></label>
+              <label className="field"><span className="label">Horizon</span>
+                <select value={horizon} onChange={(e) => setHorizon(Number(e.target.value))}>{HORIZON_OPTIONS_MS.map((h) => <option key={h} value={h}>{formatDuration(h)}</option>)}</select></label>
+              <label className="field"><span className="label">Behavior provider</span>
+                <select value={provider} onChange={(e) => setProvider(e.target.value as 'mock' | 'jev')} data-testid="experiment-provider">
+                  <option value="mock">Mock provider (infrastructure check)</option>
+                  <option value="jev" disabled={Boolean(jevReason)}>Real Jev (billable){jevReason ? ' (unavailable)' : ''}</option>
+                </select>
+                {jevReason && <span className="hint">{jevReason}</span>}
+              </label>
+              <label className="field"><span className="label">Analysis</span>
+                <select value={analysis} onChange={(e) => { setAnalysis(e.target.value as 'paired_descriptive' | 'paired_t'); setTAck(false); }}>
+                  <option value="paired_descriptive">Paired descriptive (mean, min, max, SD)</option>
+                  <option value="paired_t">Paired t interval (explicit opt-in)</option>
+                </select></label>
+            </div>
+            {analysis === 'paired_t' && (
+              <Alert tone="warn" title="Paired-t assumptions">
+                <p>Assumes approximately normal paired differences across seeds; with few pairs the interval is wide. It describes variability of modeled mean differences, not calibration to real visitors.</p>
+                <label className="check"><input type="checkbox" checked={tAck} onChange={(e) => setTAck(e.target.checked)} /> I understand these assumptions.</label>
+              </Alert>
+            )}
+          </Disclosure>
         </div>
-        {error && <ErrorBox error={error.error} transport={error.transport} onRetry={() => void create()} />}
-      </Panel>
+        <aside className="summary-card" aria-label="Experiment summary">
+          <div className="panel stack" style={{ gap: 16 }}>
+            <div>
+              <h2 style={{ marginBottom: 2 }}>{baseline.label} <span className="faint">vs</span> {variant.label}</h2>
+              <p className="small muted" style={{ margin: 0 }}>{park?.label ?? 'Harbor Lights'} · {guestCount} guests · {formatDuration(horizon)}</p>
+            </div>
+            <KV items={[['Provider', provider === 'jev' ? 'Real Jev (mock and fallback rejected; billable)' : 'Mock provider (not a real-Jev comparison)'], ['Seeds', seeds.join(', ')], ['Arms run', 'one at a time'], ['Start', 'park opening']]} />
+            <ActionButton tone="primary" large block onClick={() => void create()} busy={busy} disabledReason={reason} testId="create-experiment">Run comparison</ActionButton>
+            {error && <ErrorBox error={error.error} transport={error.transport} onRetry={() => void create()} />}
+            <Link to="/setup" className="small muted">Single simulation instead</Link>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

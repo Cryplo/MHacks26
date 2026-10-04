@@ -16,9 +16,11 @@ npm ci
 npm run dev            # fixture profile on http://localhost:4317
 ```
 
-Open **Session → Sign in as fixture operator (fixture only)**, then **New run**. Every
-fixture screen carries the purple **Fixture** badge and banner: data is a scripted,
-non-reactive choreography with a mock policy, not Engine and not Jev.
+Click **New simulation**, keep the defaults (Harbor Lights, 1,000 guests) and press **Start
+simulation**. The run opens on the isometric live map and starts by itself. Click any guest to
+see their status, needs and the reasoning behind each decision. Fixture screens show a small
+**Fixture data** chip: the data is a scripted choreography driven by a mock policy, not Engine
+and not Jev.
 
 ## Profiles and data modes
 
@@ -41,12 +43,12 @@ comes from the runtime (`RuntimeConfig.onToken`) and is stored only in this brow
 | Route | Purpose |
 |---|---|
 | `/` | Runs visible to this session (from `session.runIds`). |
-| `/session` | Identity/roles, use a credential, sign out (clears cached private run data). |
-| `/setup` | Park preview → crowd (sliders in guests) → population job preview → scenario/settings → frozen plan → create. |
-| `/runs/:runId` | Live park, health strip, controls (operators), stats, guest list, inspector, what-if, share. `?guest=ID` selects a guest (selection only; never a role). |
+| `/session` | Redirects home (there is no sign-in UI; the app acts as the local operator). |
+| `/setup` | One screen: park, crowd size and mix, optional crowd description and advanced settings (collapsed), then **Start simulation** (creates and starts the run). |
+| `/runs/:runId` | Isometric live map with a run bar (play/pause, speed 1×–60×, headline KPIs, ⋯ menu for What if, Share, Results, Replay and Cancel) and one side panel: Overview / Guests / Activity, or the guest detail when a guest is selected. `?guest=ID` selects a guest (selection only; never a role). |
 | `/runs/:runId/results` | Definition/coverage/limitations first, metrics, heatmaps with drill-down, fact-backed report, JSON/CSV export. |
 | `/runs/:runId/print` | One-page executive summary for browser print ("Save as PDF" is the browser's; no PDF generator). |
-| `/runs/:runId/replay` | Recorded frames only, bounded windows, play/pause/step/seek. |
+| `/runs/:runId/replay` | Redirects to the live view scrubbed to the start (`?t=0`); the run-bar timeline scrubs recorded frames. |
 | `/experiments/new`, `/experiments/:id` | Paired A/B setup and report (all pairs, B−A deltas, descriptive spread). |
 | `/share#t=…` | Redeems a share capability through the server and scrubs it from history. |
 
@@ -106,9 +108,8 @@ tooltips; charts have data tables; layouts verified at 375px; reduced-motion res
 2. `npm run dev:integration` builds the live profile and serves it on http://127.0.0.1:4317.
    It signs in automatically as the local operator (from `engine/.local/integration.env`,
    written by `node integration/bootstrap-identities.mjs`), so there is no sign-in step.
-   A credential chosen explicitly on `/session` takes precedence. Local use only: the served
-   build contains the local operator credential. A plain `npm run build:live` never does,
-   and still requires signing in on `/session`.
+   Local use only: the served build contains the local operator credential. A plain
+   `npm run build:live` never does, so it has no credential and cannot operate runs.
 4. `BEHAVIOR_OPERATOR_TOKEN=… npm run test:e2e:live` (add `BEHAVIOR_REAL_JEV=1` only when a
    real-Jev budget is authorized).
 

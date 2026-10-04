@@ -32,7 +32,7 @@ describe('describeChange covers every event kind', () => {
   it('unknown place is flagged; discount unsupported note; event time', () => {
     expect(describeChange({ kind: 'closure', placeId: 'nope', closed: true }, park, false).place).toMatch(/unknown place/);
     expect(describeChange({ kind: 'app_message', messageId: 'm', text: 'x', expiresAtMs: 0, suggestedPlaceId: null, discount: { productIds: [], discountBps: 100, maxUsesPerGroup: 1 } }, park, false).notes.join()).toMatch(/not supported/);
-    expect(eventTime({ id: 'e', atMs: 18000000, order: 0, change: { kind: 'pass_price', unitPriceCents: 1 } }, park)).toBe('2:00 PM park time (+05:00:00 after opening)');
+    expect(eventTime({ id: 'e', atMs: 18000000, order: 0, change: { kind: 'pass_price', unitPriceCents: 1 } }, park)).toBe('2:00 PM park time');
   });
 });
 

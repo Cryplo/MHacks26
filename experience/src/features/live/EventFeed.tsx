@@ -5,6 +5,7 @@ import type { LiveStore } from '../../data/liveStore';
 import { useRuntime } from '../../runtime/RuntimeProvider';
 import { classifyError } from '../../runtime/errors';
 import { formatCents, formatSimClock } from '../../ui/format';
+import { guestName } from '../../domain/guestNames';
 
 const KNOWN: Record<string, string> = {
   arrived: 'Arrived', observed: 'Observed', queue_joined: 'Joined queue', queue_left: 'Left queue', closure_release: 'Released by closure',
@@ -12,20 +13,25 @@ const KNOWN: Record<string, string> = {
   departed: 'Departed', action_failed: 'Action failed', scenario_applied: 'Scenario applied', bump: 'Bump', regrouped: 'Regrouped',
 };
 
-/** Renders one event as text. Unknown kinds are shown generically and never interpreted. */
+/** Text for one event. Unknown kinds are shown generically and never interpreted. */
+export function describeEvent(e: EventRecord, park: ParkBundle): { label: string; detail: string } {
+  const place = e.placeId ? park.places.find((p) => p.id === e.placeId)?.name ?? e.placeId : null;
+  const label = KNOWN[e.kind] ?? `Event "${String(e.kind)}" (unrecognized kind, shown as data)`;
+  const bits = [place, e.amountCents !== null ? formatCents(e.amountCents) : null,
+    e.experienceDelta !== null ? `experience ${e.experienceDelta > 0 ? '+' : ''}${e.experienceDelta}` : null, e.reason].filter(Boolean);
+  return { label, detail: bits.join(' · ') };
+}
+
 export function EventLine(props: { e: EventRecord; park: ParkBundle; onAgent?: (id: Id) => void }) {
   const { e } = props;
-  const place = e.placeId ? props.park.places.find((p) => p.id === e.placeId)?.name ?? e.placeId : null;
-  const label = KNOWN[e.kind] ?? `Event "${String(e.kind)}" (unrecognized kind, shown as data)`;
+  const d = describeEvent(e, props.park);
   return (
     <>
       <span className="t">{formatSimClock(e.atMs, props.park.openLocal, true)}</span>
       <span className="grow">
-        <strong>{label}</strong>{place ? ` · ${place}` : ''}{e.amountCents !== null ? ` · ${formatCents(e.amountCents)}` : ''}
-        {e.experienceDelta !== null ? ` · modeled experience ${e.experienceDelta > 0 ? '+' : ''}${e.experienceDelta}` : ''}
-        {e.reason ? <span className="muted"> · {e.reason}</span> : null}
+        <strong>{d.label}</strong>{d.detail ? <span className="muted"> · {d.detail}</span> : null}
         {e.agentIds.length > 0 && props.onAgent && (
-          <span> · {e.agentIds.slice(0, 4).map((id) => <button key={id} type="button" className="btn ghost small mono" onClick={() => props.onAgent!(id)}>{id}</button>)}{e.agentIds.length > 4 ? ` +${e.agentIds.length - 4}` : ''}</span>
+          <span> {e.agentIds.slice(0, 3).map((id) => <button key={id} type="button" className="chip-btn" onClick={() => props.onAgent!(id)} aria-label={`Inspect ${guestName(id, e.groupId)}`}>{guestName(id, e.groupId).split(' ')[0]}</button>)}{e.agentIds.length > 3 ? <span className="faint tiny"> +{e.agentIds.length - 3}</span> : ''}</span>
         )}
       </span>
     </>
@@ -47,21 +53,19 @@ export function EventFeed(props: { store: LiveStore; park: ParkBundle; runId: Id
   };
   const recent = [...events].reverse().slice(0, 120);
   return (
-    <section aria-label="Event feed" data-testid="event-feed">
-      <div className="spread" style={{ padding: '6px 16px' }}>
-        <h3 style={{ margin: 0 }}>Events <span className="small muted">(latest {recent.length}; bounded)</span></h3>
-        <button type="button" className="btn small" onClick={() => void loadPage(0)}>Full history from opening</button>
-      </div>
+    <section aria-label="Activity" data-testid="event-feed" className="stack" style={{ gap: 8 }}>
+      {recent.length === 0 && <p className="small muted">No activity yet.</p>}
       <ul className="feed-list" aria-live="off">
         {recent.map((e) => <li key={e.sequence}><EventLine e={e} park={props.park} onAgent={props.onAgent} /></li>)}
       </ul>
+      {!older && <div><button type="button" className="link-btn small" onClick={() => void loadPage(0)}>Load full history from opening</button></div>}
       {older && (
-        <div style={{ padding: '6px 16px' }}>
-          <h4>History (pages of 100, oldest first)</h4>
+        <div className="stack" style={{ gap: 6 }}>
+          <h4 style={{ margin: '8px 0 0' }}>Full history (oldest first)</h4>
           {older.error && <p className="small" role="alert">{older.error}</p>}
-          <ul className="feed-list">{older.items.map((e) => <li key={`h${e.sequence}`}><EventLine e={e} park={props.park} onAgent={props.onAgent} /></li>)}</ul>
-          {older.next !== null && <button type="button" className="btn small" disabled={older.loading} onClick={() => void loadPage(older.next!)}>Load next page</button>}
-          {older.next === null && !older.loading && <p className="small muted">End of committed history.</p>}
+          <ul className="feed-list history">{older.items.map((e) => <li key={`h${e.sequence}`}><EventLine e={e} park={props.park} onAgent={props.onAgent} /></li>)}</ul>
+          {older.next !== null && <div><button type="button" className="btn small" disabled={older.loading} onClick={() => void loadPage(older.next!)}>Load next 100</button></div>}
+          {older.next === null && !older.loading && <p className="note">End of committed history.</p>}
         </div>
       )}
     </section>

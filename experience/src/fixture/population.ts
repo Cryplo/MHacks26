@@ -49,6 +49,28 @@ const OCCASION: Record<Archetype, string[]> = {
   thrill_seekers: ['coaster trip'], seniors: ['day trip'], solo: ['spare afternoon'],
 };
 
+/**
+ * Mirrors Intelligence's population-v1 arrival bands: a gate-opening surge (~13% at rope drop,
+ * about half within 75 minutes), then steady daytime arrivals and an evening cohort, so the park
+ * stays busy into the night. Within a band, arrivals are front-loaded (u^skew). Times land on
+ * 5-second steps.
+ */
+export const ARRIVAL_BANDS = [
+  { weight: 1.5, fromMs: 0, toMs: 3 * 60_000, skew: 1 },
+  { weight: 3, fromMs: 3 * 60_000, toMs: 25 * 60_000, skew: 1.3 },
+  { weight: 2.5, fromMs: 25 * 60_000, toMs: 75 * 60_000, skew: 1.2 },
+  { weight: 2, fromMs: 75 * 60_000, toMs: 4 * 3_600_000, skew: 1.2 },
+  { weight: 1.5, fromMs: 4 * 3_600_000, toMs: 7 * 3_600_000, skew: 1 },
+  { weight: 1, fromMs: 7 * 3_600_000, toMs: 8.5 * 3_600_000, skew: 1 },
+] as const;
+function arrivalMsFor(u: (...k: (string | number)[]) => number, groupId: string): number {
+  const total = ARRIVAL_BANDS.reduce((n, b) => n + b.weight, 0);
+  let x = u(groupId, 'arrival_band') * total;
+  const band = ARRIVAL_BANDS.find((b) => (x -= b.weight) < 0) ?? ARRIVAL_BANDS[ARRIVAL_BANDS.length - 1]!;
+  const t = band.fromMs + (band.toMs - band.fromMs) * u(groupId, 'arrival') ** band.skew;
+  return Math.floor(t / 5000) * 5000;
+}
+
 export type RealizedMix = { requested: Record<Archetype, number>; realized: Record<Archetype, number>; notes: string[] };
 
 export function buildFixturePopulation(crowd: CrowdSpec, park: ParkBundle, parkHash: Hash): { manifest: PopulationManifest; mix: RealizedMix } {
@@ -86,8 +108,8 @@ export function buildFixturePopulation(crowd: CrowdSpec, park: ParkBundle, parkH
         if (p.role === 'parent') guardians.push(agentId);
         personas.push(p);
       }
-      const arrival = Math.floor(u(groupId, 'arrival') * 90) * 60_000; // first 90 minutes
-      const stay = (150 + Math.floor(u(groupId, 'stay') * 240)) * 60_000;
+      const arrival = arrivalMsFor(u, groupId);
+      const stay = (240 + Math.floor(u(groupId, 'stay') * 300)) * 60_000;
       groups.push({
         groupId, memberIds, leaderId: memberIds[0]!, guardianIds: guardians,
         rallyPlaceId: 'main_gate', walletId: `w${groupId.slice(1)}`,
@@ -106,7 +128,7 @@ export function buildFixturePopulation(crowd: CrowdSpec, park: ParkBundle, parkH
     const groupId = `g${String(g).padStart(3, '0')}`;
     const agentId = `a${String(a).padStart(3, '0')}`;
     personas.push(makePersona('solo', 0, agentId, groupId, crowd, u, rides.map((r) => r.id)));
-    const arrival = Math.floor(u(groupId, 'arrival') * 90) * 60_000;
+    const arrival = arrivalMsFor(u, groupId);
     groups.push({ groupId, memberIds: [agentId], leaderId: agentId, guardianIds: [], rallyPlaceId: 'main_gate',
       walletId: `w${groupId.slice(1)}`, startingBalanceCents: 4000, arrivalMs: arrival,
       plannedDepartureMs: Math.min(park.closeAfterMs, arrival + 180 * 60_000) });

@@ -3,7 +3,7 @@ import type { ExperimentReport, MetricId, PairResult } from '../../../contract/b
 import { useAsync } from '../../data/useAsync';
 import { describeDelta, METRICS, METRIC_ORDER } from '../../domain/metrics';
 import { useRuntime } from '../../runtime/RuntimeProvider';
-import { Alert, ErrorBox, Explain, KV, Panel, Spinner } from '../../ui/components';
+import { Alert, Disclosure, ErrorBox, Explain, Icon, KV, Panel, Spinner } from '../../ui/components';
 import { EM_DASH, formatDuration, formatEpoch, formatMetric, formatMetricDelta } from '../../ui/format';
 import { evidenceLabels, intervalText } from './experiment';
 import { download, toCsv } from './exportCsv';
@@ -37,28 +37,19 @@ export function ExperimentPage() {
   };
   const exportJson = () => download(`experiment-${s.experimentId}.json`, 'application/json', JSON.stringify({ exportVersion: 'experience-experiment-export-v1', generatedAtEpochMs: Date.now(), labels, profile: rt.settings.profile, report: r, facts: facts.data ?? null }, null, 2));
   return (
-    <div className="stack" data-testid="experiment-page">
-      <div className="spread">
+    <div className="stack" style={{ gap: 24 }} data-testid="experiment-page">
+      <div className="page-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1>Experiment <span className="mono">{s.experimentId}</span></h1>
-          <div className="row" data-testid="evidence-labels">{labels.map((l) => <span key={l} className={`badge ${l === 'Fixture' ? 'mode-fixture' : l === 'Mock' ? 'mode-mock' : l === 'Live Jev' ? 'mode-live' : l === 'Running' ? 'info' : l === 'Incomplete' ? 'warn' : 'neutral'}`}>{l}</span>)}</div>
+          <div className="eyebrow"><Link to="/">Simulations</Link><span aria-hidden="true">/</span><span>Compare</span><span aria-hidden="true">/</span><span className="mono">{s.experimentId}</span></div>
+          <h1>{s.baseline.label} <span className="faint">vs</span> {s.variant.label}</h1>
+          <div className="row" style={{ gap: 6, marginTop: 8 }} data-testid="evidence-labels">{labels.map((l) => <span key={l} className={`badge ${l === 'Fixture' ? 'mode-fixture' : l === 'Mock' ? 'mode-mock' : l === 'Live Jev' ? 'mode-live' : l === 'Running' ? 'info' : l === 'Incomplete' ? 'warn' : 'neutral'}`}>{l}</span>)}</div>
         </div>
-        <div className="row no-print">
-          <button type="button" className="btn" onClick={exportJson}>Download JSON</button>
-          <button type="button" className="btn" onClick={exportCsv} data-testid="experiment-csv">Download CSV</button>
+        <div className="row no-print" style={{ gap: 8 }}>
+          <button type="button" className="btn" onClick={exportCsv} data-testid="experiment-csv"><Icon name="download" />CSV</button>
+          <button type="button" className="btn" onClick={exportJson}><Icon name="download" />JSON</button>
         </div>
       </div>
-      <Panel title="Before the numbers: definition, coverage and limitations">
-        <KV items={[
-          ['Intervention', s.interventionLabel], ['Changed lever', s.changedLever === 'bundled' ? 'bundled (labeled; not attributable to one lever)' : s.changedLever],
-          ['Arm A / arm B', `${s.baseline.label} / ${s.variant.label}`], ['Seeds', s.seeds.join(', ')],
-          ['Horizon', `${formatDuration(s.config.horizonMs)} from opening`], ['Mode', s.config.mode === 'mock' || s.config.versions.requestedModel === 'mock-policy-v1' ? 'Mock provider (not a real-Jev comparison)' : `Real Jev (${s.config.versions.requestedModel}; mock and fallback rejected)`],
-          ['Analysis', s.analysis === 'paired_t' ? 'paired t (explicit choice; assumptions disclosed)' : 'paired descriptive'],
-          ['Pairs', `${r.completePairs} complete of ${r.requestedPairs} requested`], ['Report revision', String(r.revision)],
-        ]} />
-        <ul className="small">{r.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
-        {r.completePairs <= 1 && <Alert tone="info" title="Illustrative">With {r.completePairs} complete pair this is an illustration, not evidence of an effect.</Alert>}
-      </Panel>
+      {r.completePairs <= 1 && <Alert tone="info" title="Illustrative">With {r.completePairs} complete pair this is an illustration, not evidence of an effect.</Alert>}
       <Panel title="Every requested pair">
         <div className="table-wrap">
           <table data-testid="pairs-table">
@@ -96,7 +87,7 @@ export function ExperimentPage() {
           </table>
         </div>
       </Panel>
-      <Panel title="Summary of paired differences (B − A)">
+      <Panel title="Paired differences (B − A)">
         <div className="table-wrap">
           <table data-testid="summary-table">
             <thead><tr><th>Metric</th><th className="num">Pairs</th><th className="num">Mean</th><th className="num">Min</th><th className="num">Max</th><th className="num">Sample SD</th><th>Interval</th><th>Reading</th></tr></thead>
@@ -121,8 +112,17 @@ export function ExperimentPage() {
         </div>
         <p className="small muted">Min and max describe spread across seed pairs; they are not confidence bounds. Values are shown with their sign; zero and negative effects are valid results. Colour is not used to imply that higher is better.</p>
       </Panel>
+      <Disclosure summary="Definition, coverage and limitations" count={`${r.completePairs} of ${r.requestedPairs} pairs complete`}>
+        <KV items={[
+          ['Intervention', s.interventionLabel], ['Changed lever', s.changedLever === 'bundled' ? 'bundled (labeled; not attributable to one lever)' : s.changedLever],
+          ['Arm A / arm B', `${s.baseline.label} / ${s.variant.label}`], ['Seeds', s.seeds.join(', ')],
+          ['Horizon', `${formatDuration(s.config.horizonMs)} from opening`], ['Mode', s.config.mode === 'mock' || s.config.versions.requestedModel === 'mock-policy-v1' ? 'Mock provider (not a real-Jev comparison)' : `Real Jev (${s.config.versions.requestedModel}; mock and fallback rejected)`],
+          ['Analysis', s.analysis === 'paired_t' ? 'paired t (explicit choice; assumptions disclosed)' : 'paired descriptive'],
+          ['Pairs', `${r.completePairs} complete of ${r.requestedPairs} requested`], ['Report revision', String(r.revision)],
+        ]} />
+        <ul className="note-list">{r.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
+      </Disclosure>
       {facts.data && <ReportPanel experimentId={experimentId} facts={facts.data} kind="experiment" />}
-      <p><Link to="/">Back to runs</Link></p>
     </div>
   );
 }

@@ -90,26 +90,26 @@ export function WhatIfPanel(props: { runId: Id; store: LiveStore; park: ParkBund
 
   return (
     <div className="stack" data-testid="whatif">
-      <h3 style={{ margin: 0 }}>What if…</h3>
-      <p className="small muted">Describe a change. The parser only proposes a draft; nothing changes until you review and confirm. Times are park-local ({props.park.openLocal} opening), not your device timezone.</p>
+      <p className="small muted" style={{ margin: 0 }}>Describe a change in plain words. You review a draft before anything is scheduled.</p>
       <form className="stack" onSubmit={(e) => { e.preventDefault(); if (text.trim()) void parse(text.trim()); }}>
-        <label className="field"><span className="label">Proposed change</span>
+        <label className="field"><span className="sr-only">Proposed change</span>
           <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder='e.g. close the coaster at 2pm; raise the pass price to $25 at 11:00' maxLength={1000} data-testid="whatif-text" />
         </label>
         <div className="row">
-          <ActionButton type="submit" onClick={() => undefined} busy={phase === 'parsing'} disabledReason={terminal ? `Run is ${run.status}.` : null} testId="whatif-parse">Preview draft</ActionButton>
+          <ActionButton type="submit" tone="primary" onClick={() => undefined} busy={phase === 'parsing'} disabledReason={terminal ? `Run is ${run.status}.` : null} testId="whatif-parse">Preview draft</ActionButton>
         </div>
+        <p className="note" style={{ margin: 0 }}>Times are park-local ({props.park.openLocal} opening), not your device timezone.</p>
       </form>
       {phase === 'parsing' && <Spinner label="Parsing (the park is unchanged)…" />}
       <StructuredEditor park={props.park} capabilities={props.capabilities} earliest={run.earliestSchedulableMs} contextRevision={run.scenarioRevision}
         onDraft={(d) => { setDraft(d); setConflict(null); setError(null); }} disabled={terminal} />
       {error && <ErrorBox error={error.error} transport={error.transport} />}
       {draft && (
-        <section className="panel tight" aria-label="Draft for review" data-testid="draft-card">
-          <div className="spread"><h4 style={{ margin: 0 }}>Draft for review</h4><span className="badge warn">not applied</span></div>
-          <p className="small muted">{draft.source === 'parser' ? `Parsed from: "${draft.text}"` : 'From the structured editor'} · reviewed against scenario revision {draft.contextRevision} · scope: this run only</p>
+        <section className="panel tight stack" style={{ gap: 10 }} aria-label="Draft for review" data-testid="draft-card">
+          <div className="spread"><b>Draft for review</b><span className="badge warn">not applied</span></div>
+          <p className="note">{draft.source === 'parser' ? `From “${draft.text}”` : 'From the step-by-step editor'} · applies to this run only</p>
           {draft.events.length === 0 && <p>No supported change was found.</p>}
-          <ol className="small">
+          <ol className="small" style={{ margin: 0, paddingLeft: 18 }}>
             {draft.events.map((e) => {
               const d = describeChange(e.change, props.park, props.capabilities.features.discountMessages);
               return (
@@ -148,7 +148,7 @@ export function WhatIfPanel(props: { runId: Id; store: LiveStore; park: ParkBund
                   <b>{describeChange(e.change, props.park, props.capabilities.features.discountMessages).operation}</b>
                   {applied.has(e.id) ? <span className="badge ok">{'✓'} applied (Engine evidence)</span> : <span className="badge info">scheduled</span>}
                 </div>
-                <div className="muted">Logical time {eventTime(e, props.park)} · scenario revision {a.scenarioRevision} · receipt for <span className="mono">{a.commandId}</span></div>
+                <div className="muted" title={`Scenario revision ${a.scenarioRevision} · command ${a.commandId}`}>At {eventTime(e, props.park)}</div>
               </li>
             )))}
           </ul>
@@ -220,9 +220,9 @@ function StructuredEditor(props: { park: ParkBundle; capabilities: Capabilities;
       events: [{ id: `ui-${kind}-${crypto.randomUUID().slice(0, 8)}`, atMs: at.simMs, order: 0, change }] });
   };
   return (
-    <details className="panel tight" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-      <summary style={{ cursor: 'pointer' }}><b>Structured editor</b> <span className="small muted">(only server-supported changes)</span></summary>
-      <div className="stack" style={{ marginTop: 8 }}>
+    <details className="disclosure" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+      <summary>Build a change step by step<span className="count">structured editor</span></summary>
+      <div className="body">
         <label className="field"><span className="label">Change</span>
           <select value={kind} onChange={(e) => { setKind(e.target.value as Kind); setPlaceId(''); setValue(''); }}>
             {kinds.map((k) => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}

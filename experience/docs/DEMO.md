@@ -25,8 +25,8 @@ different seed because a result looks unfavourable.
 3. Follow the table above; keep the mode badge in frame.
 4. Export the run JSON from Results and archive it with the video; title the video
    "Recorded — <run id> — <date>".
-5. Recorded replays in the app (`/runs/:id/replay`) display the **Recorded** badge and frame
-   resolution; they never call Jev.
+5. Scrubbing back on the run-bar timeline shows recorded frames only (marked **Recording**);
+   it never calls Jev.
 
 ## Rehearsal on fixtures
 

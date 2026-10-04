@@ -13,7 +13,7 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 15_000 },
   fullyParallel: true,
-  workers: 4,
+  workers: 2,
   reporter: [['list'], ['json', { outputFile: 'test-results/e2e-fixture.json' }]],
   use: { baseURL: `http://127.0.0.1:${PORT}`, trace: 'retain-on-failure', viewport: { width: 1440, height: 900 } },
   webServer: {

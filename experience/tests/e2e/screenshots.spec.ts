@@ -1,15 +1,19 @@
 /** Screenshot matrix (presentation only, not business correctness). Fixture label always visible. */
 import { expect, test } from '@playwright/test';
-import { signInOperator, startRun } from './helpers';
+import { openDisclosure, openRunPanel, signInOperator, startRun } from './helpers';
+
+// Heavy fixture scenes and the WebGL map make these browser journeys slow on loaded machines.
+test.beforeEach(() => { test.slow(); });
 
 const shot = (name: string) => `artifacts/screenshots/${name}.png`;
 
 test('setup, live, inspector, confirmation, blocked, results, print', async ({ page }) => {
-  test.setTimeout(240_000);
+  test.setTimeout(480_000);
   await signInOperator(page);
   await page.goto('/setup');
-  await page.getByTestId('choose-park-harbor-lights-s1-v1').click();
-  await page.getByTestId('request-preview').click();
+  await page.getByTestId('guest-count').fill('300');
+  await expect(page.getByTestId('population-preview')).toBeVisible();
+  await openDisclosure(page, 'Run plan details');
   await expect(page.getByTestId('frozen-plan')).toBeVisible();
   await expect(page.getByTestId('fixture-banner')).toBeVisible();
   await page.screenshot({ path: shot('01-setup'), fullPage: true });
@@ -25,7 +29,7 @@ test('setup, live, inspector, confirmation, blocked, results, print', async ({ p
   await page.locator('[data-agent-id]').first().click();
   await expect(page.getByTestId('evidence')).toBeVisible();
   await page.screenshot({ path: shot('03-inspector') });
-  await page.getByTestId('tab-whatif').click();
+  await openRunPanel(page, 'whatif');
   await page.getByTestId('whatif-text').fill('close the coaster at 2pm; send an app message "20% off churros today"; raise the pass price to $25 at 1pm');
   await page.getByTestId('whatif-parse').click();
   await expect(page.getByTestId('draft-card')).toBeVisible();

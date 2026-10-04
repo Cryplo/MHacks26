@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { DomainError, Id } from '../../../contract/behavior-v1';
 import { useRuntime } from '../../runtime/RuntimeProvider';
 import { ActionButton, Alert, ErrorBox } from '../../ui/components';
-import { formatEpoch } from '../../ui/format';
 import { buildShareLink, generateShareToken, hashShareToken } from './shareToken';
 
 const EXPIRY = [{ label: '1 hour', ms: 3600_000 }, { label: '8 hours', ms: 8 * 3600_000 }, { label: '24 hours', ms: 24 * 3600_000 }, { label: '7 days', ms: 7 * 24 * 3600_000 }];
@@ -38,17 +37,16 @@ export function SharePanel(props: { runId: Id }) {
   };
   return (
     <div className="stack" data-testid="share-panel">
-      <h3 style={{ margin: 0 }}>Share this run</h3>
-      <p className="small muted">A link carries a random capability in its #fragment. Only its SHA-256 is sent to the server. Recipients redeem it through the server, which binds a scoped role to their own session.</p>
+      <p className="small muted" style={{ margin: 0 }}>Create a link to this run. Viewers can watch and inspect guests; they cannot change anything.</p>
       <fieldset className="stack" style={{ border: 0, padding: 0, margin: 0 }}>
-        <legend className="label" style={{ fontWeight: 600 }}>Access</legend>
-        <label className="row small"><input type="radio" name="access" checked={access === 'viewer'} onChange={() => setAccess('viewer')} /> Read-only viewer (default)</label>
-        <label className="row small"><input type="radio" name="access" checked={access === 'operator'} onChange={() => { setAccess('operator'); setAck(false); }} /> Operator (can control this run)</label>
+        <legend className="label" style={{ marginBottom: 8 }}>Access</legend>
+        <label className="check"><input type="radio" name="access" checked={access === 'viewer'} onChange={() => setAccess('viewer')} /> Read-only viewer</label>
+        <label className="check"><input type="radio" name="access" checked={access === 'operator'} onChange={() => { setAccess('operator'); setAck(false); }} /> Operator (can control this run)</label>
       </fieldset>
       {access === 'operator' && (
         <Alert tone="warn" title="Operator links grant control">
           <p>Anyone holding this link can pause, change speed and schedule interventions on this run until it expires or you revoke it. Only the run owner can issue one.</p>
-          <label className="row small"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> I understand and will share it only with a trusted person.</label>
+          <label className="check"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> I understand and will share it only with a trusted person.</label>
         </Alert>
       )}
       <label className="field"><span className="label">Expires after</span>
@@ -56,6 +54,7 @@ export function SharePanel(props: { runId: Id }) {
       </label>
       <ActionButton tone="primary" onClick={() => void issue()} busy={busy} testId="issue-share"
         disabledReason={access === 'operator' && !ack ? 'Confirm the operator-access warning first.' : null}>Create {access} link</ActionButton>
+      <details className="disclosure"><summary>How links work</summary><div className="body"><p className="note">A link carries a random capability in its #fragment. Only its SHA-256 is sent to the server. Recipients redeem it through the server, which binds a scoped role to their own session. Links are shown once and never stored.</p></div></details>
       {error && <ErrorBox error={error.error} transport={error.transport} />}
       {link && (
         <div className="stack" style={{ gap: 4 }}>
@@ -71,11 +70,11 @@ export function SharePanel(props: { runId: Id }) {
       )}
       {issued.length > 0 && (
         <div>
-          <h4>Links issued in this session</h4>
+          <h4>Links issued this session</h4>
           <ul className="card-list small">
             {issued.map((g) => (
               <li key={g.grantId} className="spread">
-                <span><span className="mono">{g.grantId}</span> · {g.access} · expires {formatEpoch(g.expiresAtEpochMs)}</span>
+                <span title={g.grantId}>{g.access === 'viewer' ? 'Viewer link' : 'Operator link'} · expires {new Date(g.expiresAtEpochMs).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
                 {g.revoked ? <span className="badge neutral">revoked</span> : <button type="button" className="btn small danger" onClick={() => void revoke(g.grantId)}>Revoke</button>}
               </li>
             ))}

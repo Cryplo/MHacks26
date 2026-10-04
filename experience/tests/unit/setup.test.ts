@@ -23,7 +23,9 @@ describe('crowd model (C-03)', () => {
     expect(validateCrowd(300, { young_family: 0, teens: 0, couple: 0, thrill_seekers: 0, seniors: 0, solo: 0 }, 400).errors).toContain('Assign guests to at least one archetype.');
     expect(validateCrowd(500, defaultMix(500), 400).errors[0]).toMatch(/at most 400/);
     expect(validateCrowd(0, defaultMix(0), 400).errors.length).toBeGreaterThan(0);
-    expect(validateCrowd(150, defaultMix(150), 400).warnings[0]).toMatch(/200-400/);
+    expect(validateCrowd(50, defaultMix(50), 400).warnings[0]).toMatch(/under 100/);
+    expect(validateCrowd(1800, defaultMix(1800), 2000).warnings[0]).toMatch(/above 1500/);
+    expect(validateCrowd(1000, defaultMix(1000), 2000).warnings).toEqual([]);
     expect(validateCrowd(10, { young_family: 2, teens: 0, couple: 8, thrill_seekers: 0, seniors: 0, solo: 0 }, 400).errors.some((e) => /at least 3/.test(e))).toBe(true);
   });
   it('fit-to-size rescales deterministically to the exact total', () => {

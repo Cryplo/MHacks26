@@ -3,7 +3,7 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentDetail, AppliedDecision, Narrative, ObservationFact, PlaceView, RuntimeClient } from '../../contract/behavior-v1';
 import conformance from '../../fixtures/conformance-fixtures.json';
-import { governance, knowledgeVsTruth, narrateFromState, optionRows, sourceLabel } from '../../src/features/inspector/evidence';
+import { deriveRationale, governance, knowledgeVsTruth, momentLabel, narrateFromState, optionRows, recordedRationale, salientNeeds, sourceLabel } from '../../src/features/inspector/evidence';
 import { useNarration } from '../../src/features/inspector/useNarration';
 import { NarrativeView } from '../../src/features/results/NarrativeView';
 import { CommandRunner } from '../../src/runtime/commands';
@@ -50,6 +50,24 @@ describe('evidence view-model (C-10)', () => {
     expect(rows[0]!.guestFacts[0]!.text).toBe('Splash Falls - 35 minutes');
     expect(rows[0]!.guestFacts[0]!.waitUpperMs).toBe(2100000);
     expect(rows[0]!.truth!.closed).toBe(true);
+  });
+  it('derived rationale names the chosen option and flags a less likely draw', () => {
+    const text = deriveRationale(evidence, 'a001');
+    expect(text).toMatch(/chose “Head to the exit” \(10%\)/);
+    expect(text).toMatch(/even though “.+” was more likely \(70%\)/);
+    expect(text).toContain('“Splash Falls - 35 minutes”');
+  });
+  it('a recorded rationale (optional field) wins over the derived one', () => {
+    expect(recordedRationale(evidence)).toBeNull();
+    const rationale = { summary: 'Hungry (72/100) -> chose Churro Cart (p=0.61)', drivers: ['Hungry (72/100)', ''], chosen: { optionId: 'x', label: 'x', probability: 0.61 }, alternatives: [], modelReasoning: null };
+    expect(recordedRationale({ ...evidence, rationale })).toEqual({ summary: rationale.summary, drivers: ['Hungry (72/100)'], modelReasoning: null });
+    expect(recordedRationale({ ...evidence, rationale, response: { ...evidence.response, reasoning: 'Snack first.' } })?.modelReasoning).toBe('Snack first.');
+    expect(recordedRationale({ ...evidence, rationale: { ...rationale, summary: '  ' } })).toBeNull();
+  });
+  it('moment labels and salient needs are plain language', () => {
+    expect(momentLabel('join_line')).toBe('Deciding whether to join a line');
+    expect(momentLabel('some_new_moment')).toBe('some new moment');
+    expect(salientNeeds({ hunger: 80, fatigue: 10, patience: 20, fun: 50 })).toEqual(['hungry (80/100)', 'low on patience (20/100)']);
   });
   it('local narration uses only recorded state', () => {
     expect(narrateFromState(evidence, 'a002')).toMatch(/selected "Head to the exit".*10\.0%/);

@@ -1,5 +1,5 @@
 import type { ParkBundle, ScenarioChange, ScenarioEvent, WaitDisplay } from '../../../contract/behavior-v1';
-import { formatCents, formatSimClock, formatSimOffset } from '../../ui/format';
+import { formatCents, formatSimClock } from '../../ui/format';
 
 export type ChangeSummary = { operation: string; place: string | null; value: string; notes: string[] };
 
@@ -24,4 +24,4 @@ export function describeChange(c: ScenarioChange, park: ParkBundle, discountsSup
   }
 }
 
-export const eventTime = (e: ScenarioEvent, park: ParkBundle) => `${formatSimClock(e.atMs, park.openLocal)} park time (${formatSimOffset(e.atMs)} after opening)`;
+export const eventTime = (e: ScenarioEvent, park: ParkBundle) => `${formatSimClock(e.atMs, park.openLocal)} park time`;

@@ -22,7 +22,7 @@ export const REQUESTED_MODEL: Record<Mode, string> = { mock: 'mock-policy-v1', l
 
 export function defaultRunConfig(mode: Mode, features: FeatureFlags = NO_FEATURES): RunConfig {
   return {
-    mode, horizonMs: 3 * 3600_000, logicalStepMs: 5000, movementStepMs: 250, requestedSpeed: 10, temperature: 1,
+    mode, horizonMs: 10 * 3600_000, logicalStepMs: 5000, movementStepMs: 250, requestedSpeed: 20, temperature: 1,
     earlyDepartureThresholdMs: 30 * 60_000, ratingEveryMs: 30 * 60_000, visualFrameEveryMs: 30_000, checkpointEveryMs: 30 * 60_000,
     fallback: mode === 'live' ? 'live_timeout_v1' : 'forbidden', liveTimeoutMs: 20_000, features, versions: { ...REQUESTED_VERSIONS, requestedModel: REQUESTED_MODEL[mode] },
   };

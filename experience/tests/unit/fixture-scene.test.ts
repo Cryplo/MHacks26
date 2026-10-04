@@ -56,3 +56,45 @@ describe('fixture scene', () => {
     expect([...e.request.promptOptionOrder].sort()).toEqual(e.request.options.map((o) => o.id).sort());
   });
 });
+
+describe('fixture crowd dynamics and decision rationale', () => {
+  it('has a gate-opening surge plus daytime and evening arrivals, and explains every decision', () => {
+    const early = pop.groups.filter((g) => g.arrivalMs <= 25 * 60_000).length;
+    expect(early / pop.groups.length).toBeGreaterThan(0.3);
+    expect(pop.groups.some((g) => g.arrivalMs >= 7 * 3600_000)).toBe(true); // evening cohort
+    expect(Math.max(...pop.groups.map((g) => g.arrivalMs))).toBeLessThanOrEqual(8.5 * 3600_000);
+    const d = [...scene.decisions.values()][0]!;
+    const e = buildAppliedDecision(scene, d.evidenceId, 'r')!;
+    expect(e.rationale?.chosen.optionId).toBe(e.chosenOptionId);
+    expect(e.rationale?.summary).toMatch(/-> chose .*\(p=\d\.\d\d\)/);
+    expect(e.rationale?.drivers.some((x) => /left in the wallet/.test(x))).toBe(true);
+  });
+});
+
+describe('fixture stage 2 (27 destinations) at demo scale', () => {
+  it('serves 1000 guests with every queued guest single-file on queue or walkway cells', async () => {
+    const stage2 = (await import('../../fixtures/parks/harbor-lights-stage2.bundle.json')).default as unknown as ParkBundle;
+    const pop2 = buildFixturePopulation({ ...crowd, guestCount: 1000 }, stage2, 'e'.repeat(64)).manifest;
+    const scene2 = generateScene({ park: stage2, population: pop2, seed: 'seed-s2', horizonMs: 2 * 3600_000, passPriceSchedule: [], ratingEveryMs: 1800_000, earlyDepartureThresholdMs: 1800_000, runId: 'r2' });
+    let queued = 0, bad = 0, inPark = 0;
+    for (const t of [30 * 60_000, 75 * 60_000]) {
+      const seen = new Map<string, number>();
+      for (const p of pop2.personas) {
+        const pose = poseAt(scene2, p.agentId, t);
+        if (!pose.present) continue;
+        inPark++;
+        if (pose.state !== 'queueing') continue;
+        queued++;
+        const c = scene2.geo.codes[Math.floor(pose.position.yM) * stage2.grid.width + Math.floor(pose.position.xM)];
+        if (c !== 1 && c !== 2 && c !== 4) bad++;
+        const k = `${Math.round(pose.position.xM * 4)},${Math.round(pose.position.yM * 4)}`;
+        seen.set(k, (seen.get(k) ?? 0) + 1);
+      }
+      // No blobs: at most a handful of guests share a 25 cm spot.
+      expect(Math.max(0, ...seen.values())).toBeLessThanOrEqual(4);
+    }
+    expect(inPark).toBeGreaterThan(800);
+    expect(queued).toBeGreaterThan(50);
+    expect(bad).toBe(0);
+  });
+});

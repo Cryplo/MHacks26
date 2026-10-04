@@ -156,7 +156,9 @@ describe('fixture runtime protocol', () => {
     expect(a.counters.duplicates).toBeGreaterThanOrEqual(1);
     expect(a.stale).toBe(false);
     expect(a.revision).toBe(b.revision);
-    expect(canonicalJson([...a.agents.values()])).toBe(canonicalJson([...b.agents.values()]));
+    // Same agent states; Map insertion order may differ between resync and patch paths.
+    const byId = (m: typeof a.agents) => [...m.values()].sort((x, y) => (x.agentId < y.agentId ? -1 : 1));
+    expect(canonicalJson(byId(a.agents))).toBe(canonicalJson(byId(b.agents)));
     const seqs = a.events.map((e) => e.sequence);
     expect(new Set(seqs).size).toBe(seqs.length);
     conn.disconnect();

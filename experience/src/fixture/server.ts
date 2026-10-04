@@ -19,6 +19,7 @@ import { buildFixturePopulation } from './population';
 import { parseCrowdText, parseScenarioText } from './parsers';
 import { experimentFactBundle, experimentReport, fixtureHash, heatmapFor, reportNarrative, runFactBundle, thoughtNarrative } from './reports';
 import { agentViewAt, buildAppliedDecision, generateScene, metricsAt, predictedWaitAt, queueViewsAt, STEP_MS, type Scene } from './scene';
+import { fixtureStatusText } from './rationale';
 import { sha256Sync } from './sha256';
 
 export const FIXTURE_OPERATOR_TOKEN = 'fixture-operator-local';
@@ -66,7 +67,7 @@ export const FIXTURE_CAPABILITIES: Capabilities = {
   eventKinds: ['pass_price', 'board', 'notice', 'closure', 'app_message'],
   workKinds: ['population', 'parse_crowd', 'parse_scenario', 'thought', 'report'],
   features: { routeChoice: false, bumpReactions: false, splitGroups: false, speechBubbles: false, discountMessages: false },
-  maxGuests: 400, maxArtifactBytes: 8 * 1024 * 1024, maxChunkBytes: 256 * 1024,
+  maxGuests: 2000, maxArtifactBytes: 8 * 1024 * 1024, maxChunkBytes: 256 * 1024,
 };
 
 const sceneCache = new Map<string, Scene>();
@@ -448,11 +449,28 @@ export class FixtureServer {
         const agent = agentViewAt(scene, i.agentId, t) ?? { ...agentViewAt(scene, i.agentId, Math.max(0, t - STEP_MS))!, state: 'left' as const };
         const decisions = scene.decisionsByGroup.get(persona.groupId)!.filter((d) => d.atMs <= t);
         const last = decisions[decisions.length - 1];
+        const group = scene.groups.get(persona.groupId)!;
+        // Additive AgentDetail fields, as Engine provides them: newest-first decision history with
+        // rationale, and a plain-language status line.
+        const history = decisions.slice(-12).reverse().flatMap((d) => {
+          const e = buildAppliedDecision(scene, d.evidenceId, run.runId);
+          const chosen = e?.request.options.find((o) => o.id === e.chosenOptionId);
+          return e?.rationale ? [{ evidenceId: e.evidenceId, atMs: e.committedAtMs, moment: e.request.moment, chosenOptionId: e.chosenOptionId,
+            chosenLabel: chosen?.label ?? e.chosenOptionId, outcome: e.outcome, source: e.response.source, rationale: e.rationale }] : [];
+        });
+        const party = (scene.partiesByGroup.get(persona.groupId) ?? []).find((pa) => pa.joinT <= t && t < pa.leaveT);
+        const placeName = (id: string | null) => (id ? scene.geo.places.get(id)?.name ?? id : null);
+        const statusText = fixtureStatusText(agentViewAt(scene, i.agentId, t), placeName, {
+          arrivesInMs: group.arrivalMs - t,
+          queueMinutes: party ? Math.round((t - party.joinT) / 60000) : null,
+          postedWaitMinutes: party && agent.targetPlaceId ? (() => { const w = predictedWaitAt(scene, agent.targetPlaceId!, t); return w === null ? null : Math.round(w / 60000); })() : null,
+        });
         return out({
-          agent, persona, group: scene.groups.get(persona.groupId)!,
+          agent, persona, group,
           observedFacts: scene.facts.get(persona.groupId)!.filter((f) => f.observedAtMs <= t),
           evidence: last ? buildAppliedDecision(scene, last.evidenceId, run.runId) : null,
           recentEvents: this.eventsUpTo(s, run, scene, t).filter((e) => e.agentIds.includes(i.agentId)).slice(-12),
+          statusText, decisions: history,
         });
       }
       case 'getDecision': {
@@ -493,13 +511,14 @@ export class FixtureServer {
       case 'getFrames': {
         const i = input as Queries['getFrames']['input'];
         const run = this.requireRun(s, identity, i.runId, 'viewer');
-        const every = run.manifest.config.visualFrameEveryMs;
+        // Same scrubbing density as Engine's compact frames: every 15 s (or denser if configured).
+        const every = Math.min(run.manifest.config.visualFrameEveryMs, 15_000);
         const t = this.timeline(run).committedSimMs;
         const start = i.cursor ? Number(i.cursor) : Math.ceil(i.fromMs / every) * every;
         const end = Math.min(i.toMs, t);
         const items = [];
         let at = start;
-        for (; at <= end && items.length < 20; at += every) items.push({ atMs: at, frameSchema: 'fixture-frame-v1', snapshot: this.snapshot(s, run, at) });
+        for (; at <= end && items.length < 10; at += every) items.push({ atMs: at, frameSchema: 'fixture-frame-v1', snapshot: this.snapshot(s, run, at) });
         return out({ items, nextCursor: at <= end ? String(at) : null });
       }
       case 'getExperiment': {

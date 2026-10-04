@@ -26,6 +26,14 @@ const loadFixture: LoaderDeps['loadFixture'] = import.meta.env.VITE_RUNTIME_PROF
   ? () => import('../fixture/client').then((m) => m.createFixtureRuntimeClient)
   : () => Promise.reject(new Error('This build does not include the fixture adapter.'));
 
+/**
+ * Fixture build only: every tab acts as the local fixture operator without a sign-in step
+ * (share-link redemption tabs keep their own anonymous session). Vite folds this to null in
+ * the live build, so no fixture credential ships there.
+ */
+const FIXTURE_AUTO_TOKEN = import.meta.env.VITE_RUNTIME_PROFILE === 'fixture' ? 'fixture-operator-local' : null;
+const isShareRoute = () => typeof window !== 'undefined' && window.location.pathname.startsWith('/share');
+
 type LoadState = { kind: 'loading' } | { kind: 'error'; error: RuntimeStartupError | Error } | { kind: 'ready'; runtime: Omit<Runtime, 'session' | 'sessionError' | 'refreshSession' | 'signIn' | 'signOut' | 'generation'> };
 
 const CLEAR_PREFIXES = ['behavior-engine.intent.', 'behavior-engine.cache.'];
@@ -48,6 +56,7 @@ export function RuntimeProvider(props: { settings: RuntimeSettings; children: Re
   useEffect(() => {
     let cancelled = false;
     setState({ kind: 'loading' });
+    if (FIXTURE_AUTO_TOKEN && props.settings.profile === 'fixture' && !props.deps?.tokens && !tokens.get() && !isShareRoute()) tokens.set(FIXTURE_AUTO_TOKEN, { explicit: false });
     loadRuntime(props.settings, {
       importModule: props.deps?.importModule ?? ((url) => import(/* @vite-ignore */ url)),
       loadFixture: props.deps?.loadFixture ?? loadFixture,

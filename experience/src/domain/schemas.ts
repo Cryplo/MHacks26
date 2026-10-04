@@ -101,6 +101,15 @@ export const metricValueSchema = z.object({
 export const metricSnapshotSchema = z.object({
   runId: id, simMs, revision: z.number().int(), definitionVersion: z.string(), admittedGuests: z.number().int(), guestsInPark: z.number().int(),
   measures: z.record(metricId, metricValueSchema),
+  /** Additive, optional: per-state counts, per-place queue/revenue, satisfaction levels. */
+  breakdown: z.object({
+    states: z.record(z.string(), z.number()),
+    places: z.array(z.object({
+      placeId: id, standardPersons: z.number(), passPersons: z.number(), predictedWaitMs: z.number().nullable(),
+      revenueCents: z.number(), servedGuests: z.number(),
+    }).passthrough()),
+    satisfactionLevels: z.array(z.number()),
+  }).passthrough().optional(),
 }).strict();
 
 const scope = z.object({ runId: id.nullable(), experimentId: id.nullable() }).strict();

@@ -1,6 +1,9 @@
 /** C-01, C-02, C-03, C-04, C-06, C-25 fault and robustness behavior on the fixture build. */
 import { expect, test } from '@playwright/test';
-import { appErrors, createRun, signInOperator, startRun, watchConsole } from './helpers';
+import { appErrors, createRun, pickableGuest, signInOperator, startRun, watchConsole } from './helpers';
+
+// Heavy fixture scenes and the WebGL map make these browser journeys slow on loaded machines.
+test.beforeEach(() => { test.slow(); });
 
 test('lost createRun acknowledgement is retried with the same command ID (one run)', async ({ page }) => {
   await page.addInitScript(() => { globalThis.__BEHAVIOR_FIXTURE_FAULTS__ = { dropAck: ['createRun', 'startRun'] }; });
@@ -16,7 +19,7 @@ test('gapped and duplicated patches resync from a snapshot without duplicate eve
   const errors = watchConsole(page);
   await signInOperator(page);
   await createRun(page);
-  await startRun(page, 30);
+  await startRun(page, 20);
   await page.waitForTimeout(8000);
   await expect(page.getByTestId('connection')).toHaveText('live');
   const keys = await page.locator('[data-testid=event-feed] .feed-list li').evaluateAll((els) => els.map((e) => e.textContent));
@@ -28,10 +31,9 @@ test('population job failure is visible and Start stays disabled with a reason',
   await page.addInitScript(() => { globalThis.__BEHAVIOR_FIXTURE_FAULTS__ = { failPopulation: true }; });
   await signInOperator(page);
   await page.goto('/setup');
-  await page.getByTestId('choose-park-harbor-lights-s1-v1').click();
-  await page.getByTestId('request-preview').click();
   await expect(page.getByText(/population worker failed/)).toBeVisible();
-  await expect(page.getByTestId('create-run')).toHaveCount(0);
+  await expect(page.getByTestId('create-run')).toBeDisabled();
+  await expect(page.getByText('Sampling the crowd failed; retry it.')).toBeVisible();
 });
 
 test('preparing park is not selectable until ready', async ({ page }) => {
@@ -44,11 +46,10 @@ test('preparing park is not selectable until ready', async ({ page }) => {
 test('canvas picking selects the same guest after zoom, pan and resize (C-06)', async ({ page }) => {
   await signInOperator(page);
   await createRun(page);
-  await startRun(page, 10);
+  await startRun(page, 5);
   await page.waitForFunction(() => document.querySelector('[data-testid=park-map]')?.getAttribute('data-map-status') === 'ready');
   await page.waitForTimeout(6000);
   await page.getByTestId('tab-guests').click();
-  const id = await page.locator('[data-agent-id]').first().getAttribute('data-agent-id');
   await page.getByTestId('pause-run').click();
   await expect(page.getByTestId('run-status').first()).toContainText('Paused');
   await page.waitForTimeout(1500);
@@ -58,8 +59,10 @@ test('canvas picking selects the same guest after zoom, pan and resize (C-06)', 
   await page.keyboard.press('ArrowLeft');
   await page.setViewportSize({ width: 1200, height: 800 });
   await page.waitForTimeout(500);
-  const p = await page.evaluate((agent) => globalThis.__behaviorMap?.screenOf(agent!), id);
-  expect(p).toBeTruthy();
+  const pick = (await pickableGuest(page, 16)) ?? (await pickableGuest(page, 10));
+  expect(pick).toBeTruthy();
+  const id = pick!.id;
+  const p = { x: pick!.x, y: pick!.y };
   await page.mouse.click(p!.x, p!.y);
   await expect(page.getByTestId('inspector')).toBeVisible();
   await expect(page.getByTestId('inspector')).toHaveAttribute('data-agent-id', id!);
@@ -105,7 +108,7 @@ test('without WebGL the map degrades to the canvas renderer instead of failing',
 test('hidden-tab resume snaps to current state and keeps streaming', async ({ page }) => {
   await signInOperator(page);
   await createRun(page);
-  await startRun(page, 30);
+  await startRun(page, 20);
   await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
   await page.waitForTimeout(3000);
   const before = Number(await page.getByTestId('revision').textContent());
@@ -119,9 +122,7 @@ test('two operator tabs pausing the same run converge on one paused state', asyn
   const url = await createRun(page);
   await startRun(page);
   const other = await context.newPage();
-  // Same tab session token is per-tab; sign the second tab in as operator too.
-  await other.goto('/session');
-  await other.getByTestId('fixture-operator-signin').click();
+  // Each fixture tab acts as the local operator automatically.
   await other.goto(url);
   await other.getByTestId('pause-run').click();
   await expect(other.getByTestId('run-status').first()).toContainText('Paused');

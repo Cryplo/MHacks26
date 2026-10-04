@@ -8,9 +8,10 @@
  * Routing follows the authored path graph in layout.json (the same source painted into the
  * grid), so scripted poses stay on painted walkways without a second navigation compiler.
  */
+import { fixtureRationale } from './rationale';
 import type {
   Action, ActionOption, AgentView, AppliedDecision, DecisionRequest, EventKind, EventRecord, GroupManifest,
-  Id, Json, KnownDestination, MetricId, MetricSnapshot, MetricValue, Moment, Needs, ObservationFact, ParkBundle,
+  Id, Json, KnownDestination, MetricBreakdown, MetricId, MetricSnapshot, MetricValue, Moment, Needs, ObservationFact, ParkBundle,
   Persona, Place, PopulationManifest, QueueView, Quote, Vec2,
 } from '../../contract/behavior-v1';
 import { CONTRACT_VERSION } from '../../contract/behavior-v1';
@@ -733,14 +734,103 @@ export function personsAhead(scene: Scene, party: Party, placeId: Id, t: number)
   return n;
 }
 
+/** Same geometry as Engine's queue lines (engine/src/sim/queue-lines.ts). */
+export const QUEUE_SPACING_M = 0.7;
+const LANE_OFFSET_M = { standard: -0.18, pass: 0.24 } as const;
+const QUEUE_SHUFFLE_MPS = 1.0;
+type FixtureLine = { points: Vec2[]; at: number[]; zoneLength: number };
+const lineCache = new WeakMap<ParkBundle, Map<Id, FixtureLine>>();
+
+function buildFixtureLine(scene: Scene, placeId: Id): FixtureLine {
+  const { park, geo } = scene;
+  const W = park.grid.width, H = park.grid.height;
+  const place = geo.places.get(placeId)!;
+  const zone = park.queueZones.find((z) => z.id === place.queueZoneId);
+  const center = (i: number): Vec2 => ({ xM: (i % W) + 0.5, yM: Math.floor(i / W) + 0.5 });
+  const points: Vec2[] = zone ? zone.cellIndices.map(center) : [];
+  const zonePoints = points.length;
+  // Overflow: away from the entrance along walkway cells (BFS distance), keeping direction.
+  const walk = (i: number) => geo.codes[i] === 1 || geo.codes[i] === 2;
+  const start = Math.floor(place.entrance.yM) * W + Math.floor(place.entrance.xM);
+  if (walk(start)) {
+    const dist = new Map<number, number>([[start, 0]]);
+    const frontier = [start];
+    for (let h = 0; h < frontier.length && dist.size < 4000; h++) {
+      const c = frontier[h]!;
+      for (const [dx, dy] of [[0, -1], [-1, 0], [1, 0], [0, 1]] as const) {
+        const x = (c % W) + dx, y = Math.floor(c / W) + dy, j = y * W + x;
+        if (x < 0 || y < 0 || x >= W || y >= H || dist.has(j) || !walk(j)) continue;
+        dist.set(j, dist.get(c)! + 1);
+        frontier.push(j);
+      }
+    }
+    const chain: number[] = [];
+    let cur = start, dir = -1;
+    const seen = new Set([start]);
+    for (let n = 0; n < 162; n++) {
+      let best = -1, bestDir = -1;
+      ([[0, -1], [-1, 0], [1, 0], [0, 1]] as const).forEach(([dx, dy], d) => {
+        const x = (cur % W) + dx, y = Math.floor(cur / W) + dy, j = y * W + x;
+        if (x < 0 || y < 0 || x >= W || y >= H || seen.has(j) || !dist.has(j) || dist.get(j)! <= dist.get(cur)!) return;
+        if (best < 0 || (d === dir && bestDir !== dir) || (bestDir !== dir && d !== dir && j < best)) { best = j; bestDir = d; }
+      });
+      if (best < 0) break;
+      dir = bestDir; seen.add(best); chain.push(best); cur = best;
+    }
+    // The line continues out through the entrance cell and along the walkway.
+    for (const i of [start, ...chain]) points.push(center(i));
+  }
+  if (!points.length) points.push({ ...place.entrance });
+  const at = [0];
+  for (let i = 1; i < points.length; i++) at.push(at[i - 1]! + Math.hypot(points[i]!.xM - points[i - 1]!.xM, points[i]!.yM - points[i - 1]!.yM));
+  return { points, at, zoneLength: zonePoints ? at[zonePoints - 1]! : 0 };
+}
+
+function fixtureLine(scene: Scene, placeId: Id): FixtureLine {
+  let m = lineCache.get(scene.park);
+  if (!m) lineCache.set(scene.park, (m = new Map()));
+  let l = m.get(placeId);
+  if (!l) m.set(placeId, (l = buildFixtureLine(scene, placeId)));
+  return l;
+}
+
+function pointOnLine(line: FixtureLine, u: number, offset: number): Vec2 {
+  const { points, at } = line;
+  const last = points.length - 1;
+  if (last <= 0) return { ...points[0]! };
+  let i = 0;
+  if (u >= at[last]!) i = last - 1;
+  else if (u > 0) { let lo = 0, hi = last; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (at[mid]! <= u) lo = mid; else hi = mid; } i = lo; }
+  const a = points[i]!, b = points[i + 1]!, len = at[i + 1]! - at[i]! || 1, f = (u - at[i]!) / len;
+  const dx = (b.xM - a.xM) / len, dy = (b.yM - a.yM) / len;
+  return { xM: a.xM + (b.xM - a.xM) * f - dy * offset, yM: a.yM + (b.yM - a.yM) * f + dx * offset };
+}
+
+/**
+ * Pose of the k-th member of a queued party at time t: single file along the queue zone (head
+ * first) and an overflow line along the walkway, FIFO per lane at QUEUE_SPACING_M, shuffling
+ * forward at walking pace as parties ahead board (pure function of t).
+ */
+export function queuedPosition(scene: Scene, party: Party, placeId: Id, k: number, t: number): Vec2 {
+  const line = fixtureLine(scene, placeId);
+  const ahead = scene.parties.get(placeId)!.filter((p) => p !== party && p.lane === party.lane && p.joinT < party.joinT && p.leaveT > party.joinT);
+  const slotU = (n: number) => QUEUE_SPACING_M * (n + k + 0.5);
+  let n = ahead.reduce((a, p) => a + p.agentIds.length, 0);
+  const target0 = slotU(n);
+  let u = Math.max(target0, line.zoneLength + QUEUE_SPACING_M * k); // step-on point (or overflow slot)
+  let tPrev = party.joinT, target = target0;
+  for (const p of [...ahead].sort((a, b) => a.leaveT - b.leaveT)) {
+    if (p.leaveT > t) break;
+    u = Math.max(target, u - (QUEUE_SHUFFLE_MPS * (p.leaveT - tPrev)) / 1000);
+    tPrev = p.leaveT; n -= p.agentIds.length; target = slotU(n);
+  }
+  u = Math.max(target, u - (QUEUE_SHUFFLE_MPS * (t - tPrev)) / 1000);
+  return pointOnLine(line, u, LANE_OFFSET_M[party.lane]);
+}
+
+/** Kept for callers that only know a slot index (no shuffling). */
 export function queueSlotPosition(scene: Scene, placeId: Id, lane: 'standard' | 'pass', slot: number): Vec2 {
-  const zone = scene.park.queueZones.find((z) => z.placeId === placeId);
-  const place = scene.geo.places.get(placeId)!;
-  if (!zone || slot >= zone.cellIndices.length) return scene.geo.spot(place.entrance, Math.min(12, zone ? slot - zone.cellIndices.length : slot));
-  const idx = zone.cellIndices[slot]!;
-  const w = scene.park.grid.width;
-  const shift = lane === 'pass' ? 0.25 : -0.15;
-  return { xM: (idx % w) + 0.5 + shift, yM: Math.floor(idx / w) + 0.5 + shift };
+  return pointOnLine(fixtureLine(scene, placeId), QUEUE_SPACING_M * (slot + 0.5), LANE_OFFSET_M[lane]);
 }
 
 export type Pose = { position: Vec2; state: AgentState; target: Id | null; present: boolean };
@@ -762,8 +852,7 @@ export function poseAt(scene: Scene, agentId: Id, t: number): Pose {
     return { position, state: seg.state, target: seg.target, present: true };
   }
   const party = scene.partyById.get(seg.partyId)!;
-  const ahead = personsAhead(scene, party, seg.placeId, t);
-  return { position: queueSlotPosition(scene, seg.placeId, party.lane, ahead + k), state: 'queueing', target: seg.target, present: true };
+  return { position: queuedPosition(scene, party, seg.placeId, party.agentIds.indexOf(agentId), t), state: 'queueing', target: seg.target, present: true };
 }
 
 export function agentViewAt(scene: Scene, agentId: Id, t: number): AgentView | null {
@@ -808,13 +897,10 @@ export function queueViewsAt(scene: Scene, t: number): QueueView[] {
     if (!place.queueZoneId) continue;
     const parties = scene.parties.get(place.id)!.filter((p) => p.joinT <= t && p.leaveT > t).sort((a, b) => a.joinT - b.joinT);
     let seq = 0;
-    const entries = parties.map((p) => {
-      const ahead = personsAhead(scene, p, place.id, t);
-      return {
-        entryId: p.partyId, agentIds: [...p.agentIds], lane: p.lane, sequence: ++seq, joinedAtMs: p.joinT,
-        positions: p.agentIds.map((agentId, i) => ({ agentId, position: round2(queueSlotPosition(scene, place.id, p.lane, ahead + i)) })),
-      };
-    });
+    const entries = parties.map((p) => ({
+      entryId: p.partyId, agentIds: [...p.agentIds], lane: p.lane, sequence: ++seq, joinedAtMs: p.joinT,
+      positions: p.agentIds.map((agentId, i) => ({ agentId, position: round2(queuedPosition(scene, p, place.id, i, t)) })),
+    }));
     out.push({
       placeId: place.id,
       standardPersons: parties.filter((p) => p.lane === 'standard').reduce((a, p) => a + p.agentIds.length, 0),
@@ -839,6 +925,37 @@ const metric = (id: MetricId, unit: MetricValue['unit'], numerator: number, deno
   const value = valueOverride !== undefined ? valueOverride : denominator === null ? numerator : denominator === 0 ? null : numerator / denominator;
   return { id, value, unit, numerator, denominator, n, coverage, complete, missingReason: value === null ? (missingReason ?? 'denominator is zero') : missingReason };
 };
+
+/** Same additive MetricBreakdown Engine reports (states, per-place queues/revenue/served, satisfaction levels). */
+export function breakdownAt(scene: Scene, t: number): MetricBreakdown {
+  const states: MetricBreakdown['states'] = {};
+  for (const g of scene.population.groups) {
+    const seg = segAt(scene, g.groupId, t);
+    if (!seg || seg.kind === 'gone') continue;
+    const st: AgentState = seg.kind === 'queue' ? 'queueing' : seg.state;
+    if (st === 'not_arrived' || st === 'left') continue;
+    states[st] = (states[st] ?? 0) + g.memberIds.length;
+  }
+  const places = [...scene.park.places].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map((place) => {
+    let standardPersons = 0, passPersons = 0;
+    for (const p of scene.parties.get(place.id) ?? []) if (p.joinT <= t && p.leaveT > t) { if (p.lane === 'pass') passPersons += p.agentIds.length; else standardPersons += p.agentIds.length; }
+    let revenueCents = 0, servedGuests = 0;
+    for (const e of scene.events) {
+      if (e.atMs > t || e.placeId !== place.id) continue;
+      if (e.kind === 'purchase') revenueCents += e.amountCents ?? 0;
+      if (e.kind === 'refund') revenueCents -= e.amountCents ?? 0;
+      if (e.kind === 'service_completed') servedGuests += e.agentIds.length;
+    }
+    return { placeId: place.id, standardPersons, passPersons, predictedWaitMs: place.queueZoneId ? predictedWaitAt(scene, place.id, t) : null, revenueCents, servedGuests };
+  });
+  const satisfactionLevels = [0, 0, 0, 0, 0];
+  for (const [, recs] of scene.ratings) {
+    let last: RatingRec | undefined;
+    for (const r of recs) if (r.availableAtMs <= t && r.index !== null) last = r;
+    if (last) satisfactionLevels[Math.max(0, Math.min(4, last.index!))]!++;
+  }
+  return { states, places, satisfactionLevels };
+}
 
 export function metricsAt(scene: Scene, runId: Id, t: number, revision: number): MetricSnapshot {
   const admitted = scene.arrivals.filter((a) => a.t <= t).reduce((s, a) => s + a.n, 0);
@@ -888,6 +1005,7 @@ export function metricsAt(scene: Scene, runId: Id, t: number, revision: number):
     rated ? ratingSum / rated : null, rated ? null : 'no terminal (departure/horizon) ratings yet');
   return {
     runId, simMs: t, revision, definitionVersion: 'metrics-v1',
+    breakdown: breakdownAt(scene, t),
     admittedGuests: admitted, guestsInPark: admitted - departedN,
     measures: {
       net_revenue_cents: metric('net_revenue_cents', 'cents', revenue, null, admitted, 1, complete),
@@ -956,6 +1074,7 @@ export function buildAppliedDecision(scene: Scene, evidenceId: Id, runId: Id): A
     },
     appliedProbabilities: normalize(d.raw), draw: d.draw, chosenOptionId: d.chosen, outcome: d.outcome,
     failureReason: d.failureReason, committedAtMs: d.atMs, causedEventIds: d.causedEventIds,
+    rationale: fixtureRationale(request, normalize(d.raw), d.chosen, d.outcome, d.failureReason),
   };
 }
 

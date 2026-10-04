@@ -92,7 +92,9 @@ export class LiveStore {
     this.set({ error, status: error ? 'error' : this.state.status });
   }
 
-  applySnapshot(s: LiveSnapshot): boolean {
+  /** `continuous`: the snapshot follows on from the current one (recorded playback), so it keeps
+   * the epoch and the map tweens across it instead of treating it as a seek. */
+  applySnapshot(s: LiveSnapshot, opts?: { continuous?: boolean }): boolean {
     if (this.state.runId !== null && s.run.runId !== this.state.runId) {
       this.set({ counters: { ...this.state.counters, wrongRun: this.state.counters.wrongRun + 1 } });
       return false;
@@ -129,7 +131,7 @@ export class LiveStore {
       stale: false,
       status: prev.status === 'resyncing' || prev.status === 'connecting' ? 'live' : prev.status,
       error: null,
-      snapshotEpoch: prev.snapshotEpoch + 1,
+      snapshotEpoch: opts?.continuous ? prev.snapshotEpoch : prev.snapshotEpoch + 1,
       counters: { ...prev.counters, resyncs: prev.counters.resyncs + (wasResync ? 1 : 0) },
     };
     // Replay buffered patches that continue from the snapshot; older ones are duplicates.

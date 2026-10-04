@@ -9,7 +9,15 @@ export const ARCHETYPE_ORDER: Archetype[] = ['young_family', 'teens', 'couple', 
 export const ARCHETYPE_LABEL: Record<Archetype, string> = {
   young_family: 'Young families', teens: 'Teen groups', couple: 'Couples', thrill_seekers: 'Thrill seekers', seniors: 'Seniors', solo: 'Solo visitors',
 };
-export const DEFAULT_GUESTS = 300;
+/**
+ * Default crowd: a busy day of 1000 guests. With the gate-opening surge, several hundred are in
+ * the park within the first simulated half hour; Engine sustains 20-60x with the mock policy.
+ */
+export const DEFAULT_GUESTS = 1000;
+/** Suggested crowd for Live-Jev runs (every decision is a paid model call; see INTEGRATION_REPORT). */
+export const DEFAULT_LIVE_GUESTS = 300;
+/** Above this size runs still work but may not sustain the requested speed. */
+export const LARGE_CROWD_WARNING = 1500;
 // Must match a generator the population service implements (Intelligence: population-v1).
 export const GENERATOR_VERSION = 'population-v1';
 export type GuestMix = Record<Archetype, number>;
@@ -27,7 +35,8 @@ export function validateCrowd(guestCount: number, mix: GuestMix, maxGuests: numb
   const warnings: string[] = [];
   if (!Number.isInteger(guestCount) || guestCount < 1) errors.push('Guest count must be a whole number of at least 1.');
   else if (guestCount > maxGuests) errors.push(`This server supports at most ${maxGuests} guests.`);
-  else if (guestCount < 200 || guestCount > 400) warnings.push('Outside the default 200-400 range; results may not be comparable to other runs.');
+  else if (guestCount > LARGE_CROWD_WARNING) warnings.push(`Crowds above ${LARGE_CROWD_WARNING} guests may not sustain the requested playback speed.`);
+  else if (guestCount < 100) warnings.push('Small crowds (under 100 guests) leave the park mostly empty.');
   for (const a of ARCHETYPE_ORDER) {
     if (!Number.isInteger(mix[a]) || mix[a] < 0) errors.push(`${ARCHETYPE_LABEL[a]} must be a whole number of guests (0 or more).`);
   }
