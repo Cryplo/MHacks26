@@ -162,11 +162,7 @@ export function ParkMap(props: Props) {
   return (
     <div className="map-canvas" ref={host} role="application" aria-roledescription="park map" tabIndex={0} onKeyDown={onKey}
       aria-label="Park map. Use plus and minus to zoom, 0 to fit, arrow keys to pan, Escape to clear selection. Select guests from the Guests tab with the keyboard."
-      data-testid="park-map" data-map-status={status.kind} style={{ background: '#101416' }}>
-      {status.kind === 'ready' && (
-        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(4,6,8,0.55) 100%)' }} />
-      )}
+      data-testid="park-map" data-map-status={status.kind} style={{ background: '#b8dcf0' }}>
       {labels.filter((l) => shown.has(l.p.id)).map(({ p, s, major, closed, wait, queue }) => (
         <div key={p.id} aria-hidden="true" style={{ position: 'absolute', left: s.x, top: s.y, transform: 'translate(-50%, -100%)', pointerEvents: 'none',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, fontFamily: LABEL_FONT, whiteSpace: 'nowrap', opacity: major ? 1 : 0.9 }}>

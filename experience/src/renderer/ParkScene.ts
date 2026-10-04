@@ -126,7 +126,7 @@ export class ParkScene {
     const app = new Application();
     await app.init({
       width: Math.max(1, host.clientWidth), height: Math.max(1, host.clientHeight), antialias: true, autoDensity: true,
-      resolution: Math.min(2.5, window.devicePixelRatio || 1), background: '#101416', preference: 'webgl',
+      resolution: Math.min(2.5, window.devicePixelRatio || 1), background: '#b8dcf0', preference: 'webgl',
       autoStart: !this.init.staticView, sharedTicker: false,
     });
     if (this.destroyed) { app.destroy(true); return; }

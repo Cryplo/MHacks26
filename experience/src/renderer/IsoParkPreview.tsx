@@ -173,7 +173,7 @@ export function IsoParkPreview(props: IsoParkPreviewProps) {
 
   return (
     <div ref={wrap} className={props.className} data-testid="iso-park-preview" data-preview-status={still ? (still.iso ? 'iso' : 'flat') : 'loading'}
-      style={{ position: 'relative', width: '100%', height, background: '#101416', borderRadius: 8, overflow: 'hidden', ...props.style }}>
+      style={{ position: 'relative', width: '100%', height, background: '#b8dcf0', borderRadius: 8, overflow: 'hidden', ...props.style }}>
       <canvas ref={canvas} role="img" aria-label={props.label ?? `${park.label} park preview`}
         onPointerMove={onCellHover ? onMove : undefined} onPointerLeave={onCellHover ? () => onCellHover(null) : undefined}
         style={{ display: 'block', width: '100%', height: '100%' }} />
