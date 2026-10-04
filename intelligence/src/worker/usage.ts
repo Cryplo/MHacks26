@@ -63,7 +63,7 @@ export class UsageLedger {
   }
 
   /** Persist the finished record (never regressing), then try to submit; failures are retried by flush(). */
-  async finished(attempt: ProviderAttempt, costBasis: LedgerRecord['costBasis']): Promise<void> {
+  async finished(attempt: ProviderAttempt, costBasis: LedgerRecord['costBasis'], opts: { background?: boolean } = {}): Promise<void> {
     const rec = await this.update(attempt.callId, async (prior) => {
       const r: LedgerRecord = {
         attempt: { ...attempt, phase: 'finished' }, beneficiaries: prior?.beneficiaries ?? [attempt.workId], costBasis,
@@ -72,9 +72,12 @@ export class UsageLedger {
       await putJson(this.store, this.key(attempt.callId), r);
       return r;
     });
-    try { await this.submit(rec, 'finished'); } catch (e) {
+    const submit = this.submit(rec, 'finished').catch((e: unknown) => {
       this.ops.logger?.log('warn', 'usage.telemetry_deferred', { callId: attempt.callId, error: (e as Error).message });
-    }
+    });
+    // The finished record is already durable locally; background submission only defers when
+    // Engine sees the usage (flush() re-submits anything unacknowledged).
+    if (!opts.background) await submit;
   }
 
   async addBeneficiary(callId: Id, workId: Id): Promise<void> {

@@ -55,3 +55,24 @@ export const STROLLER_MAX_AGE = 3;
 export const MUST_DO_PROBABILITY = 0.5;
 export const MIN_UNSUPERVISED_AGE = 13;
 export const MIN_STAY_MS = 3_600_000;
+
+/**
+ * Arrival-time bands (sim ms from park opening): a gate-opening surge, then a steady daytime
+ * flow and an evening cohort that comes for the lights. About 13% of groups are waiting at the
+ * gate for rope drop, roughly half arrive within the first 75 minutes, and the rest keep the park
+ * busy through the afternoon and into the evening. `skew` > 1 front-loads arrivals within a band
+ * (arrival = from + (to - from) * u^skew). Assumption for a busy day, not calibrated data.
+ */
+export const ARRIVAL_BANDS: readonly { id: string; weight: number; fromMs: number; toMs: number; skew: number }[] = [
+  { id: 'rope_drop', weight: 1.5, fromMs: 0, toMs: 3 * 60_000, skew: 1 },
+  { id: 'gate', weight: 3, fromMs: 3 * 60_000, toMs: 25 * 60_000, skew: 1.3 },
+  { id: 'morning', weight: 2.5, fromMs: 25 * 60_000, toMs: 75 * 60_000, skew: 1.2 },
+  { id: 'midday', weight: 2, fromMs: 75 * 60_000, toMs: 4 * 3_600_000, skew: 1.2 },
+  { id: 'afternoon', weight: 1.5, fromMs: 4 * 3_600_000, toMs: 7 * 3_600_000, skew: 1 },
+  { id: 'evening', weight: 1, fromMs: 7 * 3_600_000, toMs: 8.5 * 3_600_000, skew: 1 },
+];
+/** Intended stay length range (sim ms); departure is still clamped to park close, so many
+ * groups stay until the park closes. */
+export const STAY_RANGE_MS: readonly [number, number] = [4 * 3_600_000, 9 * 3_600_000];
+/** Largest crowd the population generator accepts by default (matches Engine's maxGuests). */
+export const DEFAULT_MAX_GUESTS = 2000;

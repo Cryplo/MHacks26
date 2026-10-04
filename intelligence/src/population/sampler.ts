@@ -6,7 +6,7 @@ import { allocateGuests, isFeasibleQuota, validateShares } from './allocation.ts
 import {
   AGE_RANGE, APP_PROBABILITY_AGE_13_PLUS, ARCHETYPES, BUDGET_PER_GUEST_CENTS, GROUP_SHAPES, LANGUAGES, MIN_STAY_MS,
   MIN_UNSUPERVISED_AGE, MOBILITY_RESTRICTED_PROBABILITY, MUST_DO_PROBABILITY, OCCASIONS, PHONE_BATTERY_LIMIT_PROBABILITY,
-  STROLLER_MAX_AGE, THRILL_MEAN,
+  STROLLER_MAX_AGE, THRILL_MEAN, ARRIVAL_BANDS, STAY_RANGE_MS, DEFAULT_MAX_GUESTS,
 } from './assumptions.ts';
 import type { ParkContext } from './park.ts';
 
@@ -112,7 +112,7 @@ export type SampleInput = {
 export function samplePopulation(input: SampleInput): SampleResult {
   const { crowd, park } = input;
   const errors: FieldError[] = [];
-  const maxGuests = input.maxGuests ?? 400;
+  const maxGuests = input.maxGuests ?? DEFAULT_MAX_GUESTS;
   if (!Number.isSafeInteger(crowd.guestCount) || crowd.guestCount < 1 || crowd.guestCount > maxGuests) {
     errors.push({ path: 'guestCount', message: `guestCount must be an integer in 1..${maxGuests}` });
   }
@@ -189,10 +189,14 @@ export function samplePopulation(input: SampleInput): SampleResult {
 
       const range = BUDGET_PER_GUEST_CENTS[a];
       const perGuest = Math.round(rng.range(range[0], range[1], gk, 'budget') / 500) * 500;
-      const arrivalBand = arrivals.weighted([['early', 6], ['mid', 3], ['late', 1]], groupId, 'band');
-      const bandMs = { early: [0, 2 * MIN_STAY_MS], mid: [2 * MIN_STAY_MS, 4 * MIN_STAY_MS], late: [4 * MIN_STAY_MS, 6 * MIN_STAY_MS] }[arrivalBand];
-      const arrivalMs = Math.min(latestArrival, floorStep(arrivals.range(bandMs[0]!, bandMs[1]!, groupId, 'arrival')));
-      const stayMs = arrivals.range(3 * MIN_STAY_MS, 8 * MIN_STAY_MS, groupId, 'stay');
+      // Gate-opening surge: about half the groups queue at the gate and enter in the first
+      // 20 minutes, most of the rest during the first 75 minutes, and a tail trickles in for
+      // up to four hours. Within each band, arrivals are skewed toward the band's start.
+      const arrivalBand = arrivals.weighted(ARRIVAL_BANDS.map((b) => [b.id, b.weight] as const), groupId, 'band');
+      const band = ARRIVAL_BANDS.find((b) => b.id === arrivalBand)!;
+      const u = arrivals.uniform(groupId, 'arrival');
+      const arrivalMs = Math.min(latestArrival, floorStep(band.fromMs + (band.toMs - band.fromMs) * u ** band.skew));
+      const stayMs = arrivals.range(STAY_RANGE_MS[0], STAY_RANGE_MS[1], groupId, 'stay');
       const plannedDepartureMs = Math.max(
         Math.min(input.closeAfterMs, arrivalMs + MIN_STAY_MS),
         Math.min(input.closeAfterMs, floorStep(arrivalMs + stayMs)),

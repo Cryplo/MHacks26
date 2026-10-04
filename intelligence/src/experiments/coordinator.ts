@@ -62,7 +62,7 @@ export type CoordinatorOptions = {
   driverLeaseMs: number; maxStepsPerAdvance: number; pollBaseMs: number; pollMaxMs: number; maxGuests: number;
 };
 
-export const DEFAULT_COORDINATOR_OPTIONS: CoordinatorOptions = { driverLeaseMs: 60_000, maxStepsPerAdvance: 100, pollBaseMs: 250, pollMaxMs: 5_000, maxGuests: 400 };
+export const DEFAULT_COORDINATOR_OPTIONS: CoordinatorOptions = { driverLeaseMs: 60_000, maxStepsPerAdvance: 24, pollBaseMs: 250, pollMaxMs: 5_000, maxGuests: 2000 };
 
 class LeaseLost extends Error { override name = 'LeaseLost'; }
 

@@ -10,7 +10,7 @@ import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const envFile = resolve(root, '..', 'engine', '.local', 'integration.env');
+const envFile = process.env.INTEGRATION_ENV_FILE ? resolve(process.env.INTEGRATION_ENV_FILE) : resolve(root, '..', 'engine', '.local', 'integration.env');
 if (!existsSync(envFile)) { console.error(`Missing ${envFile}: run node integration/bootstrap-identities.mjs first.`); process.exit(1); }
 const fileEnv = Object.fromEntries(readFileSync(envFile, 'utf8').split('\n').filter((l) => l.includes('=')).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
 const base = { ...process.env, ...fileEnv, BEHAVIOR_RUNTIME_MODE: 'spacetime', BEHAVIOR_PARK_BUNDLE: process.env.BEHAVIOR_PARK_BUNDLE ?? resolve(root, '..', 'experience', 'assets', 'park.bundle.json') };

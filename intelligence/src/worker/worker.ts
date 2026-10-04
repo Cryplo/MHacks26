@@ -45,6 +45,7 @@ export type WorkerStatus = {
 export type ShutdownReport = { completedDuringDrain: number; relinquished: Id[]; stillInflight: Id[] };
 
 const CLASSES: ExecutorClass[] = ['behavior', 'measurement', 'text', 'experiment'];
+const MAX_CLAIM = 32;
 
 function percentile(values: number[], q: number): number | null {
   if (!values.length) return null;
@@ -110,17 +111,23 @@ export class Worker {
     let claimed = 0;
     for (const cls of CLASSES) {
       const kinds = this.opts.kinds.filter((k) => executorClassOf(k) === cls && !this.disabled.has(k) && this.deps.handlers[k]);
-      const free = this.free(cls);
-      if (!kinds.length || free === 0) continue;
-      let receipt;
-      try {
-        receipt = await runCommand(this.deps.client, 'claimWork', { kinds, limit: free, workerNonce: this.opts.workerNonce, leaseMs: this.opts.leaseMs }, this.deps.ids.next('claim'), { clock: this.deps.clock, jitter: this.deps.jitter, logger: this.deps.logger, signal: this.stopAc.signal });
-      } catch (e) {
-        this.deps.logger.log('warn', 'worker.claim_failed', { cls, error: (e as Error).message });
-        continue;
+      // Engine accepts at most 32 items per claim; larger capacities claim repeatedly while
+      // full pages keep coming back.
+      for (let page = 0; page < 8 && !this.stopping; page++) {
+        const free = this.free(cls);
+        if (!kinds.length || free === 0) break;
+        const limit = Math.min(free, MAX_CLAIM);
+        let receipt;
+        try {
+          receipt = await runCommand(this.deps.client, 'claimWork', { kinds, limit, workerNonce: this.opts.workerNonce, leaseMs: this.opts.leaseMs }, this.deps.ids.next('claim'), { clock: this.deps.clock, jitter: this.deps.jitter, logger: this.deps.logger, signal: this.stopAc.signal });
+        } catch (e) {
+          this.deps.logger.log('warn', 'worker.claim_failed', { cls, error: (e as Error).message });
+          break;
+        }
+        if (!receipt.ok) { this.deps.logger.log('error', 'worker.claim_rejected', { cls, code: receipt.error.code, message: receipt.error.message }); break; }
+        for (const item of receipt.result.items) { this.dispatch(item); claimed++; }
+        if (receipt.result.items.length < limit) break;
       }
-      if (!receipt.ok) { this.deps.logger.log('error', 'worker.claim_rejected', { cls, code: receipt.error.code, message: receipt.error.message }); continue; }
-      for (const item of receipt.result.items) { this.dispatch(item); claimed++; }
     }
     return claimed;
   }

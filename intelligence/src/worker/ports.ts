@@ -17,6 +17,8 @@ export type CacheEntry = {
   normalization: { rawSum: number; sumError: number; appliedBy: 'engine' };
   callId: Id | null;
   createdAtEpochMs: number;
+  /** Provider reasoning text, when the provider returned any (optional; absent in older entries). */
+  reasoning?: string | null;
 };
 
 export interface ResponseCachePort {

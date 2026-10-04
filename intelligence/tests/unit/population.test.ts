@@ -49,13 +49,13 @@ describe('B-01 deterministic manifest', () => {
     expect(hashCanonical(committed)).toBe(r.sha256);
   });
 
-  it.each([1, 2, 7, 33, 299, 400])('produces exactly %i guests', async (n) => {
+  it.each([1, 2, 7, 33, 299, 400, 1000])('produces exactly %i guests', async (n) => {
     const r = await gen({ ...DEFAULT_CROWD_300, guestCount: n, shares: { ...DEFAULT_CROWD_300.shares } });
     expect(r.manifest.personas).toHaveLength(n);
   });
 
   it('rejects out-of-range guest counts and unsupported generator versions', async () => {
-    for (const crowd of [{ ...TINY_CROWD, guestCount: 0 }, { ...TINY_CROWD, guestCount: 401 }, { ...TINY_CROWD, guestCount: 2.5 }, { ...TINY_CROWD, generatorVersion: 'v9' }]) {
+    for (const crowd of [{ ...TINY_CROWD, guestCount: 0 }, { ...TINY_CROWD, guestCount: 2001 }, { ...TINY_CROWD, guestCount: 2.5 }, { ...TINY_CROWD, generatorVersion: 'v9' }]) {
       const r = await generatePopulation({ crowd, park: ctx, closeAfterMs: close });
       expect(r.ok).toBe(false);
     }

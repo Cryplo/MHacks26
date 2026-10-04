@@ -38,7 +38,9 @@ export function mockWeight(o: GuestObservation, opt: ActionOption): number {
     case 'browse': return 0.6 + 0.4 * n.fatigue;
     case 'continue': return 0.8;
     case 'rest': return 0.3 + 2.5 * n.fatigue ** 2;
-    case 'leave_park': return 0.05 + 1.5 * n.fatigue ** 2 + (remainingMin < 30 ? 2 : 0) + 0.5 * Math.max(0, 0.3 - n.patience);
+    // Leaving before the planned departure is rare unless the group is exhausted or out of
+    // patience; it becomes likely in the last half hour and dominant once the plan is overdue.
+    case 'leave_park': return 0.01 + 3 * Math.max(0, n.fatigue - 0.5) ** 2 + (remainingMin < 30 ? 2 : 0) + (remainingMin <= 0 ? 4 : 0) + 0.5 * Math.max(0, 0.25 - n.patience);
     case 'travel': case 'join_queue': case 'notice_enter': {
       const wait = observedWaitUpperMin(o, a.placeId);
       const tolerance = 15 + 60 * n.patience;

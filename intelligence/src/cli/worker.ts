@@ -21,6 +21,7 @@ import { harborLightsFixturePark, parkArtifact } from '../fixtures/harbor-lights
 import { fixtureDecisionRequest } from '../fixtures/orchestration.ts';
 import { FetchHttp } from '../providers/http.ts';
 import { DEFAULT_JEV_MODEL, JevProvider } from '../providers/jev.ts';
+import { BatchingJevProvider, DEFAULT_BATCH } from '../providers/jev-batch.ts';
 import { MockProvider } from '../providers/mock.ts';
 import type { BehaviorProvider } from '../providers/types.ts';
 import { jsonLineLogger, systemClock, systemJitter } from '../runtime/clock.ts';
@@ -39,33 +40,64 @@ const secrets = [env.JEV_API_KEY, env.BEHAVIOR_WORKER_TOKEN, env.BEHAVIOR_COORDI
 const num = (name: string, fallback: number) => (env[name] ? Number(env[name]) : fallback);
 const logger = jsonLineLogger(undefined, systemClock, secrets);
 
+const usesJev = () => env.BEHAVIOR_PROVIDER === 'jev';
+/** Batched Jev (default): many requests per HTTP call. JEV_BATCH_SIZE=1 restores one call per request. */
+const batchSize = () => (usesJev() ? Math.max(1, num('JEV_BATCH_SIZE', DEFAULT_BATCH.maxItems)) : 1);
+const batching = () => batchSize() > 1;
+
 function provider(): BehaviorProvider {
   if ((env.BEHAVIOR_PROVIDER ?? 'mock') === 'mock') return new MockProvider();
   if (env.BEHAVIOR_PROVIDER !== 'jev') throw new Error(`BEHAVIOR_PROVIDER must be mock or jev, not ${env.BEHAVIOR_PROVIDER}`);
   if (!env.JEV_API_KEY) throw new Error('BEHAVIOR_PROVIDER=jev requires JEV_API_KEY');
-  return new JevProvider({
+  const jev = new JevProvider({
     endpoint: env.JEV_ENDPOINT ?? 'https://api.typesafe.ai/v1/systemone', apiKey: env.JEV_API_KEY, model: env.JEV_MODEL ?? DEFAULT_JEV_MODEL,
-    timeoutMs: num('JEV_HTTP_TIMEOUT_MS', 10_000), maxResponseBytes: num('JEV_MAX_RESPONSE_BYTES', 256 * 1024), retryAfterCapMs: 60_000,
+    timeoutMs: num('JEV_HTTP_TIMEOUT_MS', batching() ? 20_000 : 10_000), maxResponseBytes: num('JEV_MAX_RESPONSE_BYTES', 1024 * 1024), retryAfterCapMs: 60_000,
   }, new FetchHttp(systemClock), systemClock);
+  if (!batching()) return jev;
+  return new BatchingJevProvider(jev, {
+    maxItems: batchSize(),
+    maxInputTokens: num('JEV_BATCH_MAX_INPUT_TOKENS', DEFAULT_BATCH.maxInputTokens),
+    lingerMs: num('JEV_BATCH_LINGER_MS', DEFAULT_BATCH.lingerMs),
+    // With batching, these bound actual HTTP calls rather than logical requests.
+    maxInFlight: num('JEV_MAX_CONCURRENCY', DEFAULT_BATCH.maxInFlight),
+    minIntervalMs: Math.round(1000 / num('JEV_REQUESTS_PER_SECOND', 1000 / DEFAULT_BATCH.minIntervalMs)),
+  }, systemClock);
 }
 
 function limiter() {
   const maxCalls = env.BEHAVIOR_MAX_PROVIDER_CALLS ? Number(env.BEHAVIOR_MAX_PROVIDER_CALLS) : undefined;
+  // Batched Jev: the batching provider spaces real HTTP calls; this limiter admits logical
+  // requests so a whole barrier's decisions can wait in one batch queue.
+  const logical = batching()
+    ? { requestsPerSecond: 400, requestBurst: 256, inputTokensPerMinute: num('JEV_INPUT_TOKENS_PER_MINUTE', 4_000_000), tokenBurst: 400_000, maxConcurrency: 4 * batchSize() * num('JEV_MAX_CONCURRENCY', DEFAULT_BATCH.maxInFlight), reservedForBehavior: batchSize(), maxQueue: 2048 }
+    : {
+      requestsPerSecond: num('JEV_REQUESTS_PER_SECOND', CONSERVATIVE_LIMITS.requestsPerSecond),
+      inputTokensPerMinute: num('JEV_INPUT_TOKENS_PER_MINUTE', CONSERVATIVE_LIMITS.inputTokensPerMinute),
+      maxConcurrency: num('JEV_MAX_CONCURRENCY', CONSERVATIVE_LIMITS.maxConcurrency),
+      maxQueue: num('WORKER_QUEUE_LIMIT', CONSERVATIVE_LIMITS.maxQueue),
+    };
   return new ProviderLimiter({
     ...CONSERVATIVE_LIMITS,
-    requestsPerSecond: num('JEV_REQUESTS_PER_SECOND', CONSERVATIVE_LIMITS.requestsPerSecond),
-    inputTokensPerMinute: num('JEV_INPUT_TOKENS_PER_MINUTE', CONSERVATIVE_LIMITS.inputTokensPerMinute),
-    maxConcurrency: num('JEV_MAX_CONCURRENCY', CONSERVATIVE_LIMITS.maxConcurrency),
-    maxQueue: num('WORKER_QUEUE_LIMIT', CONSERVATIVE_LIMITS.maxQueue),
+    ...logical,
     budgets: maxCalls ? { behavior: { maxCalls }, measurement: { maxCalls }, text: { maxCalls } } : undefined,
   }, systemClock);
+}
+
+/** In-flight work items per class; batching needs enough concurrent items to fill batches. */
+function capacity() {
+  const behavior = num('WORKER_BEHAVIOR_CAPACITY', batching() ? 4 * batchSize() * num('JEV_MAX_CONCURRENCY', DEFAULT_BATCH.maxInFlight) / 2 : 8);
+  return { behavior, measurement: num('WORKER_MEASUREMENT_CAPACITY', batching() ? 2 * batchSize() : 2), text: 2, experiment: 0 };
 }
 
 function build(client: RuntimeClient, store: FileStore | MemoryStore) {
   const p = provider();
   const common = { client, provider: p, store, clock: systemClock, jitter: systemJitter, ids: uuidIds, logger, limiter: limiter() };
   if (role === 'coordinator') return createCoordinator({ ...common, coordinator: { runtime: 'engine' } });
-  return createWorker({ ...common, cache: new ResponseCache(store), coalescer: new InflightCoalescer(), options: { leaseMs: num('WORKER_LEASE_MS', 30_000) } });
+  return createWorker({
+    ...common, cache: new ResponseCache(store), coalescer: new InflightCoalescer(),
+    options: { leaseMs: num('WORKER_LEASE_MS', 30_000), capacity: capacity() },
+    inference: batching() ? { backgroundTelemetry: true } : undefined,
+  });
 }
 
 async function fixtureDemo() {

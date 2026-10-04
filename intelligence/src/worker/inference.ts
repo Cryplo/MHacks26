@@ -28,6 +28,8 @@ export type InferenceConfig = {
   /** Namespace for the write-once response cache; frozen per experiment. */
   namespace: (scope: Scope) => string;
   billingOwnerRunId: (scope: Scope) => Id | null;
+  /** Submit successful-call usage to Engine without blocking the response (default false). */
+  backgroundTelemetry?: boolean;
 };
 
 export type InferenceDeps = {
@@ -61,6 +63,7 @@ export class InferenceService {
   private readonly cache: ResponseCachePort;
   private readonly coalescer: CoalescerPort;
   private readonly limiter: LimiterPort;
+  private readonly uploads = new Map<string, Promise<ArtifactRef>>();
 
   constructor(private readonly deps: InferenceDeps, private readonly config: InferenceConfig) {
     this.cache = deps.cache ?? noCache;
@@ -96,6 +99,7 @@ export class InferenceService {
       probabilities: req.options.map((o) => ({ optionId: o.id, probability: byId.get(o.id)! })),
       confidence: accepted.entry.confidence, responseArtifact: accepted.entry.responseArtifact, usage: accepted.usage,
       cacheKey: key, originalSource: accepted.entry.originalSource,
+      ...(accepted.entry.reasoning ? { reasoning: accepted.entry.reasoning } : {}),
     };
   }
 
@@ -216,12 +220,13 @@ export class InferenceService {
         logger.log('warn', 'provider.invalid_output', { workId, attempt, reason: v.reason });
         continue;
       }
-      await ledger.finished({ ...finished, outcome: 'success' }, cost.basis);
+      await ledger.finished({ ...finished, outcome: 'success' }, cost.basis, { background: this.config.backgroundTelemetry === true });
       const entry: CacheEntry = {
         schema: 'response-cache-entry.v1', namespace: ns, key, kind,
         modelRequested: provider.model, modelReturned: resp.modelReturned, policyVersion, instructionsVersion: provider.instructionsVersion,
         originalSource: provider.source, probabilities: v.probabilities, score: v.score, confidence: v.confidence, responseArtifact: artifact!,
         normalization: { rawSum: v.rawSum, sumError: v.sumError, appliedBy: 'engine' }, callId, createdAtEpochMs: clock.nowEpochMs(),
+        ...((resp as { reasoning?: string | null }).reasoning ? { reasoning: (resp as { reasoning?: string | null }).reasoning } : {}),
       };
       const stored = await this.cache.putIfAbsent(entry);
       const winner = this.acceptable(stored.entry) ? stored.entry : entry;
@@ -240,9 +245,23 @@ export class InferenceService {
   /** Raw bytes are kept locally (content-addressed) and, when a scope is given, uploaded as a private artifact. */
   private async persistRaw(raw: Uint8Array, scope?: Scope): Promise<ArtifactRef | null> {
     const sha = sha256Hex(raw);
-    await this.deps.store.putIfAbsent(`raw/${sha}`, raw);
-    if (!scope) return null;
-    return this.deps.client.putArtifact({ kind: 'model_response', mediaType: 'application/json', bytes: raw, scope, commandId: artifactCommandId('model_response', sha, scope) });
+    if (!scope) {
+      await this.deps.store.putIfAbsent(`raw/${sha}`, raw);
+      return null;
+    }
+    // A batched call returns one raw body for many requests: store and upload it once per scope.
+    const memo = `${sha}|${scope.runId ?? ''}|${scope.experimentId ?? ''}`;
+    let pending = this.uploads.get(memo);
+    if (!pending) {
+      pending = (async () => {
+        await this.deps.store.putIfAbsent(`raw/${sha}`, raw);
+        return this.deps.client.putArtifact({ kind: 'model_response', mediaType: 'application/json', bytes: raw, scope, commandId: artifactCommandId('model_response', sha, scope) });
+      })();
+      this.uploads.set(memo, pending);
+      pending.catch(() => this.uploads.delete(memo));
+      if (this.uploads.size > 4096) this.uploads.delete(this.uploads.keys().next().value!);
+    }
+    return pending;
   }
 }
 

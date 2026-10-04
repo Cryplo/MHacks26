@@ -11,6 +11,8 @@ export type ProviderDecision = {
   confidence: number | null; usage: ProviderUsage; httpMs: number;
   /** Set when a vendor-quantized vector was renormalized at the adapter (raw bytes unchanged). */
   quantization?: { step: number; rawSum: number } | null;
+  /** Free-text reasoning returned by the provider, if any (surfaced, never parsed). */
+  reasoning?: string | null;
 };
 
 export type ProviderRating = {

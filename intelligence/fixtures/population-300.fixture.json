@@ -8780,8 +8780,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w001",
       "startingBalanceCents": 9000,
-      "arrivalMs": 6660000,
-      "plannedDepartureMs": 27530000
+      "arrivalMs": 4230000,
+      "plannedDepartureMs": 28700000
     },
     {
       "groupId": "g002",
@@ -8798,8 +8798,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w002",
       "startingBalanceCents": 14000,
-      "arrivalMs": 5495000,
-      "plannedDepartureMs": 32060000
+      "arrivalMs": 3670000,
+      "plannedDepartureMs": 33835000
     },
     {
       "groupId": "g003",
@@ -8816,8 +8816,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w003",
       "startingBalanceCents": 13500,
-      "arrivalMs": 2785000,
-      "plannedDepartureMs": 25345000
+      "arrivalMs": 2460000,
+      "plannedDepartureMs": 28620000
     },
     {
       "groupId": "g004",
@@ -8836,8 +8836,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w004",
       "startingBalanceCents": 30000,
-      "arrivalMs": 12985000,
-      "plannedDepartureMs": 30570000
+      "arrivalMs": 12110000,
+      "plannedDepartureMs": 33295000
     },
     {
       "groupId": "g005",
@@ -8855,8 +8855,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w005",
       "startingBalanceCents": 14000,
-      "arrivalMs": 2820000,
-      "plannedDepartureMs": 31290000
+      "arrivalMs": 570000,
+      "plannedDepartureMs": 32640000
     },
     {
       "groupId": "g006",
@@ -8873,8 +8873,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w006",
       "startingBalanceCents": 24000,
-      "arrivalMs": 3500000,
-      "plannedDepartureMs": 14925000
+      "arrivalMs": 695000,
+      "plannedDepartureMs": 15720000
     },
     {
       "groupId": "g007",
@@ -8892,7 +8892,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w007",
       "startingBalanceCents": 14000,
-      "arrivalMs": 12245000,
+      "arrivalMs": 10960000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -8909,8 +8909,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w008",
       "startingBalanceCents": 10500,
-      "arrivalMs": 3895000,
-      "plannedDepartureMs": 18620000
+      "arrivalMs": 2935000,
+      "plannedDepartureMs": 21260000
     },
     {
       "groupId": "g009",
@@ -8927,8 +8927,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w009",
       "startingBalanceCents": 16500,
-      "arrivalMs": 3605000,
-      "plannedDepartureMs": 18600000
+      "arrivalMs": 715000,
+      "plannedDepartureMs": 19310000
     },
     {
       "groupId": "g010",
@@ -8946,7 +8946,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w010",
       "startingBalanceCents": 10000,
-      "arrivalMs": 14210000,
+      "arrivalMs": 24920000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -8965,8 +8965,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w011",
       "startingBalanceCents": 22000,
-      "arrivalMs": 1685000,
-      "plannedDepartureMs": 14375000
+      "arrivalMs": 40000,
+      "plannedDepartureMs": 16330000
     },
     {
       "groupId": "g012",
@@ -8985,8 +8985,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w012",
       "startingBalanceCents": 17500,
-      "arrivalMs": 9740000,
-      "plannedDepartureMs": 24160000
+      "arrivalMs": 7335000,
+      "plannedDepartureMs": 25355000
     },
     {
       "groupId": "g013",
@@ -9003,7 +9003,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w013",
       "startingBalanceCents": 16500,
-      "arrivalMs": 10845000,
+      "arrivalMs": 8875000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9021,8 +9021,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w014",
       "startingBalanceCents": 10500,
-      "arrivalMs": 11485000,
-      "plannedDepartureMs": 34660000
+      "arrivalMs": 20825000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g015",
@@ -9039,8 +9039,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w015",
       "startingBalanceCents": 6000,
-      "arrivalMs": 7455000,
-      "plannedDepartureMs": 33480000
+      "arrivalMs": 14785000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g016",
@@ -9057,8 +9057,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w016",
       "startingBalanceCents": 20000,
-      "arrivalMs": 6175000,
-      "plannedDepartureMs": 18045000
+      "arrivalMs": 1260000,
+      "plannedDepartureMs": 16730000
     },
     {
       "groupId": "g017",
@@ -9076,8 +9076,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w017",
       "startingBalanceCents": 10000,
-      "arrivalMs": 5920000,
-      "plannedDepartureMs": 23075000
+      "arrivalMs": 3870000,
+      "plannedDepartureMs": 24625000
     },
     {
       "groupId": "g018",
@@ -9092,8 +9092,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w018",
       "startingBalanceCents": 8000,
-      "arrivalMs": 10315000,
-      "plannedDepartureMs": 30615000
+      "arrivalMs": 19075000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g019",
@@ -9111,8 +9111,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w019",
       "startingBalanceCents": 12000,
-      "arrivalMs": 9080000,
-      "plannedDepartureMs": 25895000
+      "arrivalMs": 6480000,
+      "plannedDepartureMs": 26895000
     },
     {
       "groupId": "g020",
@@ -9129,8 +9129,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w020",
       "startingBalanceCents": 18000,
-      "arrivalMs": 5865000,
-      "plannedDepartureMs": 32810000
+      "arrivalMs": 145000,
+      "plannedDepartureMs": 30690000
     },
     {
       "groupId": "g021",
@@ -9148,8 +9148,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w021",
       "startingBalanceCents": 20000,
-      "arrivalMs": 10270000,
-      "plannedDepartureMs": 24050000
+      "arrivalMs": 8060000,
+      "plannedDepartureMs": 25440000
     },
     {
       "groupId": "g022",
@@ -9168,8 +9168,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w022",
       "startingBalanceCents": 22500,
-      "arrivalMs": 6930000,
-      "plannedDepartureMs": 22560000
+      "arrivalMs": 1435000,
+      "plannedDepartureMs": 20665000
     },
     {
       "groupId": "g023",
@@ -9187,8 +9187,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w023",
       "startingBalanceCents": 16000,
-      "arrivalMs": 3015000,
-      "plannedDepartureMs": 30940000
+      "arrivalMs": 2555000,
+      "plannedDepartureMs": 34080000
     },
     {
       "groupId": "g024",
@@ -9204,8 +9204,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w024",
       "startingBalanceCents": 6000,
-      "arrivalMs": 1265000,
-      "plannedDepartureMs": 26895000
+      "arrivalMs": 315000,
+      "plannedDepartureMs": 29545000
     },
     {
       "groupId": "g025",
@@ -9222,8 +9222,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w025",
       "startingBalanceCents": 8000,
-      "arrivalMs": 9190000,
-      "plannedDepartureMs": 24030000
+      "arrivalMs": 17390000,
+      "plannedDepartureMs": 35830000
     },
     {
       "groupId": "g026",
@@ -9238,8 +9238,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w026",
       "startingBalanceCents": 6000,
-      "arrivalMs": 7120000,
-      "plannedDepartureMs": 33695000
+      "arrivalMs": 4460000,
+      "plannedDepartureMs": 34635000
     },
     {
       "groupId": "g027",
@@ -9254,8 +9254,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w027",
       "startingBalanceCents": 7000,
-      "arrivalMs": 4360000,
-      "plannedDepartureMs": 28050000
+      "arrivalMs": 3145000,
+      "plannedDepartureMs": 30435000
     },
     {
       "groupId": "g028",
@@ -9271,8 +9271,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w028",
       "startingBalanceCents": 6000,
-      "arrivalMs": 11775000,
-      "plannedDepartureMs": 35465000
+      "arrivalMs": 10245000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g029",
@@ -9289,8 +9289,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w029",
       "startingBalanceCents": 15000,
-      "arrivalMs": 5895000,
-      "plannedDepartureMs": 24680000
+      "arrivalMs": 3860000,
+      "plannedDepartureMs": 26245000
     },
     {
       "groupId": "g030",
@@ -9307,8 +9307,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w030",
       "startingBalanceCents": 24000,
-      "arrivalMs": 9305000,
-      "plannedDepartureMs": 35320000
+      "arrivalMs": 6760000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g031",
@@ -9322,7 +9322,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w031",
       "startingBalanceCents": 4500,
-      "arrivalMs": 11535000,
+      "arrivalMs": 9885000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9338,8 +9338,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w032",
       "startingBalanceCents": 12000,
-      "arrivalMs": 3090000,
-      "plannedDepartureMs": 24790000
+      "arrivalMs": 620000,
+      "plannedDepartureMs": 25920000
     },
     {
       "groupId": "g033",
@@ -9353,8 +9353,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w033",
       "startingBalanceCents": 12000,
-      "arrivalMs": 12870000,
-      "plannedDepartureMs": 28570000
+      "arrivalMs": 11935000,
+      "plannedDepartureMs": 31235000
     },
     {
       "groupId": "g034",
@@ -9369,8 +9369,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w034",
       "startingBalanceCents": 8000,
-      "arrivalMs": 8950000,
-      "plannedDepartureMs": 25480000
+      "arrivalMs": 17030000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g035",
@@ -9384,8 +9384,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w035",
       "startingBalanceCents": 4500,
-      "arrivalMs": 2335000,
-      "plannedDepartureMs": 29170000
+      "arrivalMs": 485000,
+      "plannedDepartureMs": 30920000
     },
     {
       "groupId": "g036",
@@ -9398,8 +9398,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w036",
       "startingBalanceCents": 4000,
-      "arrivalMs": 17970000,
-      "plannedDepartureMs": 31285000
+      "arrivalMs": 27875000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g037",
@@ -9413,8 +9413,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w037",
       "startingBalanceCents": 7500,
-      "arrivalMs": 1260000,
-      "plannedDepartureMs": 13135000
+      "arrivalMs": 315000,
+      "plannedDepartureMs": 15790000
     },
     {
       "groupId": "g038",
@@ -9429,8 +9429,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w038",
       "startingBalanceCents": 16000,
-      "arrivalMs": 1495000,
-      "plannedDepartureMs": 15260000
+      "arrivalMs": 350000,
+      "plannedDepartureMs": 17715000
     },
     {
       "groupId": "g039",
@@ -9445,8 +9445,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w039",
       "startingBalanceCents": 16000,
-      "arrivalMs": 5415000,
-      "plannedDepartureMs": 32555000
+      "arrivalMs": 3630000,
+      "plannedDepartureMs": 34370000
     },
     {
       "groupId": "g040",
@@ -9459,8 +9459,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w040",
       "startingBalanceCents": 6000,
-      "arrivalMs": 340000,
-      "plannedDepartureMs": 25975000
+      "arrivalMs": 205000,
+      "plannedDepartureMs": 29440000
     },
     {
       "groupId": "g041",
@@ -9473,7 +9473,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w041",
       "startingBalanceCents": 8000,
-      "arrivalMs": 8975000,
+      "arrivalMs": 6350000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9487,8 +9487,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w042",
       "startingBalanceCents": 12000,
-      "arrivalMs": 12455000,
-      "plannedDepartureMs": 25895000
+      "arrivalMs": 11285000,
+      "plannedDepartureMs": 28325000
     },
     {
       "groupId": "g043",
@@ -9501,8 +9501,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w043",
       "startingBalanceCents": 12000,
-      "arrivalMs": 12210000,
-      "plannedDepartureMs": 31030000
+      "arrivalMs": 10910000,
+      "plannedDepartureMs": 33330000
     },
     {
       "groupId": "g044",
@@ -9515,8 +9515,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w044",
       "startingBalanceCents": 15000,
-      "arrivalMs": 6960000,
-      "plannedDepartureMs": 17960000
+      "arrivalMs": 4380000,
+      "plannedDepartureMs": 18980000
     },
     {
       "groupId": "g045",
@@ -9529,8 +9529,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w045",
       "startingBalanceCents": 18000,
-      "arrivalMs": 4340000,
-      "plannedDepartureMs": 24465000
+      "arrivalMs": 105000,
+      "plannedDepartureMs": 23830000
     },
     {
       "groupId": "g046",
@@ -9543,8 +9543,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w046",
       "startingBalanceCents": 9000,
-      "arrivalMs": 880000,
-      "plannedDepartureMs": 22925000
+      "arrivalMs": 20000,
+      "plannedDepartureMs": 25665000
     },
     {
       "groupId": "g047",
@@ -9557,8 +9557,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w047",
       "startingBalanceCents": 13000,
-      "arrivalMs": 7370000,
-      "plannedDepartureMs": 28190000
+      "arrivalMs": 4610000,
+      "plannedDepartureMs": 29030000
     },
     {
       "groupId": "g048",
@@ -9571,8 +9571,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w048",
       "startingBalanceCents": 13000,
-      "arrivalMs": 665000,
-      "plannedDepartureMs": 18430000
+      "arrivalMs": 235000,
+      "plannedDepartureMs": 21600000
     },
     {
       "groupId": "g049",
@@ -9585,8 +9585,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w049",
       "startingBalanceCents": 14000,
-      "arrivalMs": 20335000,
-      "plannedDepartureMs": 31770000
+      "arrivalMs": 28800000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g050",
@@ -9599,8 +9599,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w050",
       "startingBalanceCents": 16000,
-      "arrivalMs": 7250000,
-      "plannedDepartureMs": 18890000
+      "arrivalMs": 4525000,
+      "plannedDepartureMs": 19765000
     },
     {
       "groupId": "g051",
@@ -9613,8 +9613,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w051",
       "startingBalanceCents": 17000,
-      "arrivalMs": 8605000,
-      "plannedDepartureMs": 22485000
+      "arrivalMs": 16510000,
+      "plannedDepartureMs": 33990000
     },
     {
       "groupId": "g052",
@@ -9627,8 +9627,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w052",
       "startingBalanceCents": 11000,
-      "arrivalMs": 810000,
-      "plannedDepartureMs": 28840000
+      "arrivalMs": 20000,
+      "plannedDepartureMs": 31650000
     },
     {
       "groupId": "g053",
@@ -9641,8 +9641,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w053",
       "startingBalanceCents": 7000,
-      "arrivalMs": 1710000,
-      "plannedDepartureMs": 18205000
+      "arrivalMs": 380000,
+      "plannedDepartureMs": 20475000
     },
     {
       "groupId": "g054",
@@ -9655,8 +9655,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w054",
       "startingBalanceCents": 15000,
-      "arrivalMs": 2255000,
-      "plannedDepartureMs": 27500000
+      "arrivalMs": 2245000,
+      "plannedDepartureMs": 31090000
     },
     {
       "groupId": "g055",
@@ -9669,8 +9669,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w055",
       "startingBalanceCents": 12000,
-      "arrivalMs": 2855000,
-      "plannedDepartureMs": 24160000
+      "arrivalMs": 70000,
+      "plannedDepartureMs": 24975000
     },
     {
       "groupId": "g056",
@@ -9683,8 +9683,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w056",
       "startingBalanceCents": 9000,
-      "arrivalMs": 4280000,
-      "plannedDepartureMs": 25565000
+      "arrivalMs": 850000,
+      "plannedDepartureMs": 25735000
     },
     {
       "groupId": "g057",
@@ -9697,8 +9697,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w057",
       "startingBalanceCents": 15000,
-      "arrivalMs": 4970000,
-      "plannedDepartureMs": 18070000
+      "arrivalMs": 995000,
+      "plannedDepartureMs": 17695000
     },
     {
       "groupId": "g058",
@@ -9711,8 +9711,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w058",
       "startingBalanceCents": 9000,
-      "arrivalMs": 145000,
-      "plannedDepartureMs": 11605000
+      "arrivalMs": 1525000,
+      "plannedDepartureMs": 16585000
     },
     {
       "groupId": "g059",
@@ -9725,8 +9725,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w059",
       "startingBalanceCents": 7000,
-      "arrivalMs": 6755000,
-      "plannedDepartureMs": 22380000
+      "arrivalMs": 165000,
+      "plannedDepartureMs": 19390000
     },
     {
       "groupId": "g060",
@@ -9739,8 +9739,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w060",
       "startingBalanceCents": 13000,
-      "arrivalMs": 1300000,
-      "plannedDepartureMs": 20105000
+      "arrivalMs": 320000,
+      "plannedDepartureMs": 22725000
     },
     {
       "groupId": "g061",
@@ -9753,8 +9753,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w061",
       "startingBalanceCents": 14000,
-      "arrivalMs": 12715000,
-      "plannedDepartureMs": 28450000
+      "arrivalMs": 11695000,
+      "plannedDepartureMs": 31030000
     },
     {
       "groupId": "g062",
@@ -9768,8 +9768,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w062",
       "startingBalanceCents": 7500,
-      "arrivalMs": 5460000,
-      "plannedDepartureMs": 33040000
+      "arrivalMs": 135000,
+      "plannedDepartureMs": 31315000
     },
     {
       "groupId": "g063",
@@ -9782,7 +9782,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w063",
       "startingBalanceCents": 11000,
-      "arrivalMs": 16675000,
+      "arrivalMs": 26905000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9796,8 +9796,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w064",
       "startingBalanceCents": 14000,
-      "arrivalMs": 6080000,
-      "plannedDepartureMs": 18300000
+      "arrivalMs": 150000,
+      "plannedDepartureMs": 15970000
     },
     {
       "groupId": "g065",
@@ -9810,8 +9810,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w065",
       "startingBalanceCents": 15000,
-      "arrivalMs": 12855000,
-      "plannedDepartureMs": 26855000
+      "arrivalMs": 11910000,
+      "plannedDepartureMs": 29510000
     },
     {
       "groupId": "g066",
@@ -9825,8 +9825,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w066",
       "startingBalanceCents": 10500,
-      "arrivalMs": 10445000,
-      "plannedDepartureMs": 35110000
+      "arrivalMs": 8305000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g067",
@@ -9839,8 +9839,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w067",
       "startingBalanceCents": 4000,
-      "arrivalMs": 1935000,
-      "plannedDepartureMs": 25480000
+      "arrivalMs": 415000,
+      "plannedDepartureMs": 27560000
     },
     {
       "groupId": "g068",
@@ -9852,8 +9852,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w068",
       "startingBalanceCents": 7000,
-      "arrivalMs": 14265000,
-      "plannedDepartureMs": 34840000
+      "arrivalMs": 25000000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g069",
@@ -9866,8 +9866,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w069",
       "startingBalanceCents": 13000,
-      "arrivalMs": 5835000,
-      "plannedDepartureMs": 29415000
+      "arrivalMs": 3830000,
+      "plannedDepartureMs": 31010000
     },
     {
       "groupId": "g070",
@@ -9881,7 +9881,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w070",
       "startingBalanceCents": 13500,
-      "arrivalMs": 10070000,
+      "arrivalMs": 18705000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9895,8 +9895,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w071",
       "startingBalanceCents": 7000,
-      "arrivalMs": 7150000,
-      "plannedDepartureMs": 31420000
+      "arrivalMs": 4475000,
+      "plannedDepartureMs": 32345000
     },
     {
       "groupId": "g072",
@@ -9909,7 +9909,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w072",
       "startingBalanceCents": 15000,
-      "arrivalMs": 21085000,
+      "arrivalMs": 28800000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9923,7 +9923,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w073",
       "startingBalanceCents": 16000,
-      "arrivalMs": 18170000,
+      "arrivalMs": 28030000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -9937,8 +9937,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w074",
       "startingBalanceCents": 11000,
-      "arrivalMs": 95000,
-      "plannedDepartureMs": 20620000
+      "arrivalMs": 185000,
+      "plannedDepartureMs": 24310000
     },
     {
       "groupId": "g075",
@@ -9953,8 +9953,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w075",
       "startingBalanceCents": 12000,
-      "arrivalMs": 1990000,
-      "plannedDepartureMs": 15030000
+      "arrivalMs": 2140000,
+      "plannedDepartureMs": 18780000
     },
     {
       "groupId": "g076",
@@ -9967,8 +9967,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w076",
       "startingBalanceCents": 9000,
-      "arrivalMs": 13195000,
-      "plannedDepartureMs": 29650000
+      "arrivalMs": 12450000,
+      "plannedDepartureMs": 32505000
     },
     {
       "groupId": "g077",
@@ -9982,8 +9982,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w077",
       "startingBalanceCents": 15000,
-      "arrivalMs": 2955000,
-      "plannedDepartureMs": 25325000
+      "arrivalMs": 590000,
+      "plannedDepartureMs": 26560000
     },
     {
       "groupId": "g078",
@@ -9995,8 +9995,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w078",
       "startingBalanceCents": 3000,
-      "arrivalMs": 470000,
-      "plannedDepartureMs": 11575000
+      "arrivalMs": 10000,
+      "plannedDepartureMs": 14715000
     },
     {
       "groupId": "g079",
@@ -10008,8 +10008,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w079",
       "startingBalanceCents": 8000,
-      "arrivalMs": 3135000,
-      "plannedDepartureMs": 24300000
+      "arrivalMs": 75000,
+      "plannedDepartureMs": 24840000
     },
     {
       "groupId": "g080",
@@ -10022,7 +10022,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w080",
       "startingBalanceCents": 16000,
-      "arrivalMs": 13005000,
+      "arrivalMs": 12145000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10036,8 +10036,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w081",
       "startingBalanceCents": 15000,
-      "arrivalMs": 11080000,
-      "plannedDepartureMs": 32205000
+      "arrivalMs": 9220000,
+      "plannedDepartureMs": 33945000
     },
     {
       "groupId": "g082",
@@ -10050,8 +10050,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w082",
       "startingBalanceCents": 9000,
-      "arrivalMs": 2010000,
-      "plannedDepartureMs": 22730000
+      "arrivalMs": 50000,
+      "plannedDepartureMs": 24370000
     },
     {
       "groupId": "g083",
@@ -10064,8 +10064,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w083",
       "startingBalanceCents": 9000,
-      "arrivalMs": 1840000,
-      "plannedDepartureMs": 20715000
+      "arrivalMs": 45000,
+      "plannedDepartureMs": 22520000
     },
     {
       "groupId": "g084",
@@ -10077,8 +10077,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w084",
       "startingBalanceCents": 6000,
-      "arrivalMs": 10110000,
-      "plannedDepartureMs": 27055000
+      "arrivalMs": 18770000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g085",
@@ -10091,8 +10091,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w085",
       "startingBalanceCents": 13000,
-      "arrivalMs": 5300000,
-      "plannedDepartureMs": 21165000
+      "arrivalMs": 1065000,
+      "plannedDepartureMs": 20530000
     },
     {
       "groupId": "g086",
@@ -10105,7 +10105,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w086",
       "startingBalanceCents": 11000,
-      "arrivalMs": 14015000,
+      "arrivalMs": 24620000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10119,8 +10119,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w087",
       "startingBalanceCents": 13000,
-      "arrivalMs": 9375000,
-      "plannedDepartureMs": 33540000
+      "arrivalMs": 17665000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g088",
@@ -10133,8 +10133,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w088",
       "startingBalanceCents": 14000,
-      "arrivalMs": 12720000,
-      "plannedDepartureMs": 29255000
+      "arrivalMs": 22680000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g089",
@@ -10147,8 +10147,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w089",
       "startingBalanceCents": 14000,
-      "arrivalMs": 4085000,
-      "plannedDepartureMs": 27415000
+      "arrivalMs": 810000,
+      "plannedDepartureMs": 27740000
     },
     {
       "groupId": "g090",
@@ -10162,8 +10162,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w090",
       "startingBalanceCents": 9000,
-      "arrivalMs": 9155000,
-      "plannedDepartureMs": 32530000
+      "arrivalMs": 17335000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g091",
@@ -10177,8 +10177,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w091",
       "startingBalanceCents": 12000,
-      "arrivalMs": 13145000,
-      "plannedDepartureMs": 32755000
+      "arrivalMs": 12365000,
+      "plannedDepartureMs": 35575000
     },
     {
       "groupId": "g092",
@@ -10191,8 +10191,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w092",
       "startingBalanceCents": 13000,
-      "arrivalMs": 40000,
-      "plannedDepartureMs": 14020000
+      "arrivalMs": 1505000,
+      "plannedDepartureMs": 19085000
     },
     {
       "groupId": "g093",
@@ -10204,8 +10204,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w093",
       "startingBalanceCents": 2000,
-      "arrivalMs": 14630000,
-      "plannedDepartureMs": 31695000
+      "arrivalMs": 25375000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g094",
@@ -10217,8 +10217,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w094",
       "startingBalanceCents": 6500,
-      "arrivalMs": 3055000,
-      "plannedDepartureMs": 14160000
+      "arrivalMs": 75000,
+      "plannedDepartureMs": 14780000
     },
     {
       "groupId": "g095",
@@ -10230,8 +10230,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w095",
       "startingBalanceCents": 7000,
-      "arrivalMs": 2405000,
-      "plannedDepartureMs": 28830000
+      "arrivalMs": 495000,
+      "plannedDepartureMs": 30520000
     },
     {
       "groupId": "g096",
@@ -10245,8 +10245,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w096",
       "startingBalanceCents": 15000,
-      "arrivalMs": 11410000,
-      "plannedDepartureMs": 26070000
+      "arrivalMs": 9700000,
+      "plannedDepartureMs": 27960000
     },
     {
       "groupId": "g097",
@@ -10260,8 +10260,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w097",
       "startingBalanceCents": 7500,
-      "arrivalMs": 7890000,
-      "plannedDepartureMs": 21060000
+      "arrivalMs": 15440000,
+      "plannedDepartureMs": 32210000
     },
     {
       "groupId": "g098",
@@ -10273,7 +10273,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w098",
       "startingBalanceCents": 3500,
-      "arrivalMs": 19575000,
+      "arrivalMs": 28800000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10286,8 +10286,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w099",
       "startingBalanceCents": 2000,
-      "arrivalMs": 6500000,
-      "plannedDepartureMs": 25320000
+      "arrivalMs": 4155000,
+      "plannedDepartureMs": 26575000
     },
     {
       "groupId": "g100",
@@ -10299,8 +10299,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w100",
       "startingBalanceCents": 4500,
-      "arrivalMs": 11260000,
-      "plannedDepartureMs": 27780000
+      "arrivalMs": 20495000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g101",
@@ -10312,7 +10312,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w101",
       "startingBalanceCents": 6000,
-      "arrivalMs": 14375000,
+      "arrivalMs": 14365000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10325,8 +10325,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w102",
       "startingBalanceCents": 3500,
-      "arrivalMs": 8320000,
-      "plannedDepartureMs": 26505000
+      "arrivalMs": 16080000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g103",
@@ -10338,8 +10338,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w103",
       "startingBalanceCents": 6000,
-      "arrivalMs": 6410000,
-      "plannedDepartureMs": 26880000
+      "arrivalMs": 160000,
+      "plannedDepartureMs": 24230000
     },
     {
       "groupId": "g104",
@@ -10351,8 +10351,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w104",
       "startingBalanceCents": 6000,
-      "arrivalMs": 6990000,
-      "plannedDepartureMs": 29105000
+      "arrivalMs": 1450000,
+      "plannedDepartureMs": 27165000
     },
     {
       "groupId": "g105",
@@ -10364,8 +10364,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w105",
       "startingBalanceCents": 5000,
-      "arrivalMs": 9660000,
-      "plannedDepartureMs": 29175000
+      "arrivalMs": 7230000,
+      "plannedDepartureMs": 30345000
     },
     {
       "groupId": "g106",
@@ -10377,8 +10377,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w106",
       "startingBalanceCents": 2000,
-      "arrivalMs": 2445000,
-      "plannedDepartureMs": 17450000
+      "arrivalMs": 500000,
+      "plannedDepartureMs": 19105000
     },
     {
       "groupId": "g107",
@@ -10390,8 +10390,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w107",
       "startingBalanceCents": 5500,
-      "arrivalMs": 10700000,
-      "plannedDepartureMs": 31450000
+      "arrivalMs": 8665000,
+      "plannedDepartureMs": 33015000
     },
     {
       "groupId": "g108",
@@ -10403,8 +10403,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w108",
       "startingBalanceCents": 6000,
-      "arrivalMs": 7155000,
-      "plannedDepartureMs": 19395000
+      "arrivalMs": 4475000,
+      "plannedDepartureMs": 20315000
     },
     {
       "groupId": "g109",
@@ -10416,8 +10416,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w109",
       "startingBalanceCents": 2500,
-      "arrivalMs": 9265000,
-      "plannedDepartureMs": 29375000
+      "arrivalMs": 17500000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g110",
@@ -10429,8 +10429,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w110",
       "startingBalanceCents": 5000,
-      "arrivalMs": 17990000,
-      "plannedDepartureMs": 29810000
+      "arrivalMs": 27890000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g111",
@@ -10442,8 +10442,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w111",
       "startingBalanceCents": 4000,
-      "arrivalMs": 2080000,
-      "plannedDepartureMs": 17095000
+      "arrivalMs": 2175000,
+      "plannedDepartureMs": 20790000
     },
     {
       "groupId": "g112",
@@ -10455,8 +10455,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w112",
       "startingBalanceCents": 4500,
-      "arrivalMs": 2225000,
-      "plannedDepartureMs": 15620000
+      "arrivalMs": 2230000,
+      "plannedDepartureMs": 19225000
     },
     {
       "groupId": "g113",
@@ -10468,8 +10468,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w113",
       "startingBalanceCents": 6500,
-      "arrivalMs": 1350000,
-      "plannedDepartureMs": 20905000
+      "arrivalMs": 30000,
+      "plannedDepartureMs": 23185000
     },
     {
       "groupId": "g114",
@@ -10481,8 +10481,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w114",
       "startingBalanceCents": 7000,
-      "arrivalMs": 1805000,
-      "plannedDepartureMs": 24490000
+      "arrivalMs": 45000,
+      "plannedDepartureMs": 26330000
     },
     {
       "groupId": "g115",
@@ -10494,8 +10494,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w115",
       "startingBalanceCents": 3500,
-      "arrivalMs": 4305000,
-      "plannedDepartureMs": 30505000
+      "arrivalMs": 105000,
+      "plannedDepartureMs": 29905000
     },
     {
       "groupId": "g116",
@@ -10507,8 +10507,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w116",
       "startingBalanceCents": 7000,
-      "arrivalMs": 9160000,
-      "plannedDepartureMs": 29960000
+      "arrivalMs": 6580000,
+      "plannedDepartureMs": 30980000
     },
     {
       "groupId": "g117",
@@ -10520,8 +10520,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w117",
       "startingBalanceCents": 5500,
-      "arrivalMs": 7910000,
-      "plannedDepartureMs": 28360000
+      "arrivalMs": 15470000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g118",
@@ -10533,8 +10533,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w118",
       "startingBalanceCents": 4500,
-      "arrivalMs": 13310000,
-      "plannedDepartureMs": 34410000
+      "arrivalMs": 23565000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g119",
@@ -10546,7 +10546,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w119",
       "startingBalanceCents": 3500,
-      "arrivalMs": 11325000,
+      "arrivalMs": 9575000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10559,8 +10559,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w120",
       "startingBalanceCents": 3000,
-      "arrivalMs": 3260000,
-      "plannedDepartureMs": 21690000
+      "arrivalMs": 650000,
+      "plannedDepartureMs": 22680000
     },
     {
       "groupId": "g121",
@@ -10572,8 +10572,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w121",
       "startingBalanceCents": 2500,
-      "arrivalMs": 225000,
-      "plannedDepartureMs": 23845000
+      "arrivalMs": 5000,
+      "plannedDepartureMs": 27225000
     },
     {
       "groupId": "g122",
@@ -10585,7 +10585,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w122",
       "startingBalanceCents": 2500,
-      "arrivalMs": 13135000,
+      "arrivalMs": 12355000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10598,8 +10598,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w123",
       "startingBalanceCents": 3000,
-      "arrivalMs": 1740000,
-      "plannedDepartureMs": 29100000
+      "arrivalMs": 385000,
+      "plannedDepartureMs": 31345000
     },
     {
       "groupId": "g124",
@@ -10611,8 +10611,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w124",
       "startingBalanceCents": 3000,
-      "arrivalMs": 10210000,
-      "plannedDepartureMs": 24805000
+      "arrivalMs": 7980000,
+      "plannedDepartureMs": 26175000
     },
     {
       "groupId": "g125",
@@ -10624,8 +10624,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w125",
       "startingBalanceCents": 3000,
-      "arrivalMs": 3270000,
-      "plannedDepartureMs": 30495000
+      "arrivalMs": 650000,
+      "plannedDepartureMs": 31475000
     },
     {
       "groupId": "g126",
@@ -10637,8 +10637,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w126",
       "startingBalanceCents": 7000,
-      "arrivalMs": 9915000,
-      "plannedDepartureMs": 27845000
+      "arrivalMs": 18475000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g127",
@@ -10650,7 +10650,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w127",
       "startingBalanceCents": 1500,
-      "arrivalMs": 13170000,
+      "arrivalMs": 12405000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10663,8 +10663,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w128",
       "startingBalanceCents": 4500,
-      "arrivalMs": 9990000,
-      "plannedDepartureMs": 25670000
+      "arrivalMs": 7670000,
+      "plannedDepartureMs": 26950000
     },
     {
       "groupId": "g129",
@@ -10676,8 +10676,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w129",
       "startingBalanceCents": 6000,
-      "arrivalMs": 7795000,
-      "plannedDepartureMs": 33635000
+      "arrivalMs": 4995000,
+      "plannedDepartureMs": 34435000
     },
     {
       "groupId": "g130",
@@ -10689,8 +10689,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w130",
       "startingBalanceCents": 7000,
-      "arrivalMs": 4570000,
-      "plannedDepartureMs": 29175000
+      "arrivalMs": 110000,
+      "plannedDepartureMs": 28315000
     },
     {
       "groupId": "g131",
@@ -10702,7 +10702,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w131",
       "startingBalanceCents": 5500,
-      "arrivalMs": 14110000,
+      "arrivalMs": 13920000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10715,8 +10715,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w132",
       "startingBalanceCents": 2500,
-      "arrivalMs": 7775000,
-      "plannedDepartureMs": 34130000
+      "arrivalMs": 15265000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g133",
@@ -10728,8 +10728,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w133",
       "startingBalanceCents": 6500,
-      "arrivalMs": 1320000,
-      "plannedDepartureMs": 13015000
+      "arrivalMs": 325000,
+      "plannedDepartureMs": 15620000
     },
     {
       "groupId": "g134",
@@ -10741,8 +10741,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w134",
       "startingBalanceCents": 7500,
-      "arrivalMs": 7025000,
-      "plannedDepartureMs": 34400000
+      "arrivalMs": 1455000,
+      "plannedDepartureMs": 32430000
     },
     {
       "groupId": "g135",
@@ -10754,8 +10754,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w135",
       "startingBalanceCents": 7500,
-      "arrivalMs": 15335000,
-      "plannedDepartureMs": 30690000
+      "arrivalMs": 25900000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g136",
@@ -10767,8 +10767,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w136",
       "startingBalanceCents": 3500,
-      "arrivalMs": 7130000,
-      "plannedDepartureMs": 26535000
+      "arrivalMs": 1480000,
+      "plannedDepartureMs": 24485000
     },
     {
       "groupId": "g137",
@@ -10780,7 +10780,7 @@
       "rallyPlaceId": "gate",
       "walletId": "w137",
       "startingBalanceCents": 2000,
-      "arrivalMs": 14270000,
+      "arrivalMs": 14190000,
       "plannedDepartureMs": 36000000
     },
     {
@@ -10793,8 +10793,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w138",
       "startingBalanceCents": 5500,
-      "arrivalMs": 4870000,
-      "plannedDepartureMs": 18465000
+      "arrivalMs": 975000,
+      "plannedDepartureMs": 18170000
     },
     {
       "groupId": "g139",
@@ -10806,8 +10806,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w139",
       "startingBalanceCents": 2000,
-      "arrivalMs": 295000,
-      "plannedDepartureMs": 26410000
+      "arrivalMs": 1565000,
+      "plannedDepartureMs": 31280000
     },
     {
       "groupId": "g140",
@@ -10819,8 +10819,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w140",
       "startingBalanceCents": 2000,
-      "arrivalMs": 3960000,
-      "plannedDepartureMs": 28305000
+      "arrivalMs": 2965000,
+      "plannedDepartureMs": 30910000
     },
     {
       "groupId": "g141",
@@ -10832,8 +10832,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w141",
       "startingBalanceCents": 6000,
-      "arrivalMs": 8125000,
-      "plannedDepartureMs": 35020000
+      "arrivalMs": 15790000,
+      "plannedDepartureMs": 36000000
     },
     {
       "groupId": "g142",
@@ -10845,8 +10845,8 @@
       "rallyPlaceId": "gate",
       "walletId": "w142",
       "startingBalanceCents": 7500,
-      "arrivalMs": 370000,
-      "plannedDepartureMs": 16185000
+      "arrivalMs": 205000,
+      "plannedDepartureMs": 19620000
     }
   ],
   "proseVersion": "template-prose-v1",
@@ -11044,5 +11044,5 @@
       }
     }
   ],
-  "populationId": "pop-d43e1566554ab0bd239216ac"
+  "populationId": "pop-4bc5f0ae57422e289ccaa214"
 }

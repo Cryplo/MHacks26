@@ -71,8 +71,8 @@ export function buildRatingBody(req: RatingRequest, model: string): JevRequestBo
   };
 }
 
-type JevAnswer = { type?: unknown; choice?: unknown; confidence?: unknown; probabilities?: unknown; score?: unknown };
-type JevResponse = { answers?: Record<string, JevAnswer>; usage?: { input_tokens?: unknown; output_tokens?: unknown; cost_usd?: unknown }; model?: unknown };
+export type JevAnswer = { type?: unknown; choice?: unknown; confidence?: unknown; probabilities?: unknown; score?: unknown };
+export type JevResponse = { answers?: Record<string, JevAnswer>; usage?: { input_tokens?: unknown; output_tokens?: unknown; cost_usd?: unknown }; model?: unknown };
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
@@ -124,7 +124,8 @@ export class JevProvider implements BehaviorProvider {
     return 'options' in req ? estimateTokens(JSON.stringify(buildDecisionBody(req, this.model))) : estimateTokens(JSON.stringify(buildRatingBody(req, this.model)));
   }
 
-  private async post(body: JevRequestBody, ctx: ProviderCallContext): Promise<{ res: HttpResponse; parsed: JevResponse; httpMs: number; modelReturned: string }> {
+  /** One HTTP call (no retries). Exposed for the batching provider. */
+  async post(body: JevRequestBody, ctx: ProviderCallContext): Promise<{ res: HttpResponse; parsed: JevResponse; httpMs: number; modelReturned: string }> {
     const started = this.clock.nowEpochMs();
     let res: HttpResponse;
     try {
@@ -170,26 +171,49 @@ export class JevProvider implements BehaviorProvider {
 
   async decide(req: DecisionRequest, ctx: ProviderCallContext): Promise<ProviderDecision> {
     const { res, parsed, httpMs, modelReturned } = await this.post(buildDecisionBody(req, this.cfg.model), ctx);
-    const usage = parseUsage(parsed);
-    const a = parsed.answers?.action;
-    const entries = a ? choiceEntries(a.probabilities) : null;
-    if (!a || (a.type !== undefined && a.type !== 'choice') || !entries) {
-      throw new ProviderError('invalid_output', 'Jev response lacks answers.action choice probabilities', { raw: res.body, usage, modelReturned, httpMs });
-    }
-    const dq = dequantize(entries.map((e) => e.probability));
-    const probabilities = dq ? entries.map((e, i) => ({ ...e, probability: dq.values[i]! })) : entries;
-    return { raw: res.body, modelReturned, probabilities, confidence: num(a.confidence), usage, httpMs, quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null };
+    return decisionFromAnswer(parsed.answers?.action, 'action', res.body, parseUsage(parsed), modelReturned, httpMs);
   }
 
   async rate(req: RatingRequest, ctx: ProviderCallContext): Promise<ProviderRating> {
     const { res, parsed, httpMs, modelReturned } = await this.post(buildRatingBody(req, this.cfg.model), ctx);
-    const usage = parseUsage(parsed);
-    const a = parsed.answers?.rating;
-    const vec = a ? scoreVector(a.probabilities, req.levels.length) : null;
-    if (!a || (a.type !== undefined && a.type !== 'score') || !vec) {
-      throw new ProviderError('invalid_output', 'Jev response lacks answers.rating score distribution', { raw: res.body, usage, modelReturned, httpMs });
-    }
-    const dq = dequantize(vec);
-    return { raw: res.body, modelReturned, probabilities: dq ? dq.values : vec, score: a.score, usage, httpMs, quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null };
+    return ratingFromAnswer(parsed.answers?.rating, 'rating', req.levels.length, res.body, parseUsage(parsed), modelReturned, httpMs);
   }
+}
+
+/** Optional free-text reasoning an answer may carry (Jev does not document one today). */
+export function answerReasoning(a: JevAnswer | undefined): string | null {
+  const r = a as Record<string, unknown> | undefined;
+  for (const k of ['reasoning', 'rationale', 'explanation', 'reason']) {
+    const v = r?.[k];
+    if (typeof v === 'string' && v.trim()) return v.trim().slice(0, 2000);
+  }
+  return null;
+}
+
+/** Parses one choice answer into an unvalidated provider decision (validation happens downstream). */
+export function decisionFromAnswer(
+  a: JevAnswer | undefined, question: string, raw: Uint8Array, usage: ProviderUsage, modelReturned: string, httpMs: number,
+): ProviderDecision {
+  const entries = a ? choiceEntries(a.probabilities) : null;
+  if (!a || (a.type !== undefined && a.type !== 'choice') || !entries) {
+    throw new ProviderError('invalid_output', `Jev response lacks answers.${question} choice probabilities`, { raw, usage, modelReturned, httpMs });
+  }
+  const dq = dequantize(entries.map((e) => e.probability));
+  const probabilities = dq ? entries.map((e, i) => ({ ...e, probability: dq.values[i]! })) : entries;
+  return {
+    raw, modelReturned, probabilities, confidence: num(a.confidence), usage, httpMs,
+    quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null, reasoning: answerReasoning(a),
+  };
+}
+
+/** Parses one score answer into an unvalidated provider rating. */
+export function ratingFromAnswer(
+  a: JevAnswer | undefined, question: string, levels: number, raw: Uint8Array, usage: ProviderUsage, modelReturned: string, httpMs: number,
+): ProviderRating {
+  const vec = a ? scoreVector(a.probabilities, levels) : null;
+  if (!a || (a.type !== undefined && a.type !== 'score') || !vec) {
+    throw new ProviderError('invalid_output', `Jev response lacks answers.${question} score distribution`, { raw, usage, modelReturned, httpMs });
+  }
+  const dq = dequantize(vec);
+  return { raw, modelReturned, probabilities: dq ? dq.values : vec, score: a.score, usage, httpMs, quantization: dq ? { step: JEV_PROBABILITY_STEP, rawSum: dq.rawSum } : null };
 }

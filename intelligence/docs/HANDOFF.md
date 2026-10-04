@@ -36,7 +36,7 @@ Node v26.7.0 (CI uses Node 22; `engines.node >= 22`), npm 11.19.0, TypeScript 6.
 | `contract/behavior-v1.ts` | `c25776a4883f70c71e8b4991dabc1b7a641baa8baeb615b1cfc145c0b8f1aac4` |
 | `fixtures/conformance-fixtures.json` | `499eea76474de51246ecb634f9769383d8217c4681197dc5909c04e66464980b` |
 | `fixtures/golden-vectors.json` | `8e4233df20aadd2c8d6119baf22ff6353f4b995fbbabd40151d9d99624687413` |
-| `fixtures/population-300.fixture.json` | `080bd80765ec2130857f1c0059ad7f231e95a2bd6f78a3184a362b4967261402` |
+| `fixtures/population-300.fixture.json` | `10a9bddf2dc2a0d3504e48e3ee5da67abcabeb28222cc2e5d93445c63298c8d7` |
 
 ## Commands and actual results (this machine, 2026-10-03)
 
