@@ -1,0 +1,33 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "notice-only",
+    "kind": "notice",
+    "primaryAB": null,
+    "stage": 1,
+    "summary": "Rewrites the churro cart aroma notice at 11:00 (version v2). Guests who newly smell it observe the new text; earlier observations keep the v1 text.",
+    "authoredHypothesis": "Authored hypothesis (unmeasured): the v2 wording changes stop/continue choices near the plaza."
+  },
+  "scenario": {
+    "id": "notice-only",
+    "revision": "1",
+    "label": "Churro notice v2 at 11:00",
+    "events": [
+      {
+        "id": "churro-notice-v2",
+        "atMs": 7200000,
+        "order": 0,
+        "change": {
+          "kind": "notice",
+          "placeId": "churro_cart",
+          "notice": {
+            "text": "Churros are fried fresh every few minutes at the cart beside the central plaza - follow the cinnamon.",
+            "channel": "aroma",
+            "radiusM": 12,
+            "cooldownMs": 1800000
+          }
+        }
+      }
+    ]
+  }
+}

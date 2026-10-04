@@ -1,0 +1,31 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "app-message",
+    "kind": "app_message",
+    "primaryAB": null,
+    "stage": 1,
+    "summary": "Sends an informational app message at 12:00 suggesting Splash Falls, expiring at 13:00. Only guests with the app, delivery and attention can observe it. No discount.",
+    "authoredHypothesis": "Authored hypothesis (unmeasured): app users who see the message are more likely to travel to Splash Falls."
+  },
+  "scenario": {
+    "id": "app-message",
+    "revision": "1",
+    "label": "App message: Splash Falls at 12:00",
+    "events": [
+      {
+        "id": "app-msg-splash",
+        "atMs": 10800000,
+        "order": 0,
+        "change": {
+          "kind": "app_message",
+          "messageId": "msg-splash-1",
+          "text": "Splash Falls is open all day - find it on the path north-west of the central plaza.",
+          "expiresAtMs": 14400000,
+          "suggestedPlaceId": "splash_falls",
+          "discount": null
+        }
+      }
+    ]
+  }
+}

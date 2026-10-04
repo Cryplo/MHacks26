@@ -1,0 +1,38 @@
+{
+  "$comment": "Scenario preset. `scenario` is a contract Scenario; `meta` is Experience-owned descriptive content. Hypotheses are authored expectations, never measured outcomes.",
+  "meta": {
+    "presetId": "closure",
+    "kind": "closure",
+    "primaryAB": null,
+    "stage": 1,
+    "summary": "Fault/demo scenario: closes Tempest Coaster at 14:00 and reopens it at 15:00. Queued parties are released (not voluntary abandonment); active rides complete. Guests learn of the closure only by observing it.",
+    "authoredHypothesis": null
+  },
+  "scenario": {
+    "id": "closure",
+    "revision": "1",
+    "label": "Coaster closed 14:00-15:00",
+    "events": [
+      {
+        "id": "coaster-close",
+        "atMs": 18000000,
+        "order": 0,
+        "change": {
+          "kind": "closure",
+          "placeId": "coaster_tempest",
+          "closed": true
+        }
+      },
+      {
+        "id": "coaster-reopen",
+        "atMs": 21600000,
+        "order": 0,
+        "change": {
+          "kind": "closure",
+          "placeId": "coaster_tempest",
+          "closed": false
+        }
+      }
+    ]
+  }
+}

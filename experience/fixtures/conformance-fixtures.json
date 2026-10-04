@@ -1,0 +1,447 @@
+{
+  "disclaimer": "Independent synthetic application-DTO examples, not one complete run, production results, or captured vendor payloads.",
+  "decisionRequest": {
+    "contractVersion": "behavior.v1",
+    "requestId": "decision:g001:4:r0",
+    "runId": "fixture-run",
+    "groupId": "g001",
+    "agentIds": [
+      "a001",
+      "a002",
+      "a003"
+    ],
+    "moment": "what_next",
+    "decisionSeq": 4,
+    "momentSeq": 2,
+    "requestRevision": 0,
+    "createdAtMs": 3600000,
+    "applyAtMs": 3600000,
+    "planRevision": 3,
+    "dependencyRevisions": {
+      "plan:g001": "3"
+    },
+    "observationHash": "99b85204c11fff99a21f374f377588c334a6cc0adb1e6c7bf045951f07154ef2",
+    "optionsHash": "a0e7af57469c9e40671c993a050a15274e5e2a6120e98cea32e001c5962b5605",
+    "policyVersion": "fixture-policy-v1",
+    "observation": {
+      "schema": "observation.v1",
+      "groupId": "g001",
+      "leaderId": "a001",
+      "atMs": 3600000,
+      "members": [
+        {
+          "persona": {
+            "agentId": "a001",
+            "groupId": "g001",
+            "archetype": "young_family",
+            "role": "parent",
+            "ageYears": 38,
+            "heightCm": 175,
+            "walkSpeedMps": 1.2,
+            "thrillPreference": 0.5,
+            "initialNeeds": {
+              "hunger": 35,
+              "fatigue": 20,
+              "patience": 80,
+              "fun": 50
+            },
+            "hungerPerHour": 10,
+            "fatiguePerKm": 8,
+            "patiencePerMinute": 1,
+            "familiarity": 0.4,
+            "hasApp": true,
+            "language": "en",
+            "phoneActiveUntilMs": null,
+            "stroller": false,
+            "mobilityRestricted": false,
+            "occasion": "birthday",
+            "mustDoPlaceIds": [
+              "splash"
+            ],
+            "backstory": "Synthetic fixture: parent with two children, hoping to visit Splash Falls."
+          },
+          "needs": {
+            "hunger": 70,
+            "fatigue": 45,
+            "patience": 35,
+            "fun": 55
+          }
+        },
+        {
+          "persona": {
+            "agentId": "a002",
+            "groupId": "g001",
+            "archetype": "young_family",
+            "role": "child",
+            "ageYears": 6,
+            "heightCm": 115,
+            "walkSpeedMps": 0.9,
+            "thrillPreference": 0.5,
+            "initialNeeds": {
+              "hunger": 35,
+              "fatigue": 20,
+              "patience": 80,
+              "fun": 50
+            },
+            "hungerPerHour": 10,
+            "fatiguePerKm": 8,
+            "patiencePerMinute": 1,
+            "familiarity": 0.4,
+            "hasApp": false,
+            "language": "en",
+            "phoneActiveUntilMs": null,
+            "stroller": false,
+            "mobilityRestricted": false,
+            "occasion": "birthday",
+            "mustDoPlaceIds": [
+              "splash"
+            ],
+            "backstory": "Synthetic fixture: child visiting with a parent and sibling."
+          },
+          "needs": {
+            "hunger": 70,
+            "fatigue": 45,
+            "patience": 35,
+            "fun": 55
+          }
+        },
+        {
+          "persona": {
+            "agentId": "a003",
+            "groupId": "g001",
+            "archetype": "young_family",
+            "role": "child",
+            "ageYears": 9,
+            "heightCm": 130,
+            "walkSpeedMps": 1.0,
+            "thrillPreference": 0.5,
+            "initialNeeds": {
+              "hunger": 35,
+              "fatigue": 20,
+              "patience": 80,
+              "fun": 50
+            },
+            "hungerPerHour": 10,
+            "fatiguePerKm": 8,
+            "patiencePerMinute": 1,
+            "familiarity": 0.4,
+            "hasApp": false,
+            "language": "en",
+            "phoneActiveUntilMs": null,
+            "stroller": false,
+            "mobilityRestricted": false,
+            "occasion": "birthday",
+            "mustDoPlaceIds": [
+              "splash"
+            ],
+            "backstory": "Synthetic fixture: child visiting with a parent and sibling."
+          },
+          "needs": {
+            "hunger": 70,
+            "fatigue": 45,
+            "patience": 35,
+            "fun": 55
+          }
+        }
+      ],
+      "wallet": {
+        "walletId": "w001",
+        "balanceCents": 4000
+      },
+      "facts": [
+        {
+          "id": "obs001",
+          "kind": "board",
+          "placeId": "splash",
+          "source": "sight",
+          "observedAtMs": 3595000,
+          "contentVersion": "board:3",
+          "text": "Splash Falls - 35 minutes",
+          "waitLowerMs": 2100000,
+          "waitUpperMs": 2100000,
+          "priceCents": null
+        }
+      ],
+      "knownDestinations": [
+        {
+          "placeId": "splash",
+          "name": "Splash Falls",
+          "walkEstimateMs": 120000,
+          "lastObservedFactIds": [
+            "obs001"
+          ],
+          "knownRestrictions": [
+            "Minimum height 100 cm"
+          ]
+        }
+      ],
+      "recentEventSummaries": [
+        {
+          "eventId": "evt009",
+          "atMs": 3580000,
+          "text": "Finished a short rest."
+        }
+      ],
+      "currentActivity": "deciding after rest",
+      "plannedDepartureMs": 25200000
+    },
+    "options": [
+      {
+        "id": "browse",
+        "label": "Browse nearby",
+        "description": "Wander without choosing an attraction.",
+        "action": {
+          "kind": "browse",
+          "durationMs": 120000
+        }
+      },
+      {
+        "id": "leave",
+        "label": "Head to the exit",
+        "description": "Walk to the exit earlier than planned.",
+        "action": {
+          "kind": "leave_park"
+        }
+      },
+      {
+        "id": "travel_splash",
+        "label": "Walk to Splash Falls",
+        "description": "About two minutes away; last observed wait 35 minutes. This does not join the queue.",
+        "action": {
+          "kind": "travel",
+          "placeId": "splash",
+          "routeProfileId": null
+        }
+      }
+    ],
+    "promptOptionOrder": [
+      "travel_splash",
+      "browse",
+      "leave"
+    ],
+    "candidateAudit": {
+      "considered": [
+        "splash"
+      ],
+      "excluded": []
+    }
+  },
+  "rawFixtureResponse": {
+    "fixture": true,
+    "note": "Application contract example, NOT a captured vendor response.",
+    "probabilities": [
+      {
+        "optionId": "browse",
+        "probability": 0.2
+      },
+      {
+        "optionId": "leave",
+        "probability": 0.1
+      },
+      {
+        "optionId": "travel_splash",
+        "probability": 0.7
+      }
+    ]
+  },
+  "decisionResult": {
+    "requestId": "decision:g001:4:r0",
+    "observationHash": "99b85204c11fff99a21f374f377588c334a6cc0adb1e6c7bf045951f07154ef2",
+    "optionsHash": "a0e7af57469c9e40671c993a050a15274e5e2a6120e98cea32e001c5962b5605",
+    "modelRequested": "mock-policy-v1",
+    "modelReturned": "mock-policy-v1",
+    "source": "mock",
+    "probabilities": [
+      {
+        "optionId": "browse",
+        "probability": 0.2
+      },
+      {
+        "optionId": "leave",
+        "probability": 0.1
+      },
+      {
+        "optionId": "travel_splash",
+        "probability": 0.7
+      }
+    ],
+    "confidence": null,
+    "responseArtifact": {
+      "artifactId": "fixture-response-artifact",
+      "kind": "model_response",
+      "sha256": "87234338e9c4722e6db6aeabc7ed296c775dde6e2169b2b8db37179ceaa228ac",
+      "byteLength": 231,
+      "mediaType": "application/json",
+      "contractVersion": "behavior.v1"
+    },
+    "usage": {
+      "callId": null,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "estimatedCostUsd": 0,
+      "priceVersion": null,
+      "queueMs": 0,
+      "httpMs": 0,
+      "attemptCount": 0
+    },
+    "cacheKey": null,
+    "originalSource": "mock"
+  },
+  "metricSnapshot": {
+    "runId": "fixture-metrics-run",
+    "simMs": 3600000,
+    "revision": 1,
+    "definitionVersion": "metrics-v1",
+    "admittedGuests": 12,
+    "guestsInPark": 0,
+    "measures": {
+      "net_revenue_cents": {
+        "id": "net_revenue_cents",
+        "value": 12000,
+        "unit": "cents",
+        "numerator": 12000,
+        "denominator": null,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "revenue_per_guest_cents": {
+        "id": "revenue_per_guest_cents",
+        "value": 1000,
+        "unit": "cents",
+        "numerator": 12000,
+        "denominator": 12,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "satisfaction_0_100": {
+        "id": "satisfaction_0_100",
+        "value": 75,
+        "unit": "score",
+        "numerator": 900,
+        "denominator": 12,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "queue_minutes_per_guest": {
+        "id": "queue_minutes_per_guest",
+        "value": 15,
+        "unit": "minutes",
+        "numerator": 180,
+        "denominator": 12,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "completed_ride_wait_minutes": {
+        "id": "completed_ride_wait_minutes",
+        "value": 10,
+        "unit": "minutes",
+        "numerator": 120,
+        "denominator": 12,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "rides_per_guest": {
+        "id": "rides_per_guest",
+        "value": 1,
+        "unit": "ratio",
+        "numerator": 12,
+        "denominator": 12,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "abandonment_rate": {
+        "id": "abandonment_rate",
+        "value": 0.25,
+        "unit": "ratio",
+        "numerator": 4,
+        "denominator": 16,
+        "n": 16,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "queue_time_share": {
+        "id": "queue_time_share",
+        "value": 0.25,
+        "unit": "ratio",
+        "numerator": 180,
+        "denominator": 720,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "early_departures": {
+        "id": "early_departures",
+        "value": 2,
+        "unit": "guests",
+        "numerator": 2,
+        "denominator": null,
+        "n": 12,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "ride_seat_utilization": {
+        "id": "ride_seat_utilization",
+        "value": 0.75,
+        "unit": "ratio",
+        "numerator": 12,
+        "denominator": 16,
+        "n": 16,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      },
+      "server_utilization": {
+        "id": "server_utilization",
+        "value": 0.5,
+        "unit": "ratio",
+        "numerator": 360,
+        "denominator": 720,
+        "n": 2,
+        "coverage": 1,
+        "complete": true,
+        "missingReason": null
+      }
+    }
+  },
+  "scenario": {
+    "id": "price-variant",
+    "revision": "1",
+    "label": "Price-only fixture",
+    "events": [
+      {
+        "id": "pass-price-25",
+        "atMs": 1800000,
+        "order": 0,
+        "change": {
+          "kind": "pass_price",
+          "unitPriceCents": 2500
+        }
+      }
+    ]
+  },
+  "rejectedReceipt": {
+    "commandId": "fixture-command",
+    "ok": false,
+    "error": {
+      "code": "STALE_LEASE",
+      "message": "The work lease was replaced.",
+      "retryable": false,
+      "fieldErrors": []
+    }
+  }
+}

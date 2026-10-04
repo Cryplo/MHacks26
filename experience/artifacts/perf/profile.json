@@ -1,0 +1,121 @@
+{
+  "measuredAt": "2026-10-03T23:06:24.427Z",
+  "note": "Headless Chromium (Playwright) on the machine below, fixture scene at 60x playback. Not a claim for other hardware.",
+  "machine": {
+    "platform": "darwin 25.6.0",
+    "arch": "arm64",
+    "cpus": "Apple M4 Pro",
+    "cores": 12,
+    "memoryGb": 24
+  },
+  "results": [
+    {
+      "guests": 200,
+      "condition": "desktop",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "agentsRendered": 170,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 71,
+      "feedItems": 120
+    },
+    {
+      "guests": 200,
+      "condition": "desktop-hidpi",
+      "viewport": "1440x900",
+      "dpr": 2,
+      "agentsRendered": 184,
+      "fps": 60.2,
+      "p95FrameMs": 16.7,
+      "longTasksMs": 0,
+      "panZoomMs": 65,
+      "feedItems": 120
+    },
+    {
+      "guests": 200,
+      "condition": "mobile",
+      "viewport": "375x812",
+      "dpr": 3,
+      "agentsRendered": 194,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 53,
+      "feedItems": 120
+    },
+    {
+      "guests": 300,
+      "condition": "desktop",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "agentsRendered": 253,
+      "fps": 60.4,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 69,
+      "feedItems": 120
+    },
+    {
+      "guests": 300,
+      "condition": "desktop-hidpi",
+      "viewport": "1440x900",
+      "dpr": 2,
+      "agentsRendered": 274,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 69,
+      "feedItems": 120
+    },
+    {
+      "guests": 300,
+      "condition": "mobile",
+      "viewport": "375x812",
+      "dpr": 3,
+      "agentsRendered": 286,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 53,
+      "feedItems": 120
+    },
+    {
+      "guests": 400,
+      "condition": "desktop",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "agentsRendered": 337,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 68,
+      "feedItems": 120
+    },
+    {
+      "guests": 400,
+      "condition": "desktop-hidpi",
+      "viewport": "1440x900",
+      "dpr": 2,
+      "agentsRendered": 365,
+      "fps": 60.2,
+      "p95FrameMs": 16.7,
+      "longTasksMs": 0,
+      "panZoomMs": 67,
+      "feedItems": 120
+    },
+    {
+      "guests": 400,
+      "condition": "mobile",
+      "viewport": "375x812",
+      "dpr": 3,
+      "agentsRendered": 390,
+      "fps": 60.2,
+      "p95FrameMs": 16.8,
+      "longTasksMs": 0,
+      "panZoomMs": 51,
+      "feedItems": 120
+    }
+  ]
+}

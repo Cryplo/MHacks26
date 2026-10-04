@@ -1,0 +1,166 @@
+{
+  "version": "behavior-golden-v1",
+  "canonicalJson": [
+    {
+      "input": {
+        "z": 1,
+        "a": {
+          "b": 2,
+          "a": "text"
+        },
+        "integralFloat": 1.0
+      },
+      "expectedCanonical": "{\"a\":{\"a\":\"text\",\"b\":2},\"integralFloat\":1,\"z\":1}",
+      "sha256": "645800ffafbf4ac63108a5903cbcd86044880ee0d1f71afd0b0db2136663ed60"
+    },
+    {
+      "input": {
+        "text": "  Shop sign - $25  ",
+        "order": [
+          "b",
+          "a"
+        ],
+        "fraction": 0.125
+      },
+      "expectedCanonical": "{\"fraction\":0.125,\"order\":[\"b\",\"a\"],\"text\":\"  Shop sign - $25  \"}",
+      "sha256": "9b8b4e7c1b10639ede23deab40bccd0cd5e863d71940005dd27022fa88d39a44"
+    }
+  ],
+  "random": [
+    {
+      "key": [
+        "behavior-rng-v1",
+        "seed-001",
+        "behavior",
+        "g001",
+        "what_next",
+        2
+      ],
+      "canonical": "[\"behavior-rng-v1\",\"seed-001\",\"behavior\",\"g001\",\"what_next\",2]",
+      "sha256": "bdff702b00e101ea5d938bd73d941f4d0c4fbabc01060bb1f2546de4197e9514",
+      "uniform": 0.7421789269436694
+    },
+    {
+      "key": [
+        "behavior-rng-v1",
+        "seed-001",
+        "personas",
+        "g001",
+        "budget"
+      ],
+      "canonical": "[\"behavior-rng-v1\",\"seed-001\",\"personas\",\"g001\",\"budget\"]",
+      "sha256": "60f79c6e06640aef99539b070a407ce0b66e6aa5aeb4b35a2ab994c3b6293265",
+      "uniform": 0.3787782448402055
+    },
+    {
+      "key": [
+        "behavior-rng-v1",
+        "seed-002",
+        "behavior",
+        "g001",
+        "what_next",
+        2
+      ],
+      "canonical": "[\"behavior-rng-v1\",\"seed-002\",\"behavior\",\"g001\",\"what_next\",2]",
+      "sha256": "528c865667b6a24c6a2e80700d4d1d0faf2f9c792c582a9b99dacd710278dab8",
+      "uniform": 0.322456737608912
+    }
+  ],
+  "sampling": [
+    {
+      "probabilities": [
+        {
+          "optionId": "browse",
+          "probability": 0.2
+        },
+        {
+          "optionId": "leave",
+          "probability": 0.1
+        },
+        {
+          "optionId": "travel_splash",
+          "probability": 0.7
+        }
+      ],
+      "u": 0,
+      "chosen": "browse"
+    },
+    {
+      "probabilities": [
+        {
+          "optionId": "browse",
+          "probability": 0.2
+        },
+        {
+          "optionId": "leave",
+          "probability": 0.1
+        },
+        {
+          "optionId": "travel_splash",
+          "probability": 0.7
+        }
+      ],
+      "u": 0.2,
+      "chosen": "leave"
+    },
+    {
+      "probabilities": [
+        {
+          "optionId": "browse",
+          "probability": 0.2
+        },
+        {
+          "optionId": "leave",
+          "probability": 0.1
+        },
+        {
+          "optionId": "travel_splash",
+          "probability": 0.7
+        }
+      ],
+      "u": 0.31,
+      "chosen": "travel_splash"
+    }
+  ],
+  "money": {
+    "unitPriceCents": 2500,
+    "quantity": 4,
+    "expectedTotalCents": 10000,
+    "startingBalanceCents": 12000,
+    "expectedFinalBalanceCents": 2000
+  },
+  "waiting": {
+    "persons": 3,
+    "durationMs": 120000,
+    "expectedPersonMinutes": 6
+  },
+  "pairedAnalysis": {
+    "a": [
+      100,
+      200,
+      300
+    ],
+    "b": [
+      110,
+      220,
+      330
+    ],
+    "deltas": [
+      10,
+      20,
+      30
+    ],
+    "n": 3,
+    "mean": 20,
+    "min": 10,
+    "max": 30,
+    "sampleSd": 10,
+    "defaultInterval": null,
+    "defaultLabel": "exploratory descriptive",
+    "note": "A three-pair vector for testing arithmetic; not evidence of model validity."
+  },
+  "canonicalDecisionHashes": {
+    "observationHash": "99b85204c11fff99a21f374f377588c334a6cc0adb1e6c7bf045951f07154ef2",
+    "optionsHash": "a0e7af57469c9e40671c993a050a15274e5e2a6120e98cea32e001c5962b5605"
+  }
+}
