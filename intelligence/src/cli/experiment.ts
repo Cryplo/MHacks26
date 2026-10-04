@@ -16,7 +16,7 @@ import { InflightCoalescer, ResponseCache } from '../cache/response-cache.ts';
 import { readExperimentState } from '../experiments/coordinator.ts';
 import { passPriceExperiment } from '../experiments/preflight.ts';
 import { TINY_CROWD } from '../fixtures/crowds.ts';
-import { harborLightsFixturePark, parkArtifact } from '../fixtures/harbor-lights.ts';
+import { realEnginePark, registerParkAndWait } from '../runtime/park.ts';
 import { createOrchestrationWorld, experimentConfig } from '../fixtures/orchestration.ts';
 import { MockProvider } from '../providers/mock.ts';
 import { InstantClock, jsonLineLogger, systemClock, systemJitter } from '../runtime/clock.ts';
@@ -76,9 +76,7 @@ async function spacetime() {
   const client = (token: string): Promise<RuntimeClient> => loadRuntimeClient({ mode: 'spacetime', adapterModulePath: env.BEHAVIOR_RUNTIME_ADAPTER!, config: { uri: env.BEHAVIOR_RUNTIME_URI!, database: env.BEHAVIOR_RUNTIME_DATABASE!, token } });
   const [operator, coordinatorClient, workerClient] = await Promise.all([client(secrets[0]!), client(secrets[1]!), client(secrets[2]!)]);
   try {
-    const art = parkArtifact(harborLightsFixturePark());
-    const park = await operator.putArtifact({ kind: 'park', mediaType: 'application/json', bytes: art.bytes, scope: { runId: null, experimentId: null }, commandId: `artifact:park:${art.ref.sha256}` });
-    await operator.command('registerPark', { artifact: park }, `register:${park.sha256}`);
+    const park = await registerParkAndWait(operator, realEnginePark());
     const store = new MemoryStore();
     const cache = new ResponseCache(store);
     const worker = createWorker({ client: workerClient, provider: new MockProvider(), store, clock: systemClock, jitter: systemJitter, ids: uuidIds, logger, cache, coalescer: new InflightCoalescer() });

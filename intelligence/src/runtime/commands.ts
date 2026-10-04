@@ -3,6 +3,7 @@ import type { Commands, Id, Receipt, RuntimeClient } from '../../contract/behavi
 import { isRuntimeClientError } from '../core/errors.ts';
 import type { Clock, Jitter, Logger } from './clock.ts';
 import { backoffDelayMs } from '../worker/backoff.ts';
+import { canonicalJson, sha256Hex } from '../core/canonical.ts';
 
 /** Operational identifiers (command IDs, call IDs, nonces). Never used for simulation randomness. */
 export interface IdSource {
@@ -41,4 +42,13 @@ export async function runCommand<K extends keyof Commands>(
       await opts.clock.sleep(delay, opts.signal);
     }
   }
+}
+
+/**
+ * Command ID for uploading an immutable artifact. Content-addressed AND scope-bound: the same
+ * bytes uploaded into a different run/experiment scope are a different intent, so they need a
+ * different ID (Engine digests the whole payload, including scope, per receipt ID).
+ */
+export function artifactCommandId(kind: string, sha256: string, scope: { runId: string | null; experimentId: string | null }): Id {
+  return `artifact:${kind}:${sha256.slice(0, 40)}:${sha256Hex(canonicalJson(scope)).slice(0, 16)}`;
 }

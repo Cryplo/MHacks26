@@ -7,6 +7,7 @@ import { decisionCacheKey, ratingCacheKey } from '../cache/key.ts';
 import { validateRatingOutput, validateRatingRequest } from '../measurements/rating.ts';
 import type { Clock, Jitter, Logger } from '../runtime/clock.ts';
 import type { IdSource } from '../runtime/commands.ts';
+import { artifactCommandId } from '../runtime/commands.ts';
 import type { DurableStore } from '../runtime/store.ts';
 import type { BehaviorProvider, ProviderCallContext, ProviderDecision, ProviderRating, ProviderUsage } from '../providers/types.ts';
 import { ProviderError } from '../providers/types.ts';
@@ -239,7 +240,7 @@ export class InferenceService {
     const sha = sha256Hex(raw);
     await this.deps.store.putIfAbsent(`raw/${sha}`, raw);
     if (!scope) return null;
-    return this.deps.client.putArtifact({ kind: 'model_response', mediaType: 'application/json', bytes: raw, scope, commandId: `artifact:model_response:${sha}` });
+    return this.deps.client.putArtifact({ kind: 'model_response', mediaType: 'application/json', bytes: raw, scope, commandId: artifactCommandId('model_response', sha, scope) });
   }
 }
 

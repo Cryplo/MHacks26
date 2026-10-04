@@ -12,7 +12,7 @@ import { parkContext } from '../population/park.ts';
 import type { ProseProvider } from '../population/prose.ts';
 import { composeReport } from '../reports/narrative.ts';
 import type { Clock, Jitter, Logger } from '../runtime/clock.ts';
-import { runCommand } from '../runtime/commands.ts';
+import { runCommand, artifactCommandId } from '../runtime/commands.ts';
 import type { DurableStore } from '../runtime/store.ts';
 import { getJson, putJson } from '../runtime/store.ts';
 import type { Handler, HandlerContext } from '../worker/handlers.ts';
@@ -62,7 +62,7 @@ export type CoordinatorOptions = {
   driverLeaseMs: number; maxStepsPerAdvance: number; pollBaseMs: number; pollMaxMs: number; maxGuests: number;
 };
 
-export const DEFAULT_COORDINATOR_OPTIONS: CoordinatorOptions = { driverLeaseMs: 60_000, maxStepsPerAdvance: 120, pollBaseMs: 250, pollMaxMs: 5_000, maxGuests: 400 };
+export const DEFAULT_COORDINATOR_OPTIONS: CoordinatorOptions = { driverLeaseMs: 60_000, maxStepsPerAdvance: 100, pollBaseMs: 250, pollMaxMs: 5_000, maxGuests: 400 };
 
 class LeaseLost extends Error { override name = 'LeaseLost'; }
 
@@ -92,6 +92,9 @@ class Session {
     if (stored && stored.ownerAttempt > this.state.ownerAttempt) throw new LeaseLost(`state owned by newer attempt ${stored.ownerAttempt}`);
     await putJson(this.deps.store, this.key, this.state);
   }
+  /** Revision of the runtime's published report when this coordinator first started. */
+  private publishedRevision = 0;
+
   private cmdBase(pair: PairState, arm: string) { return `exp:${this.spec.experimentId}:${pair.pairId}:${arm}`; }
 
   private async command<K extends Parameters<RuntimeClient['command']>[0]>(name: K, input: Parameters<RuntimeClient['command']>[1] & object, commandId: Id) {
@@ -149,15 +152,23 @@ class Session {
       this.ctx.logger.log('info', 'experiment.resume', { experimentId: this.spec.experimentId, phase: prior.phase, pairs: prior.pairs.map((p) => p.status) });
       return;
     }
+    // Adopt the pair inventory the runtime already published for this experiment (Engine
+    // pre-creates pairs and rejects progress for any other pair IDs); fall back to seed IDs.
+    const published = new Map<string, Id>();
+    try {
+      const current = await this.deps.client.query('getExperiment', { experimentId: this.spec.experimentId });
+      for (const p of current.pairs) published.set(p.seed, p.pairId);
+      this.publishedRevision = current.revision;
+    } catch { /* runtime without a published inventory: use seed-derived IDs */ }
     this.state = {
       schema: 'experiment-state.v1', version: COORDINATOR_VERSION, experimentId: this.spec.experimentId, specHash,
       ownerAttempt: this.ctx.lease().attempt,
       pairs: this.spec.seeds.map((seed) => ({
-        pairId: `pair-${seed}`, seed, status: 'pending', reasons: [], population: null, populationHash: null,
+        pairId: published.get(seed) ?? `pair-${seed}`, seed, status: 'pending', reasons: [], population: null, populationHash: null,
         warmup: this.spec.start.kind === 'warmup' ? { run: newArm(), checkpoint: null, hash: null } : null,
         initialStateHash: null, arms: { A: newArm(), B: newArm() },
       })),
-      progressSeq: 0, phase: 'pairs', artifacts: { report: null, facts: null, tape: null, narrative: null },
+      progressSeq: this.publishedRevision, phase: 'pairs', artifacts: { report: null, facts: null, tape: null, narrative: null },
     };
     await this.persist();
   }
@@ -174,7 +185,7 @@ class Session {
       if (!gen.ok) return this.closePair(pair, 'failed', [`population: ${gen.errors.map((e) => e.message).join('; ')}`]);
       pair.population = await this.deps.client.putArtifact({
         kind: 'population', mediaType: 'application/json', bytes: gen.bytes,
-        scope: { runId: null, experimentId: this.spec.experimentId }, commandId: `artifact:population:${gen.sha256}`,
+        scope: { runId: null, experimentId: this.spec.experimentId }, commandId: artifactCommandId('population', gen.sha256, { runId: null, experimentId: this.spec.experimentId }),
       });
       pair.populationHash = gen.sha256;
       await this.persist();
@@ -343,6 +354,7 @@ class Session {
     let delay = this.opts.pollBaseMs;
     let renewedAt = this.now();
     let staleInRow = 0;
+    let advanceSeq = 0;
     for (;;) {
       await this.keepLease();
       const view = await this.deps.client.query('getRun', { runId: a.runId! });
@@ -359,7 +371,9 @@ class Session {
         if (rr.ok) { lease = rr.result; a.driver = lease; renewedAt = this.now(); await this.persist(); }
       }
       const r = await this.command('advanceRun', { lease, expectedStep: view.stepIndex, expectedPhase: view.phase, maxSteps: this.opts.maxStepsPerAdvance },
-        `${this.cmdBase(pair, label)}:advance:e${lease.epoch}:x${lease.expiresAtEpochMs}:r${view.revision}:s${view.stepIndex}:${view.phase}`) as Receipt<AdvanceResult>;
+        // Each call is a new intent: a bounded advance can make progress inside a step without
+        // changing the published revision/step/phase, so those alone would replay the old receipt.
+        `${this.cmdBase(pair, label)}:advance:e${lease.epoch}:x${lease.expiresAtEpochMs}:r${view.revision}:s${view.stepIndex}:${view.phase}:n${++advanceSeq}`) as Receipt<AdvanceResult>;
       if (!r.ok) {
         if (r.error.code === 'STALE_REVISION') {
           if (++staleInRow > 20) { a.reasons.push('run position never matched getRun (STALE_REVISION loop)'); await this.release(pair, a); return 'failed'; }
@@ -456,12 +470,14 @@ class Session {
     }, final);
     if (extraLimitations.length) report.limitations.push(...extraLimitations.map((e) => `Preflight: ${e}`));
     for (let tries = 0; tries < 3; tries++) {
+      if (tries > 0) await this.syncRevision();
       this.state.progressSeq += 1;
+      report.revision = this.state.progressSeq;
       await this.persist();
       const r = await this.command('recordExperimentProgress', { experimentId: this.spec.experimentId, lease: this.ctx.lease(), report }, `exp:${this.spec.experimentId}:progress:${this.state.progressSeq}`) as Receipt<{ revision: number }>;
       if (r.ok) return report;
       if (r.error.code === 'STALE_LEASE' || r.error.code === 'INVALID_STATE') throw new LeaseLost(`progress rejected: ${r.error.code}`);
-      if (r.error.code !== 'CONFLICT') { this.ctx.logger.log('warn', 'experiment.progress_rejected', { code: r.error.code, message: r.error.message }); return report; }
+      this.ctx.logger.log('warn', 'experiment.progress_rejected', { code: r.error.code, message: r.error.message, attempt: tries + 1 });
     }
     return report;
   }
@@ -471,7 +487,7 @@ class Session {
     const ctx = await this.reportContext();
     if (!this.state.artifacts.tape && this.deps.cache) {
       const tape = await exportResponseTape(this.deps.cache, `exp/${this.spec.experimentId}`);
-      this.state.artifacts.tape = await this.deps.client.putArtifact({ kind: 'response_tape', mediaType: 'application/json', bytes: tape.bytes, scope, commandId: `artifact:response_tape:${tape.sha256}` });
+      this.state.artifacts.tape = await this.deps.client.putArtifact({ kind: 'response_tape', mediaType: 'application/json', bytes: tape.bytes, scope, commandId: artifactCommandId('response_tape', tape.sha256, scope) });
       await this.persist();
     }
     const extra: string[] = [];
@@ -496,29 +512,42 @@ class Session {
     pre.limitations.push(...extra);
     const facts = buildExperimentFacts(pre, { ...ctx, responseTapeSha256: this.state.artifacts.tape?.sha256 ?? null });
     const factBytes = canonicalBytes(facts);
-    this.state.artifacts.facts = await this.deps.client.putArtifact({ kind: 'fact_bundle', mediaType: 'application/json', bytes: factBytes, scope, commandId: `artifact:fact_bundle:${sha256Hex(factBytes)}` });
+    this.state.artifacts.facts = await this.deps.client.putArtifact({ kind: 'fact_bundle', mediaType: 'application/json', bytes: factBytes, scope, commandId: artifactCommandId('fact_bundle', sha256Hex(factBytes), scope) });
     const { narrative } = await composeReport(facts, null, this.ctx.signal, experimentNarrative);
     const nBytes = canonicalBytes(narrative);
-    this.state.artifacts.narrative = await this.deps.client.putArtifact({ kind: 'narrative', mediaType: 'application/json', bytes: nBytes, scope, commandId: `artifact:narrative:${sha256Hex(nBytes)}` });
+    this.state.artifacts.narrative = await this.deps.client.putArtifact({ kind: 'narrative', mediaType: 'application/json', bytes: nBytes, scope, commandId: artifactCommandId('narrative', sha256Hex(nBytes), scope) });
     const report: ExperimentReport = { ...pre, facts: this.state.artifacts.facts };
     const shape = validateReportShape(report);
     if (shape.length) throw new Error(`report shape invalid: ${shape.join('; ')}`);
     const bytes = canonicalBytes(report);
-    this.state.artifacts.report = await this.deps.client.putArtifact({ kind: 'experiment_report', mediaType: 'application/json', bytes, scope, commandId: `artifact:experiment_report:${sha256Hex(bytes)}` });
+    this.state.artifacts.report = await this.deps.client.putArtifact({ kind: 'experiment_report', mediaType: 'application/json', bytes, scope, commandId: artifactCommandId('experiment_report', sha256Hex(bytes), scope) });
     await this.persist();
     await this.progressFinal(report);
     return this.state.artifacts.report;
   }
 
   private async progressFinal(report: ExperimentReport) {
+    let last = '';
     for (let tries = 0; tries < 3; tries++) {
+      if (tries > 0) await this.syncRevision();
       this.state.progressSeq += 1;
       await this.persist();
       const r = await this.command('recordExperimentProgress', { experimentId: this.spec.experimentId, lease: this.ctx.lease(), report: { ...report, revision: this.state.progressSeq } }, `exp:${this.spec.experimentId}:progress:${this.state.progressSeq}`) as Receipt<{ revision: number }>;
       if (r.ok) return;
       if (r.error.code === 'STALE_LEASE' || r.error.code === 'INVALID_STATE') throw new LeaseLost(`final progress rejected: ${r.error.code}`);
-      if (r.error.code !== 'CONFLICT') return;
+      last = `${r.error.code}: ${r.error.message}`;
+      this.ctx.logger.log('warn', 'experiment.final_progress_rejected', { code: r.error.code, message: r.error.message, attempt: tries + 1 });
     }
+    // Never report a finished experiment the runtime refused to record.
+    throw new Error(`final experiment report rejected by runtime (${last})`);
+  }
+
+  /** Re-reads the runtime's published report revision after a rejected progress write. */
+  private async syncRevision() {
+    try {
+      const current = await this.deps.client.query('getExperiment', { experimentId: this.spec.experimentId });
+      this.state.progressSeq = current.revision;
+    } catch { /* keep the local sequence */ }
   }
 }
 

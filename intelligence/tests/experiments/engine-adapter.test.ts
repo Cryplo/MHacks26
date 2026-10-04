@@ -16,13 +16,13 @@ import { InflightCoalescer, ResponseCache } from '../../src/cache/response-cache
 import { passPriceExperiment } from '../../src/experiments/preflight.ts';
 import { validateReportShape } from '../../src/experiments/report.ts';
 import { TINY_CROWD } from '../../src/fixtures/crowds.ts';
-import { harborLightsFixturePark, parkArtifact } from '../../src/fixtures/harbor-lights.ts';
 import { experimentConfig } from '../../src/fixtures/orchestration.ts';
 import { MockProvider } from '../../src/providers/mock.ts';
 import { MemoryLogger, systemClock, systemJitter } from '../../src/runtime/clock.ts';
 import { uuidIds } from '../../src/runtime/commands.ts';
 import { RuntimeLoadError, loadRuntimeClient } from '../../src/runtime/loader.ts';
 import { MemoryStore } from '../../src/runtime/store.ts';
+import { realEnginePark, registerParkAndWait } from '../../src/runtime/park.ts';
 import { createCoordinator, createWorker } from '../../src/worker/factory.ts';
 
 const env = process.env;
@@ -45,10 +45,7 @@ async function runOnEngine(mutate: (s: ExperimentSpec) => ExperimentSpec, timeou
   const [operator, coordinatorClient, workerClient] = await Promise.all([client(env.BEHAVIOR_OPERATOR_TOKEN!), client(env.BEHAVIOR_COORDINATOR_TOKEN!), client(env.BEHAVIOR_WORKER_TOKEN!)]);
   const logger = new MemoryLogger();
   try {
-    const bundle = harborLightsFixturePark();
-    const art = parkArtifact(bundle);
-    const park = await operator.putArtifact({ kind: 'park', mediaType: 'application/json', bytes: art.bytes, scope: { runId: null, experimentId: null }, commandId: `artifact:park:${art.ref.sha256}` });
-    await operator.command('registerPark', { artifact: park }, `register:${park.sha256}`);
+    const park = await registerParkAndWait(operator, realEnginePark());
     const workerStore = new MemoryStore();
     const cache = new ResponseCache(workerStore);
     const worker = createWorker({ client: workerClient, provider: new MockProvider(), store: workerStore, clock: systemClock, jitter: systemJitter, ids: uuidIds, logger, cache, coalescer: new InflightCoalescer() });

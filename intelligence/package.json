@@ -22,7 +22,9 @@
     "population:fixture": "tsx src/cli/population.ts",
     "smoke:jev": "tsx src/cli/jev-smoke.ts",
     "plausibility": "tsx src/cli/plausibility.ts",
-    "experiment:mock": "tsx src/cli/experiment.ts"
+    "experiment:mock": "tsx src/cli/experiment.ts",
+    "dev:integration": "node scripts/integration.mjs",
+    "test:integration:engine": "node scripts/integration.mjs test"
   },
   "devDependencies": {
     "@types/node": "26.6.4",

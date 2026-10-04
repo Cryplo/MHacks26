@@ -5,6 +5,7 @@ import { parkContext } from '../population/park.ts';
 import type { ProseProvider } from '../population/prose.ts';
 import type { Clock, Logger } from '../runtime/clock.ts';
 import type { IdSource } from '../runtime/commands.ts';
+import { artifactCommandId } from '../runtime/commands.ts';
 import type { InferenceService } from './inference.ts';
 import { InvalidRequestError } from './inference.ts';
 import type { ExecutorClass } from './ports.ts';
@@ -53,7 +54,7 @@ export function populationHandler(opts: { prose?: ProseProvider | null; maxGuest
     });
     if (!r.ok) throw new InvalidRequestError(`population request cannot be satisfied: ${r.errors.map((e) => e.message).join('; ')}`, r.errors);
     const artifact = await ctx.client.putArtifact({
-      kind: 'population', mediaType: 'application/json', bytes: r.bytes, scope: ctx.scope, commandId: `artifact:population:${r.sha256}`,
+      kind: 'population', mediaType: 'application/json', bytes: r.bytes, scope: ctx.scope, commandId: artifactCommandId('population', r.sha256, ctx.scope),
     });
     return { artifact, guestCount: r.manifest.personas.length, groupCount: r.manifest.groups.length };
   };
