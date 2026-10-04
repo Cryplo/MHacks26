@@ -67,9 +67,12 @@ export function RunBar(props: {
       <div className="runbar-row">
         <Link to="/" className="brand" aria-label="All simulations"><BrandMark /></Link>
         <div className="run-title"><b title={props.manifest.scenario.label}>{props.manifest.scenario.label}</b></div>
-        {sc.scrubbing
-          ? <span className={`badge ${sc.playing ? 'ok' : ''}`} data-testid="replay-badge" title="Showing a recorded moment; the live run keeps going. Use Back to live to rejoin.">{sc.playing ? 'Replaying' : 'Replay paused'}</span>
-          : run && <RunStatusBadge status={run.status} />}
+        {/* Fixed-width slot: switching Running / Replaying / Replay paused never shifts the controls. */}
+        <span className="status-slot">
+          {sc.scrubbing
+            ? <span className={`badge ${sc.playing ? 'ok' : ''}`} data-testid="replay-badge" title="Showing a recorded moment; the live run keeps going. Use Back to live to rejoin.">{sc.playing ? 'Replaying' : 'Replay paused'}</span>
+            : run && <RunStatusBadge status={run.status} />}
+        </span>
         <span className="sep" aria-hidden="true" />
         <div className="transport">
           {recorded

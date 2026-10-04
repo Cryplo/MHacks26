@@ -63,6 +63,21 @@ describe('frame cache (scrubbing)', () => {
     expect(calls.length).toBe(1);
     expect(calls[0]![1] - calls[0]![0]).toBeLessThanOrEqual(300_000);
   });
+  it('latest-wins loading: a target that moves while a slow fetch is in flight still gets its frames', async () => {
+    const resolvers: (() => void)[] = [];
+    const src = { getFrames: (from: number, to: number) => new Promise<{ items: ReplayFrame[]; nextCursor: string | null }>((res) => {
+      resolvers.push(() => { const items = []; for (let t = Math.ceil(from / 15_000) * 15_000; t <= to; t += 15_000) items.push(frame(t)); res({ items, nextCursor: null }); });
+    }) };
+    const cache = new FrameCache(src);
+    let changes = 0; cache.onChange(() => { changes++; });
+    cache.want(4_000_000, 15_000, false);
+    cache.want(2_000_000, 15_000, true); // user dragged back while the first window was loading
+    const flush = async () => { for (let i = 0; i < 10 && resolvers.length; i++) { resolvers.shift()!(); await new Promise((r) => setTimeout(r, 0)); } };
+    await flush();
+    expect(cache.cachedAt(2_000_000, 20_000)?.atMs).toBe(1_995_000); // newest frame at or before the target
+    expect(cache.cachedAt(2_060_000, 20_000)).not.toBeNull(); // read ahead for playback
+    expect(changes).toBeGreaterThan(0);
+  });
   it('is bounded', async () => {
     const cache = new FrameCache({ getFrames: async (from, to) => { const items = []; for (let t = Math.ceil(from / 30_000) * 30_000; t <= to; t += 30_000) items.push(frame(t)); return { items, nextCursor: null }; } }, 20);
     for (let t = 0; t < 3600_000; t += 600_000) await cache.at(t, 30_000);

@@ -61,35 +61,36 @@ export function LivePage() {
   const frameEvery = loaded.data?.manifest.config.visualFrameEveryMs ?? 30_000;
   const viewMs = scrubMs ?? headMs;
   const [frameAt, setFrameAt] = useState<number | null>(null);
-  const req = useRef(0);
   const shownAt = useRef<number | null>(null);
+  const shownPlaying = useRef(false);
+  // Latest scrub state for the frame loader's callbacks (they may resolve after many ticks).
+  const wantRef = useRef<{ t: number; playing: boolean; speed: number } | null>(null);
+  wantRef.current = scrubMs === null ? null : { t: Math.min(scrubMs, headMs || scrubMs), playing, speed: playSpeed };
+  const showBest = useCallback(() => {
+    const w = wantRef.current;
+    if (!w) return;
+    // The newest recorded frame at or before the wanted moment (within a few minutes; farther
+    // than that, keep what is on screen until the right window has loaded).
+    const f = frames.cachedAt(w.t, 180_000);
+    if (!f) return;
+    if (shownAt.current === f.atMs && shownPlaying.current === w.playing) return;
+    // Recorded playback moving to the next frame continues smoothly; anything else is a seek
+    // (discrete placement: reset so nothing tweens across the jump).
+    const continuous = shownAt.current !== null && f.atMs >= shownAt.current && f.atMs - shownAt.current <= 120_000 && (w.playing || f.atMs === shownAt.current);
+    shownAt.current = f.atMs; shownPlaying.current = w.playing;
+    if (!continuous) frameStore.reset(runId);
+    // A recorded frame carries the run's live status/speed; for the map clock it is paused on
+    // that moment, or advancing at the playback speed while the recording plays.
+    frameStore.applySnapshot({ ...f.snapshot, run: { ...f.snapshot.run, status: w.playing ? 'running' : 'paused', requestedSpeed: w.speed } }, { continuous });
+    viewer.setSource(frameStore);
+    setFrameAt(f.atMs);
+  }, [frames, frameStore, viewer, runId]);
+  useEffect(() => frames.onChange(showBest), [frames, showBest]);
   useEffect(() => {
     if (scrubMs === null) { viewer.setSource(store); setFrameAt(null); shownAt.current = null; return; }
-    const my = ++req.current;
-    const t = Math.min(scrubMs, headMs || scrubMs);
-    const show = (f: { atMs: number; snapshot: Parameters<LiveStore['applySnapshot']>[0] } | null) => {
-      if (!f || my !== req.current || shownAt.current === f.atMs) return;
-      // Recorded playback moving to the next frame continues smoothly; anything else is a seek
-      // (discrete placement: reset so nothing tweens across the jump).
-      const continuous = playing && shownAt.current !== null && f.atMs > shownAt.current && f.atMs - shownAt.current <= 120_000;
-      shownAt.current = f.atMs;
-      if (!continuous) frameStore.reset(runId);
-      // A recorded frame carries the run's live status/speed; for the map clock it is paused
-      // on that moment, or advancing at the playback speed while the recording plays.
-      frameStore.applySnapshot({ ...f.snapshot, run: { ...f.snapshot.run, status: playing ? 'running' : 'paused', requestedSpeed: playSpeed } }, { continuous });
-      viewer.setSource(frameStore);
-      setFrameAt(f.atMs);
-    };
-    // Show the nearest cached frame immediately; fetch (debounced while dragging) only if needed.
-    const near = frames.cachedAt(t, Infinity);
-    if (near) show(near);
-    const exact = frames.cachedAt(t, frameEvery * 1.5);
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    if (!exact) timer = setTimeout(() => { void frames.at(t, frameEvery).then(show, () => undefined); }, near ? 120 : 0);
-    // Keep playback smooth: fetch the next window ahead of the playhead.
-    if (playing) void frames.at(Math.min(headMs, t + 120_000), frameEvery).catch(() => undefined);
-    return () => { if (timer) clearTimeout(timer); };
-  }, [scrubMs, frames, frameStore, viewer, store, runId, frameEvery, headMs, playing, playSpeed]);
+    showBest();
+    frames.want(Math.min(scrubMs, headMs || scrubMs), frameEvery, playing);
+  }, [scrubMs, frames, viewer, store, frameEvery, headMs, playing, playSpeed, showBest]);
   const goLive = useCallback(() => {
     setPlaying(false); setScrubMs(null);
     setSearch((p) => { const n = new URLSearchParams(p); n.delete('t'); return n; }, { replace: true });

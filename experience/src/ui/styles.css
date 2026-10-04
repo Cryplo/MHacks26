@@ -291,6 +291,7 @@ main.full { flex: 1 1 auto; min-height: 0; }
 }
 .runbar .brand { gap: 8px; }
 .runbar .sep { width: 1px; height: 22px; background: var(--line-2); flex: none; }
+.status-slot { display: inline-flex; flex: none; width: 118px; }
 .run-title { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .run-title b { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .run-title span { font-size: 11.5px; color: var(--ink-3); font-family: var(--mono); white-space: nowrap; }

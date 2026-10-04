@@ -18,7 +18,7 @@ export class FrameCache {
   private frames = new Map<number, ReplayFrame>();
   private times: number[] = [];
   private inflight = new Map<number, Promise<void>>();
-  constructor(private readonly src: ReplaySource, private readonly max = 160) {}
+  constructor(private readonly src: ReplaySource, private readonly max = 240) {}
 
   /** Typical spacing of recorded frames (ms), learned from what has been fetched. */
   spacing(fallback: number): number {
@@ -43,21 +43,73 @@ export class FrameCache {
     const key = Math.floor(t / AHEAD_MS);
     let p = this.inflight.get(key);
     if (!p) {
-      p = this.fetch(Math.max(0, t - BACK_MS), t + AHEAD_MS).finally(() => this.inflight.delete(key));
+      p = this.fetch(Math.max(0, t - BACK_MS), t + AHEAD_MS).then(() => undefined).finally(() => this.inflight.delete(key));
       this.inflight.set(key, p);
     }
     await p;
     return this.cachedAt(t, Infinity) ?? this.frames.get(this.times[0] ?? -1) ?? null;
   }
 
-  private async fetch(from: number, to: number) {
+  // --- Latest-wins loading for scrubbing/playback -------------------------------------
+  private target: number | null = null;
+  private ahead = false;
+  private every = 30_000;
+  private loading = false;
+  private ranges: { from: number; to: number }[] = [];
+  private readonly listeners = new Set<() => void>();
+
+  /** Called whenever newly fetched frames land in the cache. */
+  onChange(cb: () => void): () => void { this.listeners.add(cb); return () => { this.listeners.delete(cb); }; }
+
+  /**
+   * Ask for the moment `t` (and, while playing, the stretch just after it). Only the latest
+   * request matters: one loader runs at a time and always works towards the current target,
+   * so results are never thrown away because the playhead moved while a fetch was in flight.
+   */
+  want(t: number, frameEveryMs: number, ahead: boolean) {
+    this.target = t; this.every = frameEveryMs; this.ahead = ahead;
+    void this.pump();
+  }
+
+  private covered(t: number): boolean {
+    if (this.cachedAt(t, Math.max(this.spacing(this.every), this.every) * 1.5)) return true;
+    return this.ranges.some((r) => t >= r.from && t <= r.to);
+  }
+
+  private async pump() {
+    if (this.loading) return;
+    this.loading = true;
+    try {
+      for (let guard = 0; guard < 24; guard++) {
+        const t = this.target;
+        if (t === null) break;
+        const need = !this.covered(t) ? t : this.ahead && !this.covered(t + 60_000) ? t + 60_000 : null;
+        if (need === null) break;
+        const from = Math.max(0, need - 30_000); const to = need + AHEAD_MS;
+        const got = await this.fetch(from, to);
+        // Remember what was asked for, up to the last frame actually recorded (the live head
+        // may still be growing), so an empty stretch is not refetched in a loop.
+        this.ranges.push({ from, to: got.complete ? to : Math.max(from, got.last ?? from) });
+        if (this.ranges.length > 64) this.ranges.shift();
+        this.listeners.forEach((l) => l());
+      }
+    } catch {
+      // Transient query failure: the next request retries.
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async fetch(from: number, to: number): Promise<{ last: number | null; complete: boolean }> {
+    let last: number | null = null; let complete = false;
     let cursor: string | null = null;
     for (let i = 0; i < 5; i++) {
       const page: { items: ReplayFrame[]; nextCursor: string | null } = await this.src.getFrames(from, to, cursor);
-      for (const f of page.items) this.insert(f);
-      if (!page.nextCursor) break;
+      for (const f of page.items) { this.insert(f); last = Math.max(last ?? f.atMs, f.atMs); }
+      if (!page.nextCursor) { complete = last !== null && to - last <= this.every * 2; break; }
       cursor = page.nextCursor;
     }
+    return { last, complete };
   }
 
   private insert(f: ReplayFrame) {
