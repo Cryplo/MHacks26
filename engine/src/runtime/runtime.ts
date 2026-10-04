@@ -887,9 +887,12 @@ function dispatchCommand(
             child.manifest.population.sha256 === pair.populationHash,
             "Pair population mismatch",
           );
+          // `revision` is a delivery sequence (history entries keep the internal step
+          // revision while the published view is renumbered); compare measured content.
           if (measured)
             ensure(
-              hash(measured) === hash(metrics(child)),
+              hash({ ...measured, revision: 0 }) ===
+                hash({ ...metrics(child), revision: 0 }),
               "Metrics differ from authoritative engine",
             );
           if (pair.status === "complete")

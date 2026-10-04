@@ -10,9 +10,11 @@ import {
   canonical,
 } from "../domain/primitives.js";
 import { encodeBase64, decodeBase64 } from "../navigation/grid.js";
-import { get, put, key, type Store } from "./store.js";
+import { get, put, key, list, loadCore, type Store } from "./store.js";
+import type { Grant } from "./access.js";
 import {
   authorizeScope,
+  grantFor,
   requireRun,
   rateLimit,
   type Context,
@@ -233,7 +235,17 @@ export function readArtifact(
           references(w.payload)
         );
       });
-    if (!assigned) {
+    // A run's viewers need its park geometry to render the map. Park bundles are stored
+    // without run scope, so allow them only via an unexpired grant on a run using this park.
+    const viaRunGrant =
+      a.ref.kind === "park" &&
+      list<Grant>(store, "grant").some(
+        (g) =>
+          g.identity === ctx.identity &&
+          grantFor(store, ctx, g.runId) !== undefined && // unexpired, not revoked
+          loadCore(store, g.runId)?.manifest.park.artifactId === ref.artifactId,
+      );
+    if (!assigned && !viaRunGrant) {
       if (a.scope.runId) requireRun(store, ctx, a.scope.runId);
       else if (a.scope.experimentId) authorizeScope(store, ctx, a.scope);
       else throw new DomainFault("FORBIDDEN", "Artifact access denied");
