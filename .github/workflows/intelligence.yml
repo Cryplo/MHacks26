@@ -1,0 +1,39 @@
+name: intelligence
+
+on:
+  push:
+    paths: ['intelligence/**', '.github/workflows/intelligence.yml']
+  pull_request:
+    paths: ['intelligence/**', '.github/workflows/intelligence.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: intelligence
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: intelligence/package-lock.json
+      - run: npm ci
+      - run: npm run test:contract
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run test:providers
+      - run: npm run test:experiments
+      # Offline CLI smokes (fixture runtime + mock provider, labeled orchestration-only).
+      - run: npm run dev:worker
+      - run: npm run experiment:mock
+      - run: npm run plausibility
+      - run: npm run population:fixture -- --out /tmp/population-300.json
+      # No provider credentials in CI: the billable Jev smoke (`npm run smoke:jev -- --billable`) is never run here.

@@ -1,0 +1,218 @@
+{
+  "disclaimer": "Synthetic, illustrative population from versioned assumptions; not empirically representative of any real visitor base.",
+  "assumptionsVersion": "assumptions-v1",
+  "guestCount": 300,
+  "groupCount": 142,
+  "requestedShares": {
+    "young_family": 0.35,
+    "teens": 0.1,
+    "couple": 0.15,
+    "thrill_seekers": 0.15,
+    "seniors": 0.1,
+    "solo": 0.15
+  },
+  "realizedShares": {
+    "young_family": 0.35333333333333333,
+    "teens": 0.1,
+    "couple": 0.14666666666666667,
+    "thrill_seekers": 0.15,
+    "seniors": 0.1,
+    "solo": 0.15
+  },
+  "targetGuests": {
+    "young_family": 105,
+    "teens": 30,
+    "couple": 45,
+    "thrill_seekers": 45,
+    "seniors": 30,
+    "solo": 45
+  },
+  "realizedGuests": {
+    "young_family": 106,
+    "teens": 30,
+    "couple": 44,
+    "thrill_seekers": 45,
+    "seniors": 30,
+    "solo": 45
+  },
+  "groupSizes": {
+    "1": 52,
+    "2": 46,
+    "3": 23,
+    "4": 18,
+    "5": 3
+  },
+  "roles": {
+    "parent": 48,
+    "child": 58,
+    "teen": 30,
+    "adult": 112,
+    "senior": 52
+  },
+  "ageYears": {
+    "min": 2,
+    "max": 85,
+    "mean": 34.34,
+    "histogram": {
+      "0-6": 22,
+      "6-13": 36,
+      "13-18": 30,
+      "18-30": 56,
+      "30-45": 65,
+      "45-62": 39,
+      "62-75": 38,
+      "75+": 14
+    }
+  },
+  "heightCm": {
+    "min": 85,
+    "max": 199,
+    "mean": 159.403,
+    "histogram": {
+      "80-100": 15,
+      "100-112": 7,
+      "112-122": 8,
+      "122-140": 20,
+      "140-160": 53,
+      "160-180": 155,
+      "180+": 42
+    }
+  },
+  "budgetPerGuestCents": {
+    "min": 1500,
+    "max": 9000,
+    "mean": 4746.479,
+    "histogram": {
+      "0-2000": 3,
+      "2000-4000": 50,
+      "4000-6000": 39,
+      "6000-8000": 44,
+      "8000+": 6
+    }
+  },
+  "needs": {
+    "hunger": {
+      "min": 10,
+      "max": 50,
+      "mean": 29.893,
+      "histogram": {
+        "0-20": 58,
+        "20-40": 178,
+        "40-60": 64,
+        "60+": 0
+      }
+    },
+    "fatigue": {
+      "min": 0,
+      "max": 25,
+      "mean": 12.773,
+      "histogram": {
+        "0-10": 112,
+        "10-20": 115,
+        "20-30": 73,
+        "30+": 0
+      }
+    },
+    "patience": {
+      "min": 50,
+      "max": 95,
+      "mean": 72.32,
+      "histogram": {
+        "0-50": 0,
+        "50-65": 104,
+        "65-80": 95,
+        "80-95": 94,
+        "95+": 7
+      }
+    },
+    "fun": {
+      "min": 30,
+      "max": 70,
+      "mean": 51.133,
+      "histogram": {
+        "0-40": 67,
+        "40-55": 108,
+        "55-70": 119,
+        "70+": 6
+      }
+    }
+  },
+  "thrillPreference": {
+    "min": 0,
+    "max": 1,
+    "mean": 0.554,
+    "histogram": {
+      "0-0.25": 31,
+      "0.25-0.5": 92,
+      "0.5-0.75": 119,
+      "0.75+": 58
+    }
+  },
+  "walkSpeedMps": {
+    "min": 0.66,
+    "max": 1.54,
+    "mean": 1.217,
+    "histogram": {
+      "0-0.9": 19,
+      "0.9-1.1": 50,
+      "1.1-1.3": 127,
+      "1.3-1.5": 101,
+      "1.5+": 3
+    }
+  },
+  "app": {
+    "withApp": 137,
+    "withoutApp": 163,
+    "batteryLimited": 25
+  },
+  "languages": {
+    "en": 113,
+    "es": 14,
+    "zh": 5,
+    "fr": 5,
+    "de": 5
+  },
+  "occasions": {
+    "school_break": 14,
+    "local_day_out": 35,
+    "birthday": 12,
+    "vacation": 44,
+    "date_day": 9,
+    "anniversary": 5,
+    "season_opener": 14,
+    "reunion": 3,
+    "grandchild_free_day": 6
+  },
+  "hooks": {
+    "groupsWithMustDo": 75,
+    "mustDoByPlace": {
+      "teacups": 17,
+      "carousel": 14,
+      "splash": 11,
+      "comet": 11,
+      "bumpers": 9,
+      "drop": 13
+    },
+    "infeasibleAspirations": 0
+  },
+  "constraints": {
+    "mustDoHeightViolations": 0,
+    "unsupervisedMinors": 0,
+    "strollers": 12,
+    "mobilityRestricted": 15
+  },
+  "correlations": {
+    "ageVsWalkSpeed": 0.275,
+    "ageVsThrill": -0.096,
+    "groupSizeVsBudgetPerGuest": -0.204
+  },
+  "prose": {
+    "template": 300,
+    "llm": 0,
+    "fallbacks": 0
+  },
+  "warnings": [
+    "feasibility: moved 1 guest(s) from couple to young_family (couple groups need an even count)"
+  ],
+  "reproducibilityHash": "62f9df94b6b6286b611a3b4e3a5d45d112fac19da8aecba54086b62cde465879"
+}
