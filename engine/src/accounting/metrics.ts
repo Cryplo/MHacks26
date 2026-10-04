@@ -233,7 +233,7 @@ export function freezeRating(
       }),
       observation: obs,
       rubricVersion: s.manifest.config.versions.rubric,
-      levels: ["Very poor", "Poor", "Neutral", "Good", "Excellent"],
+      levels: ratingLevels(s.manifest.config.versions.rubric),
     };
   s.ratings[ratingId] = { request, result: null };
   s.view.quality.pendingRatings++;
@@ -241,6 +241,16 @@ export function freezeRating(
     p.terminalRatingId = ratingId;
     s.view.quality.terminalRatingsExpected++;
   }
+}
+/**
+ * Rating level labels for the declared rubric version. The rubric is owned by Intelligence,
+ * which validates labels exactly; metrics only use the level count (100 * index / (K - 1)).
+ */
+const RUBRIC_LEVELS: Record<string, string[]> = {
+  "satisfaction-rubric-v1": ["very dissatisfied", "dissatisfied", "neutral", "satisfied", "very satisfied"],
+};
+export function ratingLevels(rubric: string): string[] {
+  return RUBRIC_LEVELS[rubric] ?? ["Very poor", "Poor", "Neutral", "Good", "Excellent"];
 }
 export function acceptRating(s: CoreState, result: C.RatingResult) {
   const rating = s.ratings[result.ratingId];

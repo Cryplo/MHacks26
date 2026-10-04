@@ -570,6 +570,17 @@ function dispatchCommand(
               item.result.requestId === r.requestId,
               "Wrong decision request",
             );
+            // Worker submissions must match the run's declared mode: one shared queue must
+            // never let a mock worker answer a Live Jev run, or a Jev worker a Mock run.
+            // (Live-timeout fallback is applied by Engine itself, not submitted here.)
+            if (s.manifest.config.mode === "mock")
+              ensure(item.result.originalSource === "mock", "Mock run accepts only mock-provider distributions");
+            if (s.manifest.config.mode === "live")
+              ensure(
+                item.result.originalSource === "jev" &&
+                  (item.result.source === "jev" || item.result.source === "cache"),
+                "Live run accepts only Jev distributions",
+              );
             acceptDecision(s, item.result);
           } else {
             const r = j.payload as C.RatingRequest;
