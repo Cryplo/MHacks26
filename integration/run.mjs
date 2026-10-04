@@ -43,6 +43,9 @@ try {
   const park=partial?[]:[env.PARK_BUNDLE_PATH??resolve(root,'experience/assets/park.bundle.json')];
   if(park.length)await access(park[0]);
   await run('npm',['run','dev:seed','--',...park],resolve(root,'engine'));
+  // Strict mode: provision separate worker/coordinator identities for Intelligence and
+  // write all local credentials to engine/.local/integration.env (0600, never printed).
+  if(!partial)await run(process.execPath,[resolve(root,'integration/bootstrap-identities.mjs')]);
   if(smoke){await run(process.execPath,[resolve(root,'integration/smoke.mjs'),...(partial?['--partial']:[])]);stop();}
   else {
     for(const lane of lanes.filter(l=>l!=='engine')){const child=launch('npm',['run','dev:integration'],resolve(root,lane));child.once('exit',()=>{if(!stopping){process.exitCode=1;stop();}});}
