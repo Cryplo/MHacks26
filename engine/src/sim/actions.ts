@@ -16,6 +16,7 @@ import {
   setActivity,
   releaseQueue,
   trigger,
+  persona,
 } from "./common.js";
 
 export function validateQuote(
@@ -152,9 +153,7 @@ function checkAdmission(
   );
   ensure(
     riders.every(
-      (id) =>
-        s.population.personas.find((p) => p.agentId === id)!.heightCm >=
-        (p.definition.minHeightCm ?? 0),
+      (id) => persona(s, id).heightCm >= (p.definition.minHeightCm ?? 0),
     ),
     "Height restriction",
   );

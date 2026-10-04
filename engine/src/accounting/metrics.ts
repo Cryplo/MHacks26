@@ -1,9 +1,15 @@
 import { cloneJson } from "../domain/primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
-import type { CoreState } from "../domain/state.js";
+import type { CoreState, PersonState } from "../domain/state.js";
 import { asciiCompare, ensure, hash } from "../domain/primitives.js";
 import { board, predictedWait, observation } from "../sim/observations.js";
 import { Navigation } from "../navigation/grid.js";
+import {
+  openDecisions,
+  personsInOrder,
+  trackOpenRating,
+} from "../sim/common.js";
+import { archivedObservation, compactsHistory } from "../sim/retention.js";
 export function metrics(s: CoreState): C.MetricSnapshot {
   const t = s.totals,
     revenue = s.sales.reduce((n, x) => n + x.amountCents - x.refundCents, 0),
@@ -131,24 +137,54 @@ export function metrics(s: CoreState): C.MetricSnapshot {
         ).length,
       ),
     },
+    breakdown: breakdown(s),
   };
   return m;
 }
+const LEVELS = 5;
+function breakdown(s: CoreState): C.MetricBreakdown {
+  const states: Partial<Record<C.AgentView["state"], number>> = {};
+  const satisfactionLevels = Array<number>(LEVELS).fill(0);
+  for (const p of personsInOrder(s)) {
+    if (p.state !== "not_arrived" && p.state !== "left")
+      states[p.state] = (states[p.state] ?? 0) + 1;
+    if (p.admittedAtMs !== null && p.rating)
+      satisfactionLevels[
+        Math.min(
+          LEVELS - 1,
+          Math.max(0, Math.round((p.rating.value / 100) * (LEVELS - 1))),
+        )
+      ]!++;
+  }
+  const revenue = new Map<string, number>();
+  for (const x of s.sales)
+    revenue.set(
+      x.placeId,
+      (revenue.get(x.placeId) ?? 0) + x.amountCents - x.refundCents,
+    );
+  const places = Object.values(s.places)
+    .sort((a, b) => asciiCompare(a.definition.id, b.definition.id))
+    .map((p) => {
+      const id = p.definition.id;
+      let standardPersons = 0,
+        passPersons = 0;
+      for (const q of s.queues)
+        if (q.placeId === id)
+          if (q.lane === "pass") passPersons += q.agentIds.length;
+          else standardPersons += q.agentIds.length;
+      return {
+        placeId: id,
+        standardPersons,
+        passPersons,
+        predictedWaitMs: predictedWait(s, id),
+        revenueCents: revenue.get(id) ?? 0,
+        servedGuests: p.servedGuests ?? 0,
+      };
+    });
+  return { states, places, satisfactionLevels };
+}
 export function snapshot(s: CoreState): C.LiveSnapshot {
-  const agents = Object.values(s.persons)
-    .sort((a, b) => asciiCompare(a.agentId, b.agentId))
-    .map((p) => ({
-      agentId: p.agentId,
-      groupId: p.groupId,
-      position: p.position,
-      velocity: p.velocity,
-      state: p.state,
-      targetPlaceId: p.targetPlaceId,
-      needs: p.needs,
-      experienceValue: p.experienceValue,
-      rating: p.rating,
-      latestEvidenceId: p.latestEvidenceId,
-    }));
+  const agents = personsInOrder(s).map(agentView);
   const places = Object.values(s.places)
     .sort((a, b) => asciiCompare(a.definition.id, b.definition.id))
     .map((p) => ({
@@ -184,29 +220,46 @@ export function snapshot(s: CoreState): C.LiveSnapshot {
       })),
     };
   });
-  return cloneJson({
-    contractVersion: "behavior.v1",
-    run: s.view,
-    agents,
-    places,
-    queues,
-    metrics: metrics(s),
-    health: {
-      queuedWork: Object.values(s.decisions).filter(
-        (x) => x.status === "pending",
-      ).length,
-      leasedWork: 0,
-      oldestRequestAgeMs: 0,
-      httpP95Ms: null,
-      reducerP95Ms: null,
-      calls: 0,
-      inputTokens: 0,
-      estimatedCostUsd: null,
-      tokenCoverage: 0,
-      warnings: ["Provider and reducer telemetry populated by runtime"],
-    },
-    recentEvents: s.events.slice(-50),
-  });
+  // A detached copy (plain JSON round trip; canonical ordering is not needed here).
+  return JSON.parse(
+    JSON.stringify({
+      contractVersion: "behavior.v1",
+      run: s.view,
+      agents,
+      places,
+      queues,
+      metrics: metrics(s),
+      health: {
+        queuedWork: openDecisions(s).filter(
+          (id) => s.decisions[id]!.status === "pending",
+        ).length,
+        leasedWork: 0,
+        oldestRequestAgeMs: 0,
+        httpP95Ms: null,
+        reducerP95Ms: null,
+        calls: 0,
+        inputTokens: 0,
+        estimatedCostUsd: null,
+        tokenCoverage: 0,
+        warnings: ["Provider and reducer telemetry populated by runtime"],
+      },
+      recentEvents: s.events.slice(-50),
+    }),
+  ) as C.LiveSnapshot;
+}
+export function agentView(p: PersonState): C.AgentView {
+  return {
+    agentId: p.agentId,
+    groupId: p.groupId,
+    position: p.position,
+    velocity: p.velocity,
+    state: p.state,
+    targetPlaceId: p.targetPlaceId,
+    needs: p.needs,
+    experienceValue: p.experienceValue,
+    rating: p.rating,
+    latestEvidenceId: p.latestEvidenceId,
+  };
 }
 export function freezeRating(
   s: CoreState,
@@ -236,6 +289,7 @@ export function freezeRating(
       levels: ratingLevels(s.manifest.config.versions.rubric),
     };
   s.ratings[ratingId] = { request, result: null };
+  trackOpenRating(s, ratingId);
   s.view.quality.pendingRatings++;
   if (endpoint !== "periodic") {
     p.terminalRatingId = ratingId;
@@ -247,10 +301,24 @@ export function freezeRating(
  * which validates labels exactly; metrics only use the level count (100 * index / (K - 1)).
  */
 const RUBRIC_LEVELS: Record<string, string[]> = {
-  "satisfaction-rubric-v1": ["very dissatisfied", "dissatisfied", "neutral", "satisfied", "very satisfied"],
+  "satisfaction-rubric-v1": [
+    "very dissatisfied",
+    "dissatisfied",
+    "neutral",
+    "satisfied",
+    "very satisfied",
+  ],
 };
 export function ratingLevels(rubric: string): string[] {
-  return RUBRIC_LEVELS[rubric] ?? ["Very poor", "Poor", "Neutral", "Good", "Excellent"];
+  return (
+    RUBRIC_LEVELS[rubric] ?? [
+      "Very poor",
+      "Poor",
+      "Neutral",
+      "Good",
+      "Excellent",
+    ]
+  );
 }
 export function acceptRating(s: CoreState, result: C.RatingResult) {
   const rating = s.ratings[result.ratingId];
@@ -278,6 +346,12 @@ export function acceptRating(s: CoreState, result: C.RatingResult) {
     return;
   }
   rating.result = cloneJson(result);
+  // Bounded history: a resolved rating keeps its request identity, not the bulky observation.
+  if (compactsHistory(s))
+    rating.request = {
+      ...rating.request,
+      observation: archivedObservation(rating.request.observation),
+    };
   s.view.quality.pendingRatings--;
   if (rating.request.endpoint !== "periodic")
     s.view.quality.terminalRatingsComplete++;

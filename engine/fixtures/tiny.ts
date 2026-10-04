@@ -230,6 +230,8 @@ export function tinyConfig(): RunConfig {
     checkpointEveryMs: 300000,
     fallback: "forbidden",
     liveTimeoutMs: 10000,
+    // Fixture runs answer decisions through the work queue with scripted responses.
+    mockResolution: "worker",
     features: {
       routeChoice: false,
       bumpReactions: false,

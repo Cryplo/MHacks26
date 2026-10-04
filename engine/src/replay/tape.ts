@@ -23,7 +23,9 @@ export function makeTape(s: CoreState): ResponseTape {
     populationHash: hash(s.population),
     scenarioHash: hash(s.manifest.scenario),
     replicateSeed: s.manifest.replicateSeed,
-    responses: s.evidence.map((e) => cloneJson(e.response)),
+    responses: (s.tapeResponses ?? s.evidence.map((e) => e.response)).map((r) =>
+      cloneJson(r),
+    ),
     boundaries: cloneJson(s.boundaries),
   };
 }

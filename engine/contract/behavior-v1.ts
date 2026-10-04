@@ -140,6 +140,9 @@ export type RunConfig = {
   ratingEveryMs: SimMs | null; visualFrameEveryMs: SimMs; checkpointEveryMs: SimMs;
   fallback: 'forbidden' | 'live_timeout_v1'; liveTimeoutMs: number;
   features: FeatureFlags; versions: VersionSet;
+  /** Additive (optional), mock mode only: 'engine' (default) evaluates the deterministic mock
+   * policy inside Engine with no worker round trip; 'worker' queues decisions for a worker. */
+  mockResolution?: 'engine' | 'worker';
 };
 export type RunManifest = {
   contractVersion: ContractVersion; park: ArtifactRef; population: ArtifactRef;
@@ -232,12 +235,34 @@ export type DecisionResult = {
   modelReturned: string; source: Source; probabilities: Distribution;
   confidence: number | null; responseArtifact: ArtifactRef; usage: Usage;
   cacheKey: Hash | null; originalSource: Exclude<Source, 'cache'>;
+  /** Additive (optional): reasoning text the behavior model returned, if any. Never parsed. */
+  reasoning?: string | null;
+};
+/** Additive: a short, human-readable account of one applied decision, built by Engine from
+ * the frozen observation, the offered options and the applied distribution (deterministic). */
+export type DecisionRationale = {
+  /** One line, e.g. "Hungry (72/100); Harbor Grill board: 4 min; $38.00 left -> chose ... (p=0.61) over ... (p=0.22)". */
+  summary: string;
+  /** What the group noticed or felt, as short factual phrases (needs, wallet, time, waits). */
+  drivers: string[];
+  chosen: { optionId: Id; label: string; probability: number };
+  /** Up to three most likely other options, most likely first. */
+  alternatives: { optionId: Id; label: string; probability: number }[];
+  /** The behavior model's own reasoning text when it returned one; otherwise null. */
+  modelReasoning: string | null;
 };
 export type AppliedDecision = {
   evidenceId: Id; request: DecisionRequest; response: DecisionResult;
   appliedProbabilities: Distribution; draw: number; chosenOptionId: Id;
   outcome: 'committed' | 'failed_precondition'; failureReason: string | null;
   committedAtMs: SimMs; causedEventIds: Id[];
+  /** Additive (optional): Engine's deterministic explanation of this decision. */
+  rationale?: DecisionRationale;
+};
+/** Additive: compact history row for the agent inspector (newest first in AgentDetail). */
+export type DecisionSummary = {
+  evidenceId: Id; atMs: SimMs; moment: Moment; chosenOptionId: Id; chosenLabel: string;
+  outcome: AppliedDecision['outcome']; source: Source; rationale: DecisionRationale;
 };
 
 // MEASUREMENTS ARE FROZEN JOBS, NOT BEHAVIORAL DEPENDENCIES.
@@ -263,6 +288,22 @@ export type MetricValue = {
 export type MetricSnapshot = {
   runId: Id; simMs: SimMs; revision: number; definitionVersion: string;
   admittedGuests: number; guestsInPark: number; measures: Record<MetricId, MetricValue>;
+  /** Additive (optional): per-place and per-state detail at this instant, for dashboards. */
+  breakdown?: MetricBreakdown;
+};
+/** Additive: dashboard detail carried by each MetricSnapshot (getMetrics series, live metrics). */
+export type MetricBreakdown = {
+  /** Guests currently in each activity state (states with zero guests are omitted). */
+  states: Partial<Record<AgentView['state'], number>>;
+  places: {
+    placeId: Id; standardPersons: number; passPersons: number; predictedWaitMs: SimMs | null;
+    /** Cumulative net ancillary revenue attributed to this place (passes count at the ride). */
+    revenueCents: Cents;
+    /** Cumulative guests who finished service here (rides, shows, counters). */
+    servedGuests: number;
+  }[];
+  /** Admitted guests by latest satisfaction rating level (index 0..levels-1; unrated excluded). */
+  satisfactionLevels: number[];
 };
 export type EventKind = 'arrived' | 'observed' | 'queue_joined' | 'queue_left'
   | 'closure_release' | 'service_started' | 'service_completed' | 'purchase' | 'refund'
@@ -317,6 +358,10 @@ export type ReplayFrame = { atMs: SimMs; frameSchema: string; snapshot: LiveSnap
 export type AgentDetail = {
   agent: AgentView; persona: Persona; group: GroupManifest;
   observedFacts: ObservationFact[]; evidence: AppliedDecision | null; recentEvents: EventRecord[];
+  /** Additive (optional): plain-language current status, e.g. "Queueing for Sky Coaster (6 min so far)". */
+  statusText?: string;
+  /** Additive (optional): the group's most recent applied decisions (newest first, up to 12). */
+  decisions?: DecisionSummary[];
 };
 
 // EXPERIMENTS AND REPORTS. No aggregate is allowed to hide an incomplete pair.

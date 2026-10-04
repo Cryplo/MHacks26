@@ -1,5 +1,6 @@
 import { cloneJson } from "./primitives.js";
 import type * as C from "../../contract/behavior-v1.js";
+import type { CompactFrame } from "../replay/frames.js";
 import { hash } from "./primitives.js";
 import {
   validateConfig,
@@ -35,6 +36,12 @@ export type PersonState = C.AgentView & {
   departedAtMs: number | null;
   censored: boolean;
   facts: C.ObservationFact[];
+  /** Observation counter (fact ids stay unique after old facts roll out of memory). */
+  factSeq?: number;
+  /** Hash chain over every observed fact; "" before the first. Absent in legacy states. */
+  factDigest?: string;
+  /** Arc-length position along the current queue line (null/absent when not on a line). */
+  queueU?: number | null;
   distanceM: number;
   queueMs: number;
   parkMs: number;
@@ -59,6 +66,8 @@ export type GroupState = {
   deferredNoticeId: string | null;
   nextDecisionAtMs: number;
   leaving: boolean;
+  /** Indices (into events) of this group's latest events, oldest first. */
+  recentEventIdx?: number[];
 };
 export type PlaceState = {
   definition: C.Place;
@@ -68,6 +77,8 @@ export type PlaceState = {
   noticeVersion: string;
   nextDispatchMs: number;
   vehicleReadyMs: number[];
+  /** Cumulative guests who finished service here (absent in legacy states). */
+  servedGuests?: number;
 };
 export type QueueEntry = {
   id: string;
@@ -140,7 +151,8 @@ export type CoreState = {
     { request: C.RatingRequest; result: C.RatingResult | null }
   >;
   metrics: C.MetricSnapshot[];
-  frames: C.ReplayFrame[];
+  /** Frames not yet persisted (saved one row per frame, then cleared; see replay/frames.ts). */
+  frames: (C.ReplayFrame | CompactFrame)[];
   heat: HeatContribution[];
   scenarioApplied: string[];
   passPriceCents: number;
@@ -148,6 +160,10 @@ export type CoreState = {
   nextQueueSequence: number;
   nextSessionSequence: number;
   barrierIds: string[];
+  /** Decision ids that may still be pending/ready (pruned lazily). Absent in legacy states. */
+  openDecisionIds?: string[];
+  /** Rating ids that may still lack a result (pruned lazily). Absent in legacy states. */
+  openRatingIds?: string[];
   phaseCursor: number;
   movementSubstep: number;
   motionPending?: {
@@ -174,7 +190,14 @@ export type CoreState = {
   };
   boundaries: { atMs: number; hash: string }[];
   lastCompletedHash: string | null;
+  /** Inspector history: each group's latest applied decisions (newest last), with a revision. */
+  decisionLog?: Record<string, DecisionLog>;
+  /** Responses applied in a bounded-history run whose behavior came from outside Engine. */
+  tapeResponses?: C.DecisionResult[];
+  /** Unique token of the last save (see runtime/store.ts cache validation). */
+  persistStamp?: string;
 };
+export type DecisionLog = { rev: number; entries: C.DecisionSummary[] };
 export function createCore(
   runId: string,
   manifest: C.RunManifest,
@@ -238,6 +261,8 @@ export function createCore(
     nextQueueSequence: 0,
     nextSessionSequence: 0,
     barrierIds: [],
+    openDecisionIds: [],
+    openRatingIds: [],
     phaseCursor: 0,
     movementSubstep: 0,
     pauseRequested: false,
@@ -259,6 +284,7 @@ export function createCore(
     },
     boundaries: [],
     lastCompletedHash: null,
+    decisionLog: {},
   };
   const entrance = park.places.find((p) => p.kind === "entrance")!.entrance;
   for (const p of population.personas)
@@ -277,6 +303,8 @@ export function createCore(
       departedAtMs: null,
       censored: false,
       facts: [],
+      factSeq: 0,
+      factDigest: "",
       distanceM: 0,
       queueMs: 0,
       parkMs: 0,

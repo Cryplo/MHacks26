@@ -19,6 +19,9 @@ import {
   trigger,
   setActivity,
   releaseQueue,
+  persona,
+  openDecisions,
+  trackOpenDecision,
 } from "./common.js";
 import {
   makeRequest,
@@ -34,8 +37,19 @@ import {
   sortedPlaces,
 } from "./services.js";
 import { moveSubstep } from "./motion.js";
-import { freezeRating, metrics, snapshot } from "../accounting/metrics.js";
+import { freezeRating, metrics } from "../accounting/metrics.js";
 import { physicalHash } from "../replay/physical.js";
+import { decisionRationale } from "./rationale.js";
+import {
+  abridgeEvidence,
+  compactAfterApply,
+  recordDecision,
+} from "./retention.js";
+import { encodeFrame, frameEveryMs } from "../replay/frames.js";
+/** Agents whose motion is proposed per work unit (a whole substep for crowds up to 2048). */
+export const MOTION_CHUNK = 2048;
+/** Simulated interval between recorded physical-state boundary hashes. */
+export const BOUNDARY_HASH_EVERY_MS = 30000;
 export function acceptDecision(s: CoreState, result: C.DecisionResult) {
   const slot = s.decisions[result.requestId];
   ensure(slot, "Unknown request");
@@ -82,7 +96,7 @@ function scenario(s: CoreState, e: C.ScenarioEvent) {
     for (const p of Object.values(s.persons).sort((a, b) =>
       asciiCompare(a.agentId, b.agentId),
     )) {
-      const trait = s.population.personas.find((x) => x.agentId === p.agentId)!;
+      const trait = persona(s, p.agentId);
       if (
         p.state === "not_arrived" ||
         p.state === "left" ||
@@ -316,11 +330,11 @@ export function advanceCore(
             response: null,
             status: "pending",
           };
+          trackOpenDecision(s, r.requestId);
         }
       } else {
-        s.barrierIds = Object.values(s.decisions)
-          .filter((d) => d.status === "pending" || d.status === "ready")
-          .map((d) => d.request.requestId)
+        s.barrierIds = openDecisions(s)
+          .slice()
           .sort((a, b) => {
             const x = s.decisions[a]!.request,
               y = s.decisions[b]!.request;
@@ -400,9 +414,19 @@ export function advanceCore(
           committedAtMs: v.simMs,
           causedEventIds: s.events.slice(before).map((e) => e.eventId),
         };
-        s.evidence.push(evidence);
+        evidence.rationale = decisionRationale(
+          r,
+          probabilities,
+          chosenOptionId,
+          response,
+          outcome,
+          failureReason,
+        );
+        recordDecision(s, evidence);
+        s.evidence.push(abridgeEvidence(s, evidence));
         for (const p of members(s, g)) p.latestEvidenceId = evidenceId;
       } else {
+        compactAfterApply(s, s.barrierIds);
         v.phase = "dispatch";
         s.phaseCursor = 0;
       }
@@ -415,7 +439,7 @@ export function advanceCore(
       }
     } else if (v.phase === "integrate") {
       if (s.movementSubstep < 20) {
-        const movement = moveSubstep(s, nav, 32);
+        const movement = moveSubstep(s, nav, MOTION_CHUNK);
         neighborChecks += movement.neighborChecks;
         if (movement.complete) s.movementSubstep++;
       } else v.phase = "persist";
@@ -428,17 +452,17 @@ export function advanceCore(
       s.phaseCursor = 0;
       s.barrierIds = [];
       v.blockedWorkIds = [];
-      s.lastCompletedHash = physicalHash(s);
-      s.boundaries.push({ atMs: v.simMs, hash: s.lastCompletedHash });
-      completedSteps++;
-      if (v.simMs % s.manifest.config.visualFrameEveryMs === 0) {
-        s.metrics.push(metrics(s));
-        s.frames.push({
-          atMs: v.simMs,
-          frameSchema: "frame-v1",
-          snapshot: snapshot(s),
-        });
+      // Physical-state hashes (replay/tape verification points) are recorded every
+      // BOUNDARY_HASH_EVERY_MS of simulated time, not every 5 s step: hashing a large crowd's
+      // full state each step dominated step cost. Checkpoints still hash on demand.
+      if (v.simMs % BOUNDARY_HASH_EVERY_MS === 0) {
+        s.lastCompletedHash = physicalHash(s);
+        s.boundaries.push({ atMs: v.simMs, hash: s.lastCompletedHash });
       }
+      completedSteps++;
+      if (v.simMs % s.manifest.config.visualFrameEveryMs === 0)
+        s.metrics.push(metrics(s));
+      if (v.simMs % frameEveryMs(s) === 0) s.frames.push(encodeFrame(s));
       if (s.pauseRequested) {
         v.status = "paused";
         s.pauseRequested = false;

@@ -2,7 +2,15 @@ import type * as C from "../../contract/behavior-v1.js";
 import type { CoreState, GroupState, PersonState } from "../domain/state.js";
 import { asciiCompare, hash, total } from "../domain/primitives.js";
 import { Navigation, UNREACHABLE } from "../navigation/grid.js";
-import { event, members, trigger } from "./common.js";
+import {
+  event,
+  members,
+  trigger,
+  persona,
+  recentGroupEvents,
+} from "./common.js";
+/** Facts each guest remembers (most recent). Observations use the group's latest 64. */
+export const FACT_MEMORY = 32;
 export function observe(
   s: CoreState,
   p: PersonState,
@@ -17,8 +25,15 @@ export function observe(
     )
   )
     return false;
-  const f = { ...fact, id: `obs:${p.agentId}:${p.facts.length + 1}` };
+  const seq = (p.factSeq ?? p.facts.length) + 1,
+    f = { ...fact, id: `obs:${p.agentId}:${seq}` };
+  p.factSeq = seq;
+  // The digest chains every fact ever observed, so the physical hash still covers memory
+  // that has rolled out of the bounded recent-fact window.
+  if (p.factDigest !== undefined) p.factDigest = hash([p.factDigest, f]);
   p.facts.push(f);
+  if (p.facts.length > FACT_MEMORY)
+    p.facts.splice(0, p.facts.length - FACT_MEMORY);
   event(
     s,
     "observed",
@@ -107,18 +122,19 @@ export function observation(
   nav: Navigation,
 ): C.GuestObservation {
   const people = members(s, g),
-    position = s.persons[g.manifest.leaderId]!.position,
+    leader = s.persons[g.manifest.leaderId]!,
+    // Guests standing in a queue zone (or inside a ride) measure walks from the entrance.
+    position =
+      !nav.walkable(nav.cell(leader.position)) && leader.targetPlaceId
+        ? s.places[leader.targetPlaceId]!.definition.entrance
+        : leader.position,
     cell = nav.cell(position);
   const facts = people
     .flatMap((p) => p.facts)
     .sort((a, b) => a.observedAtMs - b.observedAtMs || asciiCompare(a.id, b.id))
     .slice(-64);
   const speed = Math.min(
-    ...people.map(
-      (p) =>
-        s.population.personas.find((x) => x.agentId === p.agentId)!
-          .walkSpeedMps,
-    ),
+    ...people.map((p) => persona(s, p.agentId).walkSpeedMps),
   );
   const known = s.park.places
     .filter((p) => p.kind !== "entrance")
@@ -144,20 +160,19 @@ export function observation(
     leaderId: g.manifest.leaderId,
     atMs: s.view.simMs,
     members: people.map((p) => ({
-      persona: s.population.personas.find((x) => x.agentId === p.agentId)!,
+      persona: persona(s, p.agentId),
       needs: { ...p.needs },
     })),
     wallet: { walletId: g.manifest.walletId, balanceCents: g.balanceCents },
     facts,
     knownDestinations: known,
-    recentEventSummaries: s.events
-      .filter((e) => e.groupId === g.manifest.groupId && e.kind !== "observed")
-      .slice(-8)
-      .map((e) => ({
+    recentEventSummaries: recentGroupEvents(s, g.manifest.groupId, 8).map(
+      (e) => ({
         eventId: e.eventId,
         atMs: e.atMs,
         text: e.reason ?? e.kind,
-      })),
+      }),
+    ),
     currentActivity: people[0]!.state,
     plannedDepartureMs: g.manifest.plannedDepartureMs,
   };
@@ -286,8 +301,7 @@ export function makeRequest(
         riders = [...g.manifest.memberIds];
       const eligible = people.every(
         (p) =>
-          s.population.personas.find((x) => x.agentId === p.agentId)!
-            .heightCm >= (place.definition.minHeightCm ?? 0),
+          persona(s, p.agentId).heightCm >= (place.definition.minHeightCm ?? 0),
       );
       if (
         (service.kind === "ride" || service.kind === "show") &&

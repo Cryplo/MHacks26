@@ -1,9 +1,10 @@
-import type { CoreState, PersonState } from "../domain/state.js";
+import type { CoreState, GroupState, PersonState } from "../domain/state.js";
 import type { Vec2 } from "../../contract/behavior-v1.js";
 import { asciiCompare, clampMeter, random } from "../domain/primitives.js";
-import { Navigation } from "../navigation/grid.js";
-import { groups, members, trigger } from "./common.js";
+import { Navigation, type DistanceField } from "../navigation/grid.js";
+import { groups, members, persona, personsInOrder, trigger } from "./common.js";
 import { observe } from "./observations.js";
+import { lineStep, queueSlots } from "./queue-lines.js";
 const distance = (a: Vec2, b: Vec2) => Math.hypot(a.xM - b.xM, a.yM - b.yM);
 export function segmentDistance(a: Vec2, b: Vec2, p: Vec2): number {
   const dx = b.xM - a.xM,
@@ -17,67 +18,128 @@ export function segmentDistance(a: Vec2, b: Vec2, p: Vec2): number {
       : 0;
   return Math.hypot(a.xM + t * dx - p.xM, a.yM + t * dy - p.yM);
 }
+const BIN = 2;
+/** Waiting-heat accumulation window (sim ms). */
+export const HEAT_WINDOW_MS = 300000;
+const heatIndex = new WeakMap<
+  object,
+  { windowStart: number; cells: Map<number, number> }
+>();
+/** Index of this window's waiting-heat rows by cell (rebuilt after a reload). */
+function openHeat(s: CoreState, windowStart: number): Map<number, number> {
+  let idx = heatIndex.get(s.heat);
+  if (!idx || idx.windowStart !== windowStart) {
+    const cells = new Map<number, number>();
+    for (let i = s.heat.length - 1; i >= 0; i--) {
+      const h = s.heat[i]!;
+      if (h.fromMs < windowStart) break;
+      if (h.layer === "waiting_person_minutes" && !cells.has(h.cell))
+        cells.set(h.cell, i);
+    }
+    idx = { windowStart, cells };
+    heatIndex.set(s.heat, idx);
+  }
+  return idx.cells;
+}
+const binKey = (x: number, y: number) => x * 65536 + y;
+function tieDirection(
+  s: CoreState,
+  cache: Map<string, { x: number; y: number }>,
+  agentId: string,
+) {
+  let tie = cache.get(agentId);
+  if (!tie) {
+    const angle =
+      random(s.manifest.replicateSeed, "movement", agentId, "separation") *
+      2 *
+      Math.PI;
+    tie = { x: Math.cos(angle), y: Math.sin(angle) };
+    cache.set(agentId, tie);
+  }
+  return tie;
+}
 export function moveSubstep(
   s: CoreState,
   nav: Navigation,
   maxAgents = Number.POSITIVE_INFINITY,
 ): { neighborChecks: number; complete: boolean } {
   const dt = 0.25,
-    ordered = Object.values(s.persons)
-      .filter((p) => p.state !== "not_arrived" && p.state !== "left")
-      .sort((a, b) => asciiCompare(a.agentId, b.agentId));
-  const bins = new Map<string, PersonState[]>(),
-    size = 2;
+    ordered = personsInOrder(s).filter(
+      (p) => p.state !== "not_arrived" && p.state !== "left",
+    );
+  const bins = new Map<number, PersonState[]>(),
+    size = BIN;
   for (const p of ordered) {
-    const key = `${Math.floor(p.position.xM / size)},${Math.floor(p.position.yM / size)}`;
-    const list = bins.get(key) ?? [];
-    list.push(p);
-    bins.set(key, list);
+    const key = binKey(
+      Math.floor(p.position.xM / size),
+      Math.floor(p.position.yM / size),
+    );
+    const list = bins.get(key);
+    if (list) list.push(p);
+    else bins.set(key, [p]);
   }
-  if (!s.motionPending)
-    s.motionPending = {
-      cursor: 0,
-      proposed: {},
-      ties: Object.fromEntries(
-        ordered.map((p) => {
-          const angle =
-            random(
-              s.manifest.replicateSeed,
-              "movement",
-              p.agentId,
-              "separation",
-            ) *
-            2 *
-            Math.PI;
-          return [p.agentId, { x: Math.cos(angle), y: Math.sin(angle) }];
-        }),
-      ),
-    };
+  // Tie-break directions are a pure keyed function of (seed, agent); they are computed only
+  // for the rare coincident pairs that need them (older persisted states may carry a table).
+  if (!s.motionPending) s.motionPending = { cursor: 0, proposed: {}, ties: {} };
   const pending = s.motionPending,
     proposed = new Map(Object.entries(pending.proposed)),
     tieDirections = new Map(Object.entries(pending.ties));
   let neighborChecks = 0;
-  const traits = new Map(s.population.personas.map((p) => [p.agentId, p]));
+  const groupCache = new Map<
+    string,
+    {
+      own: PersonState[];
+      slowest: number;
+      field: DistanceField;
+      local: boolean;
+      maxDistance: number;
+      center: Vec2;
+    }
+  >();
+  const groupInfo = (g: GroupState) => {
+    let info = groupCache.get(g.manifest.groupId);
+    if (!info) {
+      // Browsing wanders to an adjacent cell, so it uses the bounded local field (exact
+      // within LOCAL_FIELD_RADIUS) instead of a full-park Dijkstra per wander target.
+      const own = members(s, g),
+        local = own[0]!.state === "browsing",
+        field = nav.distances(g.target!, local);
+      info = {
+        own,
+        slowest: Math.min(
+          ...own.map((x) => persona(s, x.agentId).walkSpeedMps),
+        ),
+        field,
+        local,
+        maxDistance: Math.max(
+          ...own.map((x) => field.at(nav.cell(x.position))),
+        ),
+        center: {
+          xM: own.reduce((a, x) => a + x.position.xM, 0) / own.length,
+          yM: own.reduce((a, x) => a + x.position.yM, 0) / own.length,
+        },
+      };
+      groupCache.set(g.manifest.groupId, info);
+    }
+    return info;
+  };
+  const neighbors: PersonState[] = [],
+    close: PersonState[] = [];
   for (const p of ordered.slice(pending.cursor, pending.cursor + maxAgents)) {
     const g = s.groups[p.groupId]!,
-      trait = traits.get(p.agentId)!;
+      trait = persona(s, p.agentId);
     if (
-      !["walking", "browsing"].includes(p.state) ||
+      (p.state !== "walking" && p.state !== "browsing") ||
       g.requestId ||
       !g.target
     ) {
       proposed.set(p.agentId, { ...p.position });
       continue;
     }
-    const own = members(s, g),
-      slowest = Math.min(
-        ...own.map((x) => traits.get(x.agentId)!.walkSpeedMps),
-      );
-    const field = nav.field(g.target),
-      myDistance = field[nav.cell(p.position)]!,
-      lag =
-        Math.max(...own.map((x) => field[nav.cell(x.position)]!)) - myDistance;
-    const target = nav.next(p.position, g.target);
+    const { slowest, field, local, maxDistance, center } = groupInfo(g),
+      myDistance = field.at(nav.cell(p.position)),
+      lag = maxDistance - myDistance;
+    const target = nav.next(p.position, g.target, local);
     if (!target) {
       proposed.set(p.agentId, { ...p.position });
       continue;
@@ -89,48 +151,52 @@ export function moveSubstep(
       Math.min(trait.walkSpeedMps, slowest * 1.1) * (lag > 3 ? 0 : 1);
     let vx = d ? (dx / d) * speed : 0,
       vy = d ? (dy / d) * speed : 0;
-    const neighbors: PersonState[] = [];
+    neighbors.length = 0;
+    const bx = Math.floor(p.position.xM / size),
+      by = Math.floor(p.position.yM / size);
     for (let y = -1; y <= 1; y++)
-      for (let x = -1; x <= 1; x++)
-        neighbors.push(
-          ...(bins.get(
-            `${Math.floor(p.position.xM / size) + x},${Math.floor(p.position.yM / size) + y}`,
-          ) ?? []),
-        );
-    neighbors.sort((a, b) => asciiCompare(a.agentId, b.agentId));
+      for (let x = -1; x <= 1; x++) {
+        const bin = bins.get(binKey(bx + x, by + y));
+        if (bin) for (const other of bin) neighbors.push(other);
+      }
+    // Only neighbors closer than 0.55 m exert a separation force; they are applied in
+    // agent-id order (the float summation order); `near` is an order-free count.
     let near = 0;
+    close.length = 0;
     for (const other of neighbors) {
       if (p.agentId === other.agentId) continue;
       neighborChecks++;
+      const ox = p.position.xM - other.position.xM,
+        oy = p.position.yM - other.position.yM,
+        od2 = ox * ox + oy * oy;
+      if (od2 < 2.25) near++;
+      if (od2 < 0.3025) close.push(other);
+    }
+    if (close.length > 1)
+      close.sort((a, b) => asciiCompare(a.agentId, b.agentId));
+    for (const other of close) {
       dx = p.position.xM - other.position.xM;
       dy = p.position.yM - other.position.yM;
       d = Math.hypot(dx, dy);
-      if (d < 1.5) near++;
-      if (d < 0.55) {
-        if (d < 1e-9) {
-          const mine = tieDirections.get(p.agentId)!,
-            theirs = tieDirections.get(other.agentId)!;
-          dx = mine.x - theirs.x;
-          dy = mine.y - theirs.y;
-          const norm = Math.hypot(dx, dy);
-          if (norm < 1e-9) {
-            dx = asciiCompare(p.agentId, other.agentId) < 0 ? 1 : -1;
-            dy = 0;
-          } else {
-            dx /= norm;
-            dy /= norm;
-          }
-          d = 1;
+      if (d < 1e-9) {
+        const mine = tieDirection(s, tieDirections, p.agentId),
+          theirs = tieDirection(s, tieDirections, other.agentId);
+        dx = mine.x - theirs.x;
+        dy = mine.y - theirs.y;
+        const norm = Math.hypot(dx, dy);
+        if (norm < 1e-9) {
+          dx = asciiCompare(p.agentId, other.agentId) < 0 ? 1 : -1;
+          dy = 0;
+        } else {
+          dx /= norm;
+          dy /= norm;
         }
-        const force = Math.min(0.35, (0.55 - Math.min(0.55, d)) * 0.6 + 0.01);
-        vx += (dx / d) * force;
-        vy += (dy / d) * force;
+        d = 1;
       }
+      const force = Math.min(0.35, (0.55 - Math.min(0.55, d)) * 0.6 + 0.01);
+      vx += (dx / d) * force;
+      vy += (dy / d) * force;
     }
-    const center = {
-      xM: own.reduce((a, x) => a + x.position.xM, 0) / own.length,
-      yM: own.reduce((a, x) => a + x.position.yM, 0) / own.length,
-    };
     if (distance(center, p.position) > 2) {
       vx += (center.xM - p.position.xM) * 0.08;
       vy += (center.yM - p.position.yM) * 0.08;
@@ -162,10 +228,20 @@ export function moveSubstep(
   }
   delete s.motionPending;
   const waitingCells = new Map<number, number>();
+  const queueOf = new Map<string, (typeof s.queues)[number]>();
+  for (const q of s.queues)
+    for (const id of q.agentIds) if (!queueOf.has(id)) queueOf.set(id, q);
+  const noticePlaces = Object.values(s.places)
+    .filter((place) => place.definition.notice)
+    .sort((a, b) => asciiCompare(a.definition.id, b.definition.id));
+  const slots = s.queues.length ? queueSlots(s) : new Map();
   for (const p of ordered) {
-    const old = p.position,
-      next = proposed.get(p.agentId)!,
-      trait = traits.get(p.agentId)!,
+    const trait = persona(s, p.agentId),
+      old = p.position,
+      // Queued and boarding guests follow their line (kinematic, no crowd forces).
+      next =
+        lineStep(s, nav, p, slots, trait.walkSpeedMps, dt) ??
+        proposed.get(p.agentId)!,
       g = s.groups[p.groupId]!;
     const moved = distance(old, next);
     p.distanceM += moved;
@@ -190,15 +266,13 @@ export function moveSubstep(
         p.needs.patience - (trait.patiencePerMinute * dt) / 60,
       );
       s.totals.queuePersonMs += 250;
-      const q = s.queues.find((q) => q.agentIds.includes(p.agentId));
+      const q = queueOf.get(p.agentId);
       if (q) q.waitMs += 250;
       const cell = nav.cell(p.position);
       waitingCells.set(cell, (waitingCells.get(cell) ?? 0) + 1);
     }
-    if (!["walking", "browsing"].includes(p.state)) continue;
-    for (const place of Object.values(s.places).sort((a, b) =>
-      asciiCompare(a.definition.id, b.definition.id),
-    )) {
+    if (p.state !== "walking" && p.state !== "browsing") continue;
+    for (const place of noticePlaces) {
       const notice = place.definition.notice;
       if (
         !notice ||
@@ -232,28 +306,21 @@ export function moveSubstep(
     }
   }
   const from = s.view.simMs + s.movementSubstep * 250;
-  // Coalesce identical exposure rates within a logical step, preserving exact
-  // interval clipping for historical heat queries without a row per person.
+  // Waiting exposure is accumulated per cell over HEAT_WINDOW_MS windows (one ledger row per
+  // occupied cell per window): queued guests now shuffle along their lines, so per-substep
+  // rate runs would produce a row per cell per few seconds. Interval-clipped heat queries
+  // treat exposure as uniform within a row's [fromMs, toMs].
+  const windowStart = Math.floor(from / HEAT_WINDOW_MS) * HEAT_WINDOW_MS,
+    open = openHeat(s, windowStart);
   for (const [cell, count] of waitingCells) {
-    let prior: (typeof s.heat)[number] | undefined;
-    for (let i = s.heat.length - 1; i >= 0; i--) {
+    const value = (count * 250) / 60000,
+      i = open.get(cell);
+    if (i !== undefined) {
       const h = s.heat[i]!;
-      if (h.fromMs < s.view.simMs) break;
-      if (h.layer === "waiting_person_minutes" && h.cell === cell) {
-        prior = h;
-        break;
-      }
-    }
-    const value = (count * 250) / 60000;
-    if (
-      prior &&
-      prior.toMs === from &&
-      Math.abs(prior.value / (prior.toMs - prior.fromMs) - count / 60000) <
-        1e-12
-    ) {
-      prior.toMs += 250;
-      prior.value += value;
-    } else
+      h.toMs = from + 250;
+      h.value += value;
+    } else {
+      open.set(cell, s.heat.length);
       s.heat.push({
         atMs: from,
         fromMs: from,
@@ -262,6 +329,7 @@ export function moveSubstep(
         layer: "waiting_person_minutes",
         value,
       });
+    }
   }
   for (const g of groups(s)) {
     const people = members(s, g);

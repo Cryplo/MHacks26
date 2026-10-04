@@ -22,39 +22,54 @@ export function ensure(
 ): asserts condition {
   if (!condition) throw new DomainFault("INVALID_INPUT", message, path);
 }
+const MAX_JSON_DEPTH = 1000;
+/**
+ * Canonical JSON: sorted object keys, no undefined/non-finite/non-plain values. Output and
+ * rejections are identical to the original recursive encoder; this version avoids per-value
+ * closures and Set bookkeeping (a depth bound replaces the cycle set: any cycle exceeds it).
+ */
 export function canonical(value: unknown): string {
-  const seen = new Set<object>();
-  function encode(v: unknown): string {
-    if (v === null || typeof v === "boolean" || typeof v === "string")
+  return encodeCanonical(value, 0);
+}
+function encodeCanonical(v: unknown, depth: number): string {
+  switch (typeof v) {
+    case "string":
       return JSON.stringify(v);
-    if (typeof v === "number") {
+    case "number":
       ensure(Number.isFinite(v), "Non-finite JSON number");
       return JSON.stringify(v);
-    }
-    ensure(typeof v === "object" && v !== null, "Unsupported JSON value");
-    ensure(!seen.has(v), "Cyclic JSON value");
-    seen.add(v);
-    let output: string;
-    if (Array.isArray(v)) {
-      output = `[${Array.from(v, encode).join(",")}]`;
-    } else {
-      ensure(
-        Object.getPrototypeOf(v) === Object.prototype ||
-          Object.getPrototypeOf(v) === null,
-        "Non-plain JSON object",
-      );
-      ensure(Object.getOwnPropertySymbols(v).length === 0, "Symbol JSON key");
-      const object = v as Record<string, unknown>;
-      output = `{${Object.keys(object)
-        .sort()
-        .filter((k) => object[k] !== undefined)
-        .map((k) => `${JSON.stringify(k)}:${encode(object[k])}`)
-        .join(",")}}`;
-    }
-    seen.delete(v);
-    return output;
+    case "boolean":
+      return v ? "true" : "false";
+    case "object":
+      break;
+    default:
+      ensure(false, "Unsupported JSON value");
   }
-  return encode(value);
+  if (v === null) return "null";
+  ensure(depth < MAX_JSON_DEPTH, "Cyclic JSON value");
+  if (Array.isArray(v)) {
+    let out = "[";
+    for (let i = 0; i < v.length; i++) {
+      if (i) out += ",";
+      out += encodeCanonical(v[i], depth + 1);
+    }
+    return out + "]";
+  }
+  const proto = Object.getPrototypeOf(v);
+  ensure(proto === Object.prototype || proto === null, "Non-plain JSON object");
+  ensure(Object.getOwnPropertySymbols(v).length === 0, "Symbol JSON key");
+  const object = v as Record<string, unknown>,
+    keys = Object.keys(object).sort();
+  let out = "{",
+    first = true;
+  for (const k of keys) {
+    const item = object[k];
+    if (item === undefined) continue;
+    if (!first) out += ",";
+    first = false;
+    out += JSON.stringify(k) + ":" + encodeCanonical(item, depth + 1);
+  }
+  return out + "}";
 }
 export const hashBytes = (bytes: Uint8Array): string =>
   bytesToHex(sha256(bytes));

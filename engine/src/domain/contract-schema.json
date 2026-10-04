@@ -13,19 +13,14 @@
                   "$ref": "#/definitions/ArtifactRef"
                 }
               },
-              "required": [
-                "artifact"
-              ],
+              "required": ["artifact"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/ParkSummary"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "requestProductWork": {
@@ -38,9 +33,7 @@
                   "$ref": "#/definitions/ProductRequest"
                 }
               },
-              "required": [
-                "request"
-              ],
+              "required": ["request"],
               "additionalProperties": false
             },
             "output": {
@@ -50,16 +43,11 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "workId"
-              ],
+              "required": ["workId"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "createRun": {
@@ -72,9 +60,7 @@
                   "$ref": "#/definitions/RunManifest"
                 }
               },
-              "required": [
-                "manifest"
-              ],
+              "required": ["manifest"],
               "additionalProperties": false
             },
             "output": {
@@ -84,16 +70,11 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "startRun": {
@@ -106,19 +87,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "pauseRun": {
@@ -134,20 +110,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "expectedControlRevision"
-              ],
+              "required": ["runId", "expectedControlRevision"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "resumeRun": {
@@ -163,20 +133,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "expectedControlRevision"
-              ],
+              "required": ["runId", "expectedControlRevision"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "setSpeed": {
@@ -206,10 +170,7 @@
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "cancelRun": {
@@ -225,20 +186,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "expectedControlRevision"
-              ],
+              "required": ["runId", "expectedControlRevision"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "scheduleEvents": {
@@ -291,17 +246,11 @@
                   }
                 }
               },
-              "required": [
-                "scenarioRevision",
-                "events"
-              ],
+              "required": ["scenarioRevision", "events"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "claimWork": {
@@ -326,12 +275,7 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "kinds",
-                "limit",
-                "workerNonce",
-                "leaseMs"
-              ],
+              "required": ["kinds", "limit", "workerNonce", "leaseMs"],
               "additionalProperties": false
             },
             "output": {
@@ -344,16 +288,11 @@
                   }
                 }
               },
-              "required": [
-                "items"
-              ],
+              "required": ["items"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "renewWork": {
@@ -372,10 +311,7 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "leases",
-                "leaseMs"
-              ],
+              "required": ["leases", "leaseMs"],
               "additionalProperties": false
             },
             "output": {
@@ -388,16 +324,11 @@
                   }
                 }
               },
-              "required": [
-                "leases"
-              ],
+              "required": ["leases"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "completeWork": {
@@ -410,9 +341,7 @@
                   "$ref": "#/definitions/CompletedWork"
                 }
               },
-              "required": [
-                "item"
-              ],
+              "required": ["item"],
               "additionalProperties": false
             },
             "output": {
@@ -434,17 +363,11 @@
                   ]
                 }
               },
-              "required": [
-                "workId",
-                "status"
-              ],
+              "required": ["workId", "status"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "recordProviderAttempt": {
@@ -457,9 +380,7 @@
                   "$ref": "#/definitions/ProviderAttempt"
                 }
               },
-              "required": [
-                "attempt"
-              ],
+              "required": ["attempt"],
               "additionalProperties": false
             },
             "output": {
@@ -470,23 +391,14 @@
                 },
                 "phase": {
                   "type": "string",
-                  "enum": [
-                    "started",
-                    "finished"
-                  ]
+                  "enum": ["started", "finished"]
                 }
               },
-              "required": [
-                "callId",
-                "phase"
-              ],
+              "required": ["callId", "phase"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "failWork": {
@@ -502,17 +414,10 @@
                   "$ref": "#/definitions/DomainError"
                 },
                 "retryAtEpochMs": {
-                  "type": [
-                    "number",
-                    "null"
-                  ]
+                  "type": ["number", "null"]
                 }
               },
-              "required": [
-                "lease",
-                "error",
-                "retryAtEpochMs"
-              ],
+              "required": ["lease", "error", "retryAtEpochMs"],
               "additionalProperties": false
             },
             "output": {
@@ -534,17 +439,11 @@
                   ]
                 }
               },
-              "required": [
-                "workId",
-                "status"
-              ],
+              "required": ["workId", "status"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "acquireDriver": {
@@ -560,20 +459,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "leaseMs"
-              ],
+              "required": ["runId", "leaseMs"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/DriverLease"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "renewDriver": {
@@ -589,20 +482,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "lease",
-                "leaseMs"
-              ],
+              "required": ["lease", "leaseMs"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/DriverLease"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "advanceRun": {
@@ -636,10 +523,7 @@
               "$ref": "#/definitions/AdvanceResult"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "releaseDriver": {
@@ -652,9 +536,7 @@
                   "$ref": "#/definitions/DriverLease"
                 }
               },
-              "required": [
-                "lease"
-              ],
+              "required": ["lease"],
               "additionalProperties": false
             },
             "output": {
@@ -664,16 +546,11 @@
                   "type": "boolean"
                 }
               },
-              "required": [
-                "released"
-              ],
+              "required": ["released"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "checkpointRun": {
@@ -686,9 +563,7 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             },
             "output": {
@@ -701,17 +576,11 @@
                   "$ref": "#/definitions/Hash"
                 }
               },
-              "required": [
-                "checkpoint",
-                "physicalStateHash"
-              ],
+              "required": ["checkpoint", "physicalStateHash"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "createExperiment": {
@@ -724,9 +593,7 @@
                   "$ref": "#/definitions/ExperimentSpec"
                 }
               },
-              "required": [
-                "spec"
-              ],
+              "required": ["spec"],
               "additionalProperties": false
             },
             "output": {
@@ -739,17 +606,11 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "experimentId",
-                "workId"
-              ],
+              "required": ["experimentId", "workId"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "recordExperimentProgress": {
@@ -768,11 +629,7 @@
                   "$ref": "#/definitions/ExperimentReport"
                 }
               },
-              "required": [
-                "experimentId",
-                "lease",
-                "report"
-              ],
+              "required": ["experimentId", "lease", "report"],
               "additionalProperties": false
             },
             "output": {
@@ -782,16 +639,11 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "revision"
-              ],
+              "required": ["revision"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "issueShare": {
@@ -805,10 +657,7 @@
                 },
                 "access": {
                   "type": "string",
-                  "enum": [
-                    "viewer",
-                    "operator"
-                  ]
+                  "enum": ["viewer", "operator"]
                 },
                 "tokenHash": {
                   "$ref": "#/definitions/Hash"
@@ -817,12 +666,7 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "access",
-                "tokenHash",
-                "expiresAtEpochMs"
-              ],
+              "required": ["runId", "access", "tokenHash", "expiresAtEpochMs"],
               "additionalProperties": false
             },
             "output": {
@@ -832,16 +676,11 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "grantId"
-              ],
+              "required": ["grantId"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "redeemShare": {
@@ -854,9 +693,7 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "token"
-              ],
+              "required": ["token"],
               "additionalProperties": false
             },
             "output": {
@@ -867,23 +704,14 @@
                 },
                 "role": {
                   "type": "string",
-                  "enum": [
-                    "viewer",
-                    "operator"
-                  ]
+                  "enum": ["viewer", "operator"]
                 }
               },
-              "required": [
-                "runId",
-                "role"
-              ],
+              "required": ["runId", "role"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "revokeShare": {
@@ -896,9 +724,7 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "grantId"
-              ],
+              "required": ["grantId"],
               "additionalProperties": false
             },
             "output": {
@@ -908,16 +734,11 @@
                   "type": "boolean"
                 }
               },
-              "required": [
-                "revoked"
-              ],
+              "required": ["revoked"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         }
       },
@@ -1022,11 +843,7 @@
         },
         "status": {
           "type": "string",
-          "enum": [
-            "preparing",
-            "ready",
-            "invalid"
-          ]
+          "enum": ["preparing", "ready", "invalid"]
         },
         "issues": {
           "type": "array",
@@ -1061,11 +878,7 @@
               "$ref": "#/definitions/ArtifactRef"
             }
           },
-          "required": [
-            "kind",
-            "crowd",
-            "park"
-          ],
+          "required": ["kind", "crowd", "park"],
           "additionalProperties": false
         },
         {
@@ -1082,11 +895,7 @@
               "$ref": "#/definitions/CrowdSpec"
             }
           },
-          "required": [
-            "kind",
-            "text",
-            "current"
-          ],
+          "required": ["kind", "text", "current"],
           "additionalProperties": false
         },
         {
@@ -1142,12 +951,7 @@
               "$ref": "#/definitions/Id"
             }
           },
-          "required": [
-            "kind",
-            "runId",
-            "evidenceId",
-            "agentId"
-          ],
+          "required": ["kind", "runId", "evidenceId", "agentId"],
           "additionalProperties": false
         },
         {
@@ -1178,11 +982,7 @@
               ]
             }
           },
-          "required": [
-            "kind",
-            "runId",
-            "experimentId"
-          ],
+          "required": ["kind", "runId", "experimentId"],
           "additionalProperties": false
         }
       ]
@@ -1284,17 +1084,10 @@
                 },
                 "arm": {
                   "type": "string",
-                  "enum": [
-                    "A",
-                    "B"
-                  ]
+                  "enum": ["A", "B"]
                 }
               },
-              "required": [
-                "experimentId",
-                "pairId",
-                "arm"
-              ],
+              "required": ["experimentId", "pairId", "arm"],
               "additionalProperties": false
             }
           ]
@@ -1352,12 +1145,7 @@
           }
         }
       },
-      "required": [
-        "id",
-        "revision",
-        "label",
-        "events"
-      ],
+      "required": ["id", "revision", "label", "events"],
       "additionalProperties": false
     },
     "ScenarioEvent": {
@@ -1376,12 +1164,7 @@
           "$ref": "#/definitions/ScenarioChange"
         }
       },
-      "required": [
-        "id",
-        "atMs",
-        "order",
-        "change"
-      ],
+      "required": ["id", "atMs", "order", "change"],
       "additionalProperties": false
     },
     "SimMs": {
@@ -1400,10 +1183,7 @@
               "$ref": "#/definitions/Cents"
             }
           },
-          "required": [
-            "kind",
-            "unitPriceCents"
-          ],
+          "required": ["kind", "unitPriceCents"],
           "additionalProperties": false
         },
         {
@@ -1420,11 +1200,7 @@
               "type": "number"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "shareBps"
-          ],
+          "required": ["kind", "placeId", "shareBps"],
           "additionalProperties": false
         },
         {
@@ -1441,11 +1217,7 @@
               "$ref": "#/definitions/WaitDisplay"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "display"
-          ],
+          "required": ["kind", "placeId", "display"],
           "additionalProperties": false
         },
         {
@@ -1462,11 +1234,7 @@
               "$ref": "#/definitions/Notice"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "notice"
-          ],
+          "required": ["kind", "placeId", "notice"],
           "additionalProperties": false
         },
         {
@@ -1483,11 +1251,7 @@
               "type": "boolean"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "closed"
-          ],
+          "required": ["kind", "placeId", "closed"],
           "additionalProperties": false
         },
         {
@@ -1507,11 +1271,7 @@
               }
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "startsAtMs"
-          ],
+          "required": ["kind", "placeId", "startsAtMs"],
           "additionalProperties": false
         },
         {
@@ -1561,11 +1321,7 @@
                       "type": "number"
                     }
                   },
-                  "required": [
-                    "productIds",
-                    "discountBps",
-                    "maxUsesPerGroup"
-                  ],
+                  "required": ["productIds", "discountBps", "maxUsesPerGroup"],
                   "additionalProperties": false
                 }
               ]
@@ -1602,11 +1358,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "kind",
-            "roundToMin",
-            "template"
-          ],
+          "required": ["kind", "roundToMin", "template"],
           "additionalProperties": false
         },
         {
@@ -1626,12 +1378,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "kind",
-            "roundToMin",
-            "spreadMin",
-            "template"
-          ],
+          "required": ["kind", "roundToMin", "spreadMin", "template"],
           "additionalProperties": false
         },
         {
@@ -1642,27 +1389,16 @@
               "const": "fixed"
             },
             "lowerMin": {
-              "type": [
-                "number",
-                "null"
-              ]
+              "type": ["number", "null"]
             },
             "upperMin": {
-              "type": [
-                "number",
-                "null"
-              ]
+              "type": ["number", "null"]
             },
             "text": {
               "type": "string"
             }
           },
-          "required": [
-            "kind",
-            "lowerMin",
-            "upperMin",
-            "text"
-          ],
+          "required": ["kind", "lowerMin", "upperMin", "text"],
           "additionalProperties": false
         }
       ]
@@ -1675,10 +1411,7 @@
         },
         "channel": {
           "type": "string",
-          "enum": [
-            "visual",
-            "aroma"
-          ]
+          "enum": ["visual", "aroma"]
         },
         "radiusM": {
           "type": "number"
@@ -1687,12 +1420,7 @@
           "$ref": "#/definitions/SimMs"
         }
       },
-      "required": [
-        "text",
-        "channel",
-        "radiusM",
-        "cooldownMs"
-      ],
+      "required": ["text", "channel", "radiusM", "cooldownMs"],
       "additionalProperties": false
     },
     "RunConfig": {
@@ -1740,10 +1468,7 @@
         },
         "fallback": {
           "type": "string",
-          "enum": [
-            "forbidden",
-            "live_timeout_v1"
-          ]
+          "enum": ["forbidden", "live_timeout_v1"]
         },
         "liveTimeoutMs": {
           "type": "number"
@@ -1753,6 +1478,11 @@
         },
         "versions": {
           "$ref": "#/definitions/VersionSet"
+        },
+        "mockResolution": {
+          "type": "string",
+          "enum": ["engine", "worker"],
+          "description": "Additive (optional), mock mode only: 'engine' (default) evaluates the deterministic mock policy inside Engine with no worker round trip; 'worker' queues decisions for a worker."
         }
       },
       "required": [
@@ -1775,12 +1505,7 @@
     },
     "Mode": {
       "type": "string",
-      "enum": [
-        "mock",
-        "live",
-        "experiment",
-        "replay"
-      ]
+      "enum": ["mock", "live", "experiment", "replay"]
     },
     "FeatureFlags": {
       "type": "object",
@@ -2026,12 +1751,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "jev",
-        "cache",
-        "mock",
-        "fallback"
-      ],
+      "required": ["jev", "cache", "mock", "fallback"],
       "additionalProperties": false
     },
     "WorkKind": {
@@ -2066,12 +1786,7 @@
               "$ref": "#/definitions/DecisionRequest"
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2091,12 +1806,7 @@
               "$ref": "#/definitions/RatingRequest"
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2125,20 +1835,11 @@
                   "$ref": "#/definitions/SimMs"
                 }
               },
-              "required": [
-                "crowd",
-                "park",
-                "closeAfterMs"
-              ],
+              "required": ["crowd", "park", "closeAfterMs"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2164,19 +1865,11 @@
                   "$ref": "#/definitions/CrowdSpec"
                 }
               },
-              "required": [
-                "text",
-                "current"
-              ],
+              "required": ["text", "current"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2202,19 +1895,11 @@
                   "$ref": "#/definitions/ScenarioContext"
                 }
               },
-              "required": [
-                "text",
-                "context"
-              ],
+              "required": ["text", "context"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2240,19 +1925,11 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "evidence",
-                "agentId"
-              ],
+              "required": ["evidence", "agentId"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2272,12 +1949,7 @@
               "$ref": "#/definitions/ExperimentSpec"
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         },
         {
@@ -2300,18 +1972,11 @@
                   "$ref": "#/definitions/FactBundle"
                 }
               },
-              "required": [
-                "facts"
-              ],
+              "required": ["facts"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "scope",
-            "lease",
-            "payload"
-          ],
+          "required": ["kind", "scope", "lease", "payload"],
           "additionalProperties": false
         }
       ]
@@ -2340,10 +2005,7 @@
           ]
         }
       },
-      "required": [
-        "runId",
-        "experimentId"
-      ],
+      "required": ["runId", "experimentId"],
       "additionalProperties": false
     },
     "WorkLease": {
@@ -2464,18 +2126,12 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "id",
-                  "reason"
-                ],
+                "required": ["id", "reason"],
                 "additionalProperties": false
               }
             }
           },
-          "required": [
-            "considered",
-            "excluded"
-          ],
+          "required": ["considered", "excluded"],
           "additionalProperties": false
         }
       },
@@ -2553,10 +2209,7 @@
                 "$ref": "#/definitions/Needs"
               }
             },
-            "required": [
-              "persona",
-              "needs"
-            ],
+            "required": ["persona", "needs"],
             "additionalProperties": false
           }
         },
@@ -2570,10 +2223,7 @@
               "$ref": "#/definitions/Cents"
             }
           },
-          "required": [
-            "walletId",
-            "balanceCents"
-          ],
+          "required": ["walletId", "balanceCents"],
           "additionalProperties": false
         },
         "facts": {
@@ -2603,11 +2253,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "eventId",
-              "atMs",
-              "text"
-            ],
+            "required": ["eventId", "atMs", "text"],
             "additionalProperties": false
           }
         },
@@ -2647,13 +2293,7 @@
         },
         "role": {
           "type": "string",
-          "enum": [
-            "parent",
-            "child",
-            "teen",
-            "adult",
-            "senior"
-          ]
+          "enum": ["parent", "child", "teen", "adult", "senior"]
         },
         "ageYears": {
           "type": "number"
@@ -2769,12 +2409,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "hunger",
-        "fatigue",
-        "patience",
-        "fun"
-      ],
+      "required": ["hunger", "fatigue", "patience", "fun"],
       "additionalProperties": false
     },
     "ObservationFact": {
@@ -2807,14 +2442,7 @@
         },
         "source": {
           "type": "string",
-          "enum": [
-            "sight",
-            "aroma",
-            "app",
-            "memory",
-            "static_map",
-            "self"
-          ]
+          "enum": ["sight", "aroma", "app", "memory", "static_map", "self"]
         },
         "observedAtMs": {
           "$ref": "#/definitions/SimMs"
@@ -2927,12 +2555,7 @@
           "$ref": "#/definitions/Action"
         }
       },
-      "required": [
-        "id",
-        "label",
-        "description",
-        "action"
-      ],
+      "required": ["id", "label", "description", "action"],
       "additionalProperties": false
     },
     "Action": {
@@ -2958,11 +2581,7 @@
               ]
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "routeProfileId"
-          ],
+          "required": ["kind", "placeId", "routeProfileId"],
           "additionalProperties": false
         },
         {
@@ -2976,10 +2595,7 @@
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "durationMs"
-          ],
+          "required": ["kind", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -2996,11 +2612,7 @@
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "durationMs"
-          ],
+          "required": ["kind", "placeId", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -3015,10 +2627,7 @@
             },
             "lane": {
               "type": "string",
-              "enum": [
-                "standard",
-                "pass"
-              ]
+              "enum": ["standard", "pass"]
             },
             "riderIds": {
               "type": "array",
@@ -3027,12 +2636,7 @@
               }
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "lane",
-            "riderIds"
-          ],
+          "required": ["kind", "placeId", "lane", "riderIds"],
           "additionalProperties": false
         },
         {
@@ -3046,10 +2650,7 @@
               "$ref": "#/definitions/Id"
             }
           },
-          "required": [
-            "kind",
-            "queueEntryId"
-          ],
+          "required": ["kind", "queueEntryId"],
           "additionalProperties": false
         },
         {
@@ -3072,12 +2673,7 @@
               "$ref": "#/definitions/Quote"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "riderIds",
-            "quote"
-          ],
+          "required": ["kind", "placeId", "riderIds", "quote"],
           "additionalProperties": false
         },
         {
@@ -3097,11 +2693,7 @@
               }
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "cart"
-          ],
+          "required": ["kind", "placeId", "cart"],
           "additionalProperties": false
         },
         {
@@ -3112,9 +2704,7 @@
               "const": "leave_park"
             }
           },
-          "required": [
-            "kind"
-          ],
+          "required": ["kind"],
           "additionalProperties": false
         },
         {
@@ -3125,9 +2715,7 @@
               "const": "continue"
             }
           },
-          "required": [
-            "kind"
-          ],
+          "required": ["kind"],
           "additionalProperties": false
         },
         {
@@ -3144,11 +2732,7 @@
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "placeId",
-            "durationMs"
-          ],
+          "required": ["kind", "placeId", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -3162,10 +2746,7 @@
               "$ref": "#/definitions/Id"
             }
           },
-          "required": [
-            "kind",
-            "placeId"
-          ],
+          "required": ["kind", "placeId"],
           "additionalProperties": false
         },
         {
@@ -3179,10 +2760,7 @@
               "$ref": "#/definitions/Id"
             }
           },
-          "required": [
-            "kind",
-            "profileId"
-          ],
+          "required": ["kind", "profileId"],
           "additionalProperties": false
         },
         {
@@ -3194,20 +2772,13 @@
             },
             "response": {
               "type": "string",
-              "enum": [
-                "continue",
-                "step_aside"
-              ]
+              "enum": ["continue", "step_aside"]
             },
             "durationMs": {
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "response",
-            "durationMs"
-          ],
+          "required": ["kind", "response", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -3221,10 +2792,7 @@
               "$ref": "#/definitions/Id"
             }
           },
-          "required": [
-            "kind",
-            "rallyPlaceId"
-          ],
+          "required": ["kind", "rallyPlaceId"],
           "additionalProperties": false
         }
       ]
@@ -3300,11 +2868,7 @@
         },
         "endpoint": {
           "type": "string",
-          "enum": [
-            "periodic",
-            "departure",
-            "horizon"
-          ]
+          "enum": ["periodic", "departure", "horizon"]
         },
         "evidenceHash": {
           "$ref": "#/definitions/Hash"
@@ -3404,11 +2968,7 @@
           ]
         }
       },
-      "required": [
-        "id",
-        "name",
-        "kind"
-      ],
+      "required": ["id", "name", "kind"],
       "additionalProperties": false
     },
     "Capabilities": {
@@ -3492,16 +3052,10 @@
         },
         "outcome": {
           "type": "string",
-          "enum": [
-            "committed",
-            "failed_precondition"
-          ]
+          "enum": ["committed", "failed_precondition"]
         },
         "failureReason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "committedAtMs": {
           "$ref": "#/definitions/SimMs"
@@ -3511,6 +3065,10 @@
           "items": {
             "$ref": "#/definitions/Id"
           }
+        },
+        "rationale": {
+          "$ref": "#/definitions/DecisionRationale",
+          "description": "Additive (optional): Engine's deterministic explanation of this decision."
         }
       },
       "required": [
@@ -3552,10 +3110,7 @@
           "$ref": "#/definitions/Distribution"
         },
         "confidence": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "responseArtifact": {
           "$ref": "#/definitions/ArtifactRef"
@@ -3575,6 +3130,10 @@
         },
         "originalSource": {
           "$ref": "#/definitions/Exclude%3CSource%2C%22cache%22%3E"
+        },
+        "reasoning": {
+          "type": ["string", "null"],
+          "description": "Additive (optional): reasoning text the behavior model returned, if any. Never parsed."
         }
       },
       "required": [
@@ -3595,12 +3154,7 @@
     },
     "Source": {
       "type": "string",
-      "enum": [
-        "jev",
-        "cache",
-        "mock",
-        "fallback"
-      ]
+      "enum": ["jev", "cache", "mock", "fallback"]
     },
     "Distribution": {
       "type": "array",
@@ -3614,10 +3168,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "optionId",
-          "probability"
-        ],
+        "required": ["optionId", "probability"],
         "additionalProperties": false
       }
     },
@@ -3635,28 +3186,16 @@
           ]
         },
         "inputTokens": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "outputTokens": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "estimatedCostUsd": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "priceVersion": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "queueMs": {
           "type": "number"
@@ -3682,11 +3221,72 @@
     },
     "Exclude<Source,\"cache\">": {
       "type": "string",
-      "enum": [
-        "jev",
-        "mock",
-        "fallback"
-      ]
+      "enum": ["jev", "mock", "fallback"]
+    },
+    "DecisionRationale": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "One line, e.g. \"Hungry (72/100); Harbor Grill board: 4 min; $38.00 left -> chose ... (p=0.61) over ... (p=0.22)\"."
+        },
+        "drivers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "What the group noticed or felt, as short factual phrases (needs, wallet, time, waits)."
+        },
+        "chosen": {
+          "type": "object",
+          "properties": {
+            "optionId": {
+              "$ref": "#/definitions/Id"
+            },
+            "label": {
+              "type": "string"
+            },
+            "probability": {
+              "type": "number"
+            }
+          },
+          "required": ["optionId", "label", "probability"],
+          "additionalProperties": false
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "optionId": {
+                "$ref": "#/definitions/Id"
+              },
+              "label": {
+                "type": "string"
+              },
+              "probability": {
+                "type": "number"
+              }
+            },
+            "required": ["optionId", "label", "probability"],
+            "additionalProperties": false
+          },
+          "description": "Up to three most likely other options, most likely first."
+        },
+        "modelReasoning": {
+          "type": ["string", "null"],
+          "description": "The behavior model's own reasoning text when it returned one; otherwise null."
+        }
+      },
+      "required": [
+        "summary",
+        "drivers",
+        "chosen",
+        "alternatives",
+        "modelReasoning"
+      ],
+      "additionalProperties": false,
+      "description": "Additive: a short, human-readable account of one applied decision, built by Engine from the frozen observation, the offered options and the applied distribution (deterministic)."
     },
     "ExperimentSpec": {
       "type": "object",
@@ -3726,10 +3326,7 @@
         },
         "analysis": {
           "type": "string",
-          "enum": [
-            "paired_descriptive",
-            "paired_t"
-          ]
+          "enum": ["paired_descriptive", "paired_t"]
         },
         "alpha": {
           "type": "number",
@@ -3740,10 +3337,7 @@
         },
         "maxConcurrentArms": {
           "type": "number",
-          "enum": [
-            1,
-            2
-          ]
+          "enum": [1, 2]
         },
         "start": {
           "anyOf": [
@@ -3755,9 +3349,7 @@
                   "const": "opening"
                 }
               },
-              "required": [
-                "kind"
-              ],
+              "required": ["kind"],
               "additionalProperties": false
             },
             {
@@ -3774,11 +3366,7 @@
                   "$ref": "#/definitions/Scenario"
                 }
               },
-              "required": [
-                "kind",
-                "toMs",
-                "warmupScenario"
-              ],
+              "required": ["kind", "toMs", "warmupScenario"],
               "additionalProperties": false
             }
           ]
@@ -3822,12 +3410,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "guestCount",
-        "shares",
-        "contextNotes",
-        "generatorVersion"
-      ],
+      "required": ["guestCount", "shares", "contextNotes", "generatorVersion"],
       "additionalProperties": false
     },
     "FactBundle": {
@@ -3886,10 +3469,7 @@
           "type": "string"
         },
         "value": {
-          "type": [
-            "number",
-            "string"
-          ]
+          "type": ["number", "string"]
         },
         "unit": {
           "type": "string"
@@ -3968,11 +3548,7 @@
               "$ref": "#/definitions/DecisionResult"
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -3989,11 +3565,7 @@
               "$ref": "#/definitions/RatingResult"
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4019,19 +3591,11 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "artifact",
-                "guestCount",
-                "groupCount"
-              ],
+              "required": ["artifact", "guestCount", "groupCount"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4063,19 +3627,11 @@
                   }
                 }
               },
-              "required": [
-                "proposal",
-                "assumptions",
-                "unsupported"
-              ],
+              "required": ["proposal", "assumptions", "unsupported"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4092,11 +3648,7 @@
               "$ref": "#/definitions/ScenarioDraft"
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4113,11 +3665,7 @@
               "$ref": "#/definitions/Narrative"
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4137,17 +3685,11 @@
                   "$ref": "#/definitions/ArtifactRef"
                 }
               },
-              "required": [
-                "report"
-              ],
+              "required": ["report"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         },
         {
@@ -4164,11 +3706,7 @@
               "$ref": "#/definitions/Narrative"
             }
           },
-          "required": [
-            "kind",
-            "lease",
-            "result"
-          ],
+          "required": ["kind", "lease", "result"],
           "additionalProperties": false
         }
       ]
@@ -4273,17 +3811,11 @@
         },
         "origin": {
           "type": "string",
-          "enum": [
-            "template",
-            "llm"
-          ]
+          "enum": ["template", "llm"]
         },
         "label": {
           "type": "string",
-          "enum": [
-            "narrated from state",
-            "modeled-results report"
-          ]
+          "enum": ["narrated from state", "modeled-results report"]
         },
         "sections": {
           "type": "array",
@@ -4308,10 +3840,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "kind",
-                        "text"
-                      ],
+                      "required": ["kind", "text"],
                       "additionalProperties": false
                     },
                     {
@@ -4325,20 +3854,14 @@
                           "$ref": "#/definitions/Id"
                         }
                       },
-                      "required": [
-                        "kind",
-                        "factId"
-                      ],
+                      "required": ["kind", "factId"],
                       "additionalProperties": false
                     }
                   ]
                 }
               }
             },
-            "required": [
-              "heading",
-              "segments"
-            ],
+            "required": ["heading", "segments"],
             "additionalProperties": false
           }
         },
@@ -4370,41 +3893,26 @@
         },
         "phase": {
           "type": "string",
-          "enum": [
-            "started",
-            "finished"
-          ]
+          "enum": ["started", "finished"]
         },
         "provider": {
           "type": "string",
-          "enum": [
-            "jev",
-            "prose"
-          ]
+          "enum": ["jev", "prose"]
         },
         "modelRequested": {
           "type": "string"
         },
         "modelReturned": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "startedAtEpochMs": {
           "type": "number"
         },
         "durationMs": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "outcome": {
-          "type": [
-            "null",
-            "string"
-          ],
+          "type": ["null", "string"],
           "enum": [
             null,
             "success",
@@ -4415,28 +3923,16 @@
           ]
         },
         "inputTokens": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "outputTokens": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "estimatedCostUsd": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "priceVersion": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "billingOwnerRunId": {
           "anyOf": [
@@ -4506,20 +4002,12 @@
                 "type": "string"
               }
             },
-            "required": [
-              "path",
-              "message"
-            ],
+            "required": ["path", "message"],
             "additionalProperties": false
           }
         }
       },
-      "required": [
-        "code",
-        "message",
-        "retryable",
-        "fieldErrors"
-      ],
+      "required": ["code", "message", "retryable", "fieldErrors"],
       "additionalProperties": false
     },
     "DriverLease": {
@@ -4538,12 +4026,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "runId",
-        "epoch",
-        "token",
-        "expiresAtEpochMs"
-      ],
+      "required": ["runId", "epoch", "token", "expiresAtEpochMs"],
       "additionalProperties": false
     },
     "AdvanceResult": {
@@ -4591,11 +4074,7 @@
         },
         "status": {
           "type": "string",
-          "enum": [
-            "running",
-            "complete",
-            "incomplete"
-          ]
+          "enum": ["running", "complete", "incomplete"]
         },
         "pairs": {
           "type": "array",
@@ -4781,6 +4260,10 @@
         },
         "measures": {
           "$ref": "#/definitions/Record%3CMetricId%2CMetricValue%3E"
+        },
+        "breakdown": {
+          "$ref": "#/definitions/MetricBreakdown",
+          "description": "Additive (optional): per-place and per-state detail at this instant, for dashboards."
         }
       },
       "required": [
@@ -4853,29 +4336,17 @@
           "$ref": "#/definitions/MetricId"
         },
         "value": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "unit": {
           "type": "string",
-          "enum": [
-            "cents",
-            "score",
-            "minutes",
-            "ratio",
-            "guests"
-          ]
+          "enum": ["cents", "score", "minutes", "ratio", "guests"]
         },
         "numerator": {
           "type": "number"
         },
         "denominator": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "n": {
           "type": "number"
@@ -4887,10 +4358,7 @@
           "type": "boolean"
         },
         "missingReason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         }
       },
       "required": [
@@ -4904,6 +4372,108 @@
         "complete",
         "missingReason"
       ],
+      "additionalProperties": false
+    },
+    "MetricBreakdown": {
+      "type": "object",
+      "properties": {
+        "states": {
+          "$ref": "#/definitions/Partial%3CRecord%3C(%22not_arrived%22%7C%22walking%22%7C%22browsing%22%7C%22queueing%22%7C%22riding%22%7C%22eating%22%7C%22shopping%22%7C%22resting%22%7C%22watching%22%7C%22deciding%22%7C%22left%22)%2Cnumber%3E%3E",
+          "description": "Guests currently in each activity state (states with zero guests are omitted)."
+        },
+        "places": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "placeId": {
+                "$ref": "#/definitions/Id"
+              },
+              "standardPersons": {
+                "type": "number"
+              },
+              "passPersons": {
+                "type": "number"
+              },
+              "predictedWaitMs": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/SimMs"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "revenueCents": {
+                "$ref": "#/definitions/Cents",
+                "description": "Cumulative net ancillary revenue attributed to this place (passes count at the ride)."
+              },
+              "servedGuests": {
+                "type": "number",
+                "description": "Cumulative guests who finished service here (rides, shows, counters)."
+              }
+            },
+            "required": [
+              "placeId",
+              "standardPersons",
+              "passPersons",
+              "predictedWaitMs",
+              "revenueCents",
+              "servedGuests"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "satisfactionLevels": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Admitted guests by latest satisfaction rating level (index 0..levels-1; unrated excluded)."
+        }
+      },
+      "required": ["states", "places", "satisfactionLevels"],
+      "additionalProperties": false,
+      "description": "Additive: dashboard detail carried by each MetricSnapshot (getMetrics series, live metrics)."
+    },
+    "Partial<Record<(\"not_arrived\"|\"walking\"|\"browsing\"|\"queueing\"|\"riding\"|\"eating\"|\"shopping\"|\"resting\"|\"watching\"|\"deciding\"|\"left\"),number>>": {
+      "type": "object",
+      "properties": {
+        "not_arrived": {
+          "type": "number"
+        },
+        "walking": {
+          "type": "number"
+        },
+        "browsing": {
+          "type": "number"
+        },
+        "queueing": {
+          "type": "number"
+        },
+        "riding": {
+          "type": "number"
+        },
+        "eating": {
+          "type": "number"
+        },
+        "shopping": {
+          "type": "number"
+        },
+        "resting": {
+          "type": "number"
+        },
+        "watching": {
+          "type": "number"
+        },
+        "deciding": {
+          "type": "number"
+        },
+        "left": {
+          "type": "number"
+        }
+      },
       "additionalProperties": false
     },
     "Partial<Record<MetricId,number>>": {
@@ -4961,28 +4531,16 @@
           }
         },
         "mean": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "min": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "max": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "sampleSd": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "interval": {
           "anyOf": [
@@ -5007,12 +4565,7 @@
                   "const": 0.95
                 }
               },
-              "required": [
-                "kind",
-                "lower",
-                "upper",
-                "level"
-              ],
+              "required": ["kind", "lower", "upper", "level"],
               "additionalProperties": false
             }
           ]
@@ -5043,10 +4596,7 @@
               "$ref": "#/definitions/Capabilities"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "session": {
@@ -5074,18 +4624,11 @@
                   }
                 }
               },
-              "required": [
-                "identity",
-                "roles",
-                "runIds"
-              ],
+              "required": ["identity", "roles", "runIds"],
               "additionalProperties": false
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "listParks": {
@@ -5095,25 +4638,17 @@
               "type": "object",
               "properties": {
                 "cursor": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 }
               },
-              "required": [
-                "cursor"
-              ],
+              "required": ["cursor"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/Page%3CParkSummary%3E"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getRun": {
@@ -5126,19 +4661,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunView"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getManifest": {
@@ -5151,19 +4681,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/RunManifest"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getLiveSnapshot": {
@@ -5176,19 +4701,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId"
-              ],
+              "required": ["runId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/LiveSnapshot"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getAgent": {
@@ -5204,20 +4724,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId",
-                "agentId"
-              ],
+              "required": ["runId", "agentId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/AgentDetail"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getDecision": {
@@ -5233,20 +4747,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "runId",
-                "evidenceId"
-              ],
+              "required": ["runId", "evidenceId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/AppliedDecision"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getWork": {
@@ -5259,19 +4767,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "workId"
-              ],
+              "required": ["workId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/WorkStatus"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getMetrics": {
@@ -5290,28 +4793,17 @@
                   "$ref": "#/definitions/SimMs"
                 },
                 "cursor": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 }
               },
-              "required": [
-                "runId",
-                "fromMs",
-                "toMs",
-                "cursor"
-              ],
+              "required": ["runId", "fromMs", "toMs", "cursor"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/Page%3CMetricSnapshot%3E"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getEvents": {
@@ -5330,21 +4822,14 @@
                   "type": "number"
                 }
               },
-              "required": [
-                "runId",
-                "afterSequence",
-                "limit"
-              ],
+              "required": ["runId", "afterSequence", "limit"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/SequencePage%3CEventRecord%3E"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getHeatmap": {
@@ -5366,22 +4851,14 @@
                   "$ref": "#/definitions/SimMs"
                 }
               },
-              "required": [
-                "runId",
-                "layer",
-                "fromMs",
-                "toMs"
-              ],
+              "required": ["runId", "layer", "fromMs", "toMs"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/Heatmap"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getFrames": {
@@ -5400,28 +4877,17 @@
                   "$ref": "#/definitions/SimMs"
                 },
                 "cursor": {
-                  "type": [
-                    "string",
-                    "null"
-                  ]
+                  "type": ["string", "null"]
                 }
               },
-              "required": [
-                "runId",
-                "fromMs",
-                "toMs",
-                "cursor"
-              ],
+              "required": ["runId", "fromMs", "toMs", "cursor"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/Page%3CReplayFrame%3E"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getExperiment": {
@@ -5434,19 +4900,14 @@
                   "$ref": "#/definitions/Id"
                 }
               },
-              "required": [
-                "experimentId"
-              ],
+              "required": ["experimentId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/ExperimentReport"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         },
         "getFactBundle": {
@@ -5476,20 +4937,14 @@
                   ]
                 }
               },
-              "required": [
-                "runId",
-                "experimentId"
-              ],
+              "required": ["runId", "experimentId"],
               "additionalProperties": false
             },
             "output": {
               "$ref": "#/definitions/FactBundle"
             }
           },
-          "required": [
-            "input",
-            "output"
-          ],
+          "required": ["input", "output"],
           "additionalProperties": false
         }
       },
@@ -5520,12 +4975,7 @@
     },
     "Role": {
       "type": "string",
-      "enum": [
-        "viewer",
-        "operator",
-        "worker",
-        "coordinator"
-      ]
+      "enum": ["viewer", "operator", "worker", "coordinator"]
     },
     "Page<ParkSummary>": {
       "type": "object",
@@ -5537,16 +4987,10 @@
           }
         },
         "nextCursor": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         }
       },
-      "required": [
-        "items",
-        "nextCursor"
-      ],
+      "required": ["items", "nextCursor"],
       "additionalProperties": false
     },
     "LiveSnapshot": {
@@ -5666,11 +5110,7 @@
                   "$ref": "#/definitions/Source"
                 }
               },
-              "required": [
-                "value",
-                "atMs",
-                "source"
-              ],
+              "required": ["value", "atMs", "source"],
               "additionalProperties": false
             }
           ]
@@ -5710,10 +5150,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "xM",
-        "yM"
-      ],
+      "required": ["xM", "yM"],
       "additionalProperties": false
     },
     "Velocity": {
@@ -5726,10 +5163,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "xMps",
-        "yMps"
-      ],
+      "required": ["xMps", "yMps"],
       "additionalProperties": false
     },
     "PlaceView": {
@@ -5742,10 +5176,7 @@
           "type": "boolean"
         },
         "boardText": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "boardVersion": {
           "type": "string"
@@ -5802,10 +5233,7 @@
               },
               "lane": {
                 "type": "string",
-                "enum": [
-                  "standard",
-                  "pass"
-                ]
+                "enum": ["standard", "pass"]
               },
               "sequence": {
                 "type": "number"
@@ -5825,10 +5253,7 @@
                       "$ref": "#/definitions/Vec2"
                     }
                   },
-                  "required": [
-                    "agentId",
-                    "position"
-                  ],
+                  "required": ["agentId", "position"],
                   "additionalProperties": false
                 }
               }
@@ -5845,12 +5270,7 @@
           }
         }
       },
-      "required": [
-        "placeId",
-        "standardPersons",
-        "passPersons",
-        "entries"
-      ],
+      "required": ["placeId", "standardPersons", "passPersons", "entries"],
       "additionalProperties": false
     },
     "Health": {
@@ -5866,16 +5286,10 @@
           "type": "number"
         },
         "httpP95Ms": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "reducerP95Ms": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "calls": {
           "type": "number"
@@ -5884,10 +5298,7 @@
           "type": "number"
         },
         "estimatedCostUsd": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "tokenCoverage": {
           "type": "number"
@@ -5988,16 +5399,10 @@
           ]
         },
         "experienceDelta": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "reason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "details": {
           "$ref": "#/definitions/Json"
@@ -6102,6 +5507,17 @@
           "items": {
             "$ref": "#/definitions/EventRecord"
           }
+        },
+        "statusText": {
+          "type": "string",
+          "description": "Additive (optional): plain-language current status, e.g. \"Queueing for Sky Coaster (6 min so far)\"."
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DecisionSummary"
+          },
+          "description": "Additive (optional): the group's most recent applied decisions (newest first, up to 12)."
         }
       },
       "required": [
@@ -6164,6 +5580,48 @@
       ],
       "additionalProperties": false
     },
+    "DecisionSummary": {
+      "type": "object",
+      "properties": {
+        "evidenceId": {
+          "$ref": "#/definitions/Id"
+        },
+        "atMs": {
+          "$ref": "#/definitions/SimMs"
+        },
+        "moment": {
+          "$ref": "#/definitions/Moment"
+        },
+        "chosenOptionId": {
+          "$ref": "#/definitions/Id"
+        },
+        "chosenLabel": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["committed", "failed_precondition"]
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "rationale": {
+          "$ref": "#/definitions/DecisionRationale"
+        }
+      },
+      "required": [
+        "evidenceId",
+        "atMs",
+        "moment",
+        "chosenOptionId",
+        "chosenLabel",
+        "outcome",
+        "source",
+        "rationale"
+      ],
+      "additionalProperties": false,
+      "description": "Additive: compact history row for the agent inspector (newest first in AgentDetail)."
+    },
     "WorkStatus": {
       "anyOf": [
         {
@@ -6209,13 +5667,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6261,13 +5713,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6307,11 +5753,7 @@
                       "type": "number"
                     }
                   },
-                  "required": [
-                    "artifact",
-                    "guestCount",
-                    "groupCount"
-                  ],
+                  "required": ["artifact", "guestCount", "groupCount"],
                   "additionalProperties": false
                 },
                 {
@@ -6330,13 +5772,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6382,11 +5818,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "proposal",
-                    "assumptions",
-                    "unsupported"
-                  ],
+                  "required": ["proposal", "assumptions", "unsupported"],
                   "additionalProperties": false
                 },
                 {
@@ -6405,13 +5837,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6457,13 +5883,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6509,13 +5929,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6549,9 +5963,7 @@
                       "$ref": "#/definitions/ArtifactRef"
                     }
                   },
-                  "required": [
-                    "report"
-                  ],
+                  "required": ["report"],
                   "additionalProperties": false
                 },
                 {
@@ -6570,13 +5982,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         },
         {
@@ -6622,13 +6028,7 @@
               ]
             }
           },
-          "required": [
-            "workId",
-            "kind",
-            "status",
-            "result",
-            "error"
-          ],
+          "required": ["workId", "kind", "status", "result", "error"],
           "additionalProperties": false
         }
       ]
@@ -6643,16 +6043,10 @@
           }
         },
         "nextCursor": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         }
       },
-      "required": [
-        "items",
-        "nextCursor"
-      ],
+      "required": ["items", "nextCursor"],
       "additionalProperties": false
     },
     "SequencePage<EventRecord>": {
@@ -6665,16 +6059,10 @@
           }
         },
         "nextAfterSequence": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         }
       },
-      "required": [
-        "items",
-        "nextAfterSequence"
-      ],
+      "required": ["items", "nextAfterSequence"],
       "additionalProperties": false
     },
     "HeatLayer": {
@@ -6756,16 +6144,10 @@
           }
         },
         "nextCursor": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         }
       },
-      "required": [
-        "items",
-        "nextCursor"
-      ],
+      "required": ["items", "nextCursor"],
       "additionalProperties": false
     },
     "ReplayFrame": {
@@ -6781,11 +6163,7 @@
           "$ref": "#/definitions/LiveSnapshot"
         }
       },
-      "required": [
-        "atMs",
-        "frameSchema",
-        "snapshot"
-      ],
+      "required": ["atMs", "frameSchema", "snapshot"],
       "additionalProperties": false
     },
     "PopulationManifest": {
@@ -6833,10 +6211,7 @@
                 "$ref": "#/definitions/Record%3Cstring%2Cnumber%3E"
               }
             },
-            "required": [
-              "key",
-              "counts"
-            ],
+            "required": ["key", "counts"],
             "additionalProperties": false
           }
         }
@@ -6920,12 +6295,7 @@
               "const": "remaining_day"
             }
           },
-          "required": [
-            "productId",
-            "unitPriceCents",
-            "unit",
-            "validity"
-          ],
+          "required": ["productId", "unitPriceCents", "unit", "validity"],
           "additionalProperties": false
         }
       },
@@ -7020,10 +6390,7 @@
           "$ref": "#/definitions/Service"
         },
         "minHeightCm": {
-          "type": [
-            "number",
-            "null"
-          ]
+          "type": ["number", "null"]
         },
         "thrill": {
           "type": "number"
@@ -7137,11 +6504,7 @@
                     "$ref": "#/definitions/Cents"
                   }
                 },
-                "required": [
-                  "id",
-                  "label",
-                  "unitPriceCents"
-                ],
+                "required": ["id", "label", "unitPriceCents"],
                 "additionalProperties": false
               }
             }
@@ -7175,12 +6538,7 @@
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "seats",
-            "startsAtMs",
-            "durationMs"
-          ],
+          "required": ["kind", "seats", "startsAtMs", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -7194,10 +6552,7 @@
               "$ref": "#/definitions/SimMs"
             }
           },
-          "required": [
-            "kind",
-            "durationMs"
-          ],
+          "required": ["kind", "durationMs"],
           "additionalProperties": false
         },
         {
@@ -7208,9 +6563,7 @@
               "const": "none"
             }
           },
-          "required": [
-            "kind"
-          ],
+          "required": ["kind"],
           "additionalProperties": false
         }
       ]
@@ -7237,13 +6590,7 @@
           "$ref": "#/definitions/Vec2"
         }
       },
-      "required": [
-        "id",
-        "placeId",
-        "cellIndices",
-        "entry",
-        "exit"
-      ],
+      "required": ["id", "placeId", "cellIndices", "entry", "exit"],
       "additionalProperties": false
     },
     "RouteProfile": {
@@ -7265,12 +6612,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "id",
-        "destinationId",
-        "via",
-        "label"
-      ],
+      "required": ["id", "destinationId", "via", "label"],
       "additionalProperties": false
     }
   }

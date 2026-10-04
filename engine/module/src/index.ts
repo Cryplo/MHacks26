@@ -22,6 +22,7 @@ import {
   get,
   put,
   type Store,
+  type CachingStore,
   type RecordRow,
   type Family,
 } from "../../src/runtime/store.js";
@@ -92,8 +93,16 @@ type WriteTable = ReadTable & {
   };
   insert(row: Row): unknown;
 };
-function storeFor(table: ReadTable, write?: WriteTable): Store {
-  return {
+// Run states cached across reducer calls (validated per call by the run row's persist
+// stamp; see src/runtime/store.ts). Never holds a database handle.
+const coreCache: NonNullable<CachingStore["coreCache"]> = new Map();
+function storeFor(
+  table: ReadTable,
+  write?: WriteTable,
+  stamp?: () => string,
+): Store {
+  const store: CachingStore = {
+    ...(write && stamp ? { coreCache, stamp } : {}),
     get: (key) => {
       const r = table.key.find(key);
       return r
@@ -121,6 +130,7 @@ function storeFor(table: ReadTable, write?: WriteTable): Store {
       write.key.delete(key);
     },
   };
+  return store;
 }
 export const init = db.init((ctx) => {
   bootstrap(storeFor(ctx.db.record, ctx.db.record), ctx.sender.toHexString());
@@ -153,11 +163,14 @@ export const tick = db.reducer(
       },
     );
     if (expiryCrossed) ctx.db.clock.id.update({ id: 0, now });
-    scheduleLive(storeFor(ctx.db.record, ctx.db.record), {
-      identity: ctx.identity.toHexString(),
-      now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
-      nonce: () => ctx.newUuidV4().toString(),
-    });
+    scheduleLive(
+      storeFor(ctx.db.record, ctx.db.record, () => ctx.newUuidV4().toString()),
+      {
+        identity: ctx.identity.toHexString(),
+        now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),
+        nonce: () => ctx.newUuidV4().toString(),
+      },
+    );
   },
 );
 export const invoke = db.reducer(
@@ -168,7 +181,9 @@ export const invoke = db.reducer(
       "Invalid transport request",
     );
     ensure(args.payload.length <= 2_000_000, "Transport payload limit");
-    const store = storeFor(ctx.db.record, ctx.db.record),
+    const store = storeFor(ctx.db.record, ctx.db.record, () =>
+        ctx.newUuidV4().toString(),
+      ),
       context: Context = {
         identity: ctx.sender.toHexString(),
         now: Number(ctx.timestamp.microsSinceUnixEpoch / 1000n),

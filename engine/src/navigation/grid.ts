@@ -37,9 +37,60 @@ export function decodeBase64(s: string): Uint8Array {
   return result;
 }
 export const UNREACHABLE = -1;
+/** Read access to a destination distance field (cells beyond a local field read UNREACHABLE). */
+export type DistanceField = { at(cell: number): number };
+/** Radius (cost units, i.e. cells) of the bounded fields used for short local wandering. */
+export const LOCAL_FIELD_RADIUS = 16;
+const OFFSETS = [
+  [0, -1],
+  [-1, 0],
+  [1, 0],
+  [0, 1],
+  [-1, -1],
+  [1, -1],
+  [-1, 1],
+  [1, 1],
+] as const;
+class FullField implements DistanceField {
+  constructor(readonly values: Float64Array) {}
+  at(cell: number) {
+    return cell >= 0 && cell < this.values.length
+      ? this.values[cell]!
+      : UNREACHABLE;
+  }
+}
+/**
+ * Exact shortest-path costs for every cell whose cost is <= radius, restricted to the
+ * (2r+1)^2 window around the destination. Any path that leaves that window costs more than r,
+ * so every value it reports equals the full field's value; farther cells read UNREACHABLE.
+ */
+class LocalField implements DistanceField {
+  constructor(
+    private readonly values: Float64Array,
+    private readonly x0: number,
+    private readonly y0: number,
+    private readonly size: number,
+    private readonly width: number,
+  ) {}
+  at(cell: number) {
+    if (cell < 0) return UNREACHABLE;
+    const x = (cell % this.width) - this.x0,
+      y = Math.floor(cell / this.width) - this.y0;
+    return x < 0 || y < 0 || x >= this.size || y >= this.size
+      ? UNREACHABLE
+      : this.values[y * this.size + x]!;
+  }
+}
 export class Navigation {
   readonly cells: Uint8Array;
+  // Seeded (stored) destination fields are immutable topology and are never evicted;
+  // other full fields and the small local fields use bounded insertion-order caches.
+  private pinned = new Map<string, Float64Array>();
   private fields = new Map<string, Float64Array>();
+  private locals = new Map<number, LocalField>();
+  private adjacency: Int32Array | null = null;
+  private adjacencyCost: Float64Array | null = null;
+  private adjacencyCount: Uint8Array | null = null;
   constructor(
     readonly grid: Grid,
     private readonly loadField?: (cell: number) => number[] | undefined,
@@ -84,23 +135,14 @@ export class Navigation {
         (this.cells[i] === 4 && !!queue?.has(i)))
     );
   }
-  neighbors(
+  private computeNeighbors(
     i: number,
     queue?: ReadonlySet<number>,
   ): { index: number; cost: number }[] {
     const x = i % this.grid.width,
       y = Math.floor(i / this.grid.width),
       out: { index: number; cost: number }[] = [];
-    for (const [dx, dy] of [
-      [0, -1],
-      [-1, 0],
-      [1, 0],
-      [0, 1],
-      [-1, -1],
-      [1, -1],
-      [-1, 1],
-      [1, 1],
-    ] as const) {
+    for (const [dx, dy] of OFFSETS) {
       const nx = x + dx,
         ny = y + dy,
         j = ny * this.grid.width + nx;
@@ -123,10 +165,44 @@ export class Navigation {
     }
     return out.sort((a, b) => a.index - b.index);
   }
+  /** Queue-free adjacency, precomputed once per topology (sorted by neighbor index). */
+  private ensureAdjacency() {
+    if (this.adjacency) return;
+    const n = this.cells.length,
+      adjacency = new Int32Array(n * 8),
+      cost = new Float64Array(n * 8),
+      count = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const list = this.computeNeighbors(i);
+      count[i] = list.length;
+      list.forEach((x, k) => {
+        adjacency[i * 8 + k] = x.index;
+        cost[i * 8 + k] = x.cost;
+      });
+    }
+    this.adjacency = adjacency;
+    this.adjacencyCost = cost;
+    this.adjacencyCount = count;
+  }
+  neighbors(
+    i: number,
+    queue?: ReadonlySet<number>,
+  ): { index: number; cost: number }[] {
+    if (queue || i < 0 || i >= this.cells.length)
+      return this.computeNeighbors(i, queue);
+    this.ensureAdjacency();
+    const out: { index: number; cost: number }[] = [];
+    for (let k = 0; k < this.adjacencyCount![i]!; k++)
+      out.push({
+        index: this.adjacency![i * 8 + k]!,
+        cost: this.adjacencyCost![i * 8 + k]!,
+      });
+    return out;
+  }
   field(destination: Vec2, queue?: ReadonlySet<number>): Float64Array {
     const target = this.cell(destination),
       key = `${target}:${queue ? [...queue].sort((a, b) => a - b).join(",") : ""}`;
-    const cached = this.fields.get(key);
+    const cached = this.pinned.get(key) ?? this.fields.get(key);
     if (cached) return cached;
     ensure(this.walkable(target, queue), "Destination is not walkable");
     if (!queue && this.loadField) {
@@ -137,7 +213,7 @@ export class Navigation {
           "Stored field dimensions mismatch",
         );
         const field = Float64Array.from(loaded);
-        this.fields.set(key, field);
+        this.pinned.set(key, field);
         return field;
       }
     }
@@ -145,8 +221,22 @@ export class Navigation {
     distances[target] = 0;
     const heap = new MinHeap();
     heap.push(target, 0);
+    if (!queue) this.ensureAdjacency();
     for (let item = heap.pop(); item; item = heap.pop()) {
       if (distances[item.index] !== item.cost) continue;
+      if (!queue) {
+        const base = item.index * 8,
+          count = this.adjacencyCount![item.index]!;
+        for (let k = 0; k < count; k++) {
+          const index = this.adjacency![base + k]!,
+            cost = item.cost + this.adjacencyCost![base + k]!;
+          if (distances[index] === UNREACHABLE || cost < distances[index]!) {
+            distances[index] = cost;
+            heap.push(index, cost);
+          }
+        }
+        continue;
+      }
       for (const n of this.neighbors(item.index, queue)) {
         const cost = item.cost + n.cost;
         if (distances[n.index] === UNREACHABLE || cost < distances[n.index]!) {
@@ -160,27 +250,74 @@ export class Navigation {
     this.fields.set(key, distances);
     return distances;
   }
+  /** Full field (exact) or, for short local wandering, the bounded local field. */
+  distances(destination: Vec2, local = false): DistanceField {
+    if (!local) return new FullField(this.field(destination));
+    const target = this.cell(destination),
+      cached = this.locals.get(target);
+    if (cached) return cached;
+    ensure(this.walkable(target), "Destination is not walkable");
+    this.ensureAdjacency();
+    const r = LOCAL_FIELD_RADIUS,
+      size = 2 * r + 1,
+      width = this.grid.width,
+      x0 = (target % width) - r,
+      y0 = Math.floor(target / width) - r,
+      values = new Float64Array(size * size).fill(UNREACHABLE),
+      slot = (cell: number) => {
+        const x = (cell % width) - x0,
+          y = Math.floor(cell / width) - y0;
+        return x < 0 || y < 0 || x >= size || y >= size ? -1 : y * size + x;
+      };
+    values[slot(target)] = 0;
+    const heap = new MinHeap();
+    heap.push(target, 0);
+    for (let item = heap.pop(); item; item = heap.pop()) {
+      if (values[slot(item.index)] !== item.cost) continue;
+      const base = item.index * 8,
+        count = this.adjacencyCount![item.index]!;
+      for (let k = 0; k < count; k++) {
+        const index = this.adjacency![base + k]!,
+          cost = item.cost + this.adjacencyCost![base + k]!,
+          j = slot(index);
+        if (j < 0 || cost > r) continue;
+        if (values[j] === UNREACHABLE || cost < values[j]!) {
+          values[j] = cost;
+          heap.push(index, cost);
+        }
+      }
+    }
+    const field = new LocalField(values, x0, y0, size, width);
+    if (this.locals.size >= 1024)
+      this.locals.delete(this.locals.keys().next().value!);
+    this.locals.set(target, field);
+    return field;
+  }
   seedField(cell: number, values: number[]) {
     ensure(
       values.length === this.cells.length && values[cell] === 0,
       "Invalid stored destination field",
     );
-    this.fields.set(`${cell}:`, Float64Array.from(values));
+    this.pinned.set(`${cell}:`, Float64Array.from(values));
   }
-  next(position: Vec2, destination: Vec2): Vec2 | null {
+  next(position: Vec2, destination: Vec2, local = false): Vec2 | null {
     const from = this.cell(position),
       to = this.cell(destination),
-      field = this.field(destination);
-    if (from < 0 || field[from] === UNREACHABLE) return null;
+      field = this.distances(destination, local);
+    if (from < 0 || field.at(from) === UNREACHABLE) return null;
     if (from === to) return destination;
-    const options = this.neighbors(from)
-      .filter((n) => field[n.index] !== UNREACHABLE)
-      .sort(
-        (a, b) =>
-          a.cost + field[a.index]! - (b.cost + field[b.index]!) ||
-          a.index - b.index,
-      );
-    return options.length ? this.center(options[0]!.index) : null;
+    let best = -1,
+      bestScore = Infinity;
+    for (const n of this.neighbors(from)) {
+      const d = field.at(n.index);
+      if (d === UNREACHABLE) continue;
+      const score = n.cost + d;
+      if (score < bestScore || (score === bestScore && n.index < best)) {
+        best = n.index;
+        bestScore = score;
+      }
+    }
+    return best >= 0 ? this.center(best) : null;
   }
   // Supercover grid traversal: exact segment crossings, including both cells at corners.
   clearSegment(a: Vec2, b: Vec2, queue?: ReadonlySet<number>): boolean {

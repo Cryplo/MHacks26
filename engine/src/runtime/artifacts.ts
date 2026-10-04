@@ -10,7 +10,7 @@ import {
   canonical,
 } from "../domain/primitives.js";
 import { encodeBase64, decodeBase64 } from "../navigation/grid.js";
-import { get, put, key, list, loadCore, type Store } from "./store.js";
+import { get, put, key, list, type Store } from "./store.js";
 import type { Grant } from "./access.js";
 import {
   authorizeScope,
@@ -243,7 +243,12 @@ export function readArtifact(
         (g) =>
           g.identity === ctx.identity &&
           grantFor(store, ctx, g.runId) !== undefined && // unexpired, not revoked
-          loadCore(store, g.runId)?.manifest.park.artifactId === ref.artifactId,
+          get<{ manifest: { park: ArtifactRef } }>(
+            store,
+            "run",
+            g.runId,
+            g.runId,
+          )?.manifest.park.artifactId === ref.artifactId,
       );
     if (!assigned && !viaRunGrant) {
       if (a.scope.runId) requireRun(store, ctx, a.scope.runId);

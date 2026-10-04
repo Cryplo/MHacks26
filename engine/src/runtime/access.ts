@@ -1,7 +1,13 @@
 import type { Role, Scope } from "../../contract/behavior-v1.js";
 import { DomainFault, ensure, hash } from "../domain/primitives.js";
 import { get, list, put, type Store } from "./store.js";
-export type Context = { identity: string; now: number; nonce: () => string };
+export type Context = {
+  identity: string;
+  now: number;
+  nonce: () => string;
+  /** Scheduler-measured simulated/wall speed, recorded on the published run view. */
+  achievedSpeed?: number;
+};
 export type Grant = {
   id: string;
   identity: string;

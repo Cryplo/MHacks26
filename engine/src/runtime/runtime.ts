@@ -23,10 +23,21 @@ import {
   validateScenario,
   crowdSchema,
   parkSchema,
+  MAX_GUESTS,
   parse,
 } from "../domain/schemas.js";
 import { validatePark } from "../navigation/grid.js";
 import { startCore, advanceCore, acceptDecision } from "../sim/engine.js";
+import { openDecisions, openRatings } from "../sim/common.js";
+import {
+  compactsHistory,
+  keepsTape,
+  resolvesInProcess,
+} from "../sim/retention.js";
+import {
+  inProcessMockDecision,
+  inProcessMockRating,
+} from "../sim/mock-policy.js";
 import { acceptRating, snapshot, metrics } from "../accounting/metrics.js";
 import { checkpoint, restore, type Checkpoint } from "../replay/checkpoint.js";
 import {
@@ -36,6 +47,7 @@ import {
   loadCore,
   saveCore,
   payloadHash,
+  key,
   TransactionStore,
   type Store,
 } from "./store.js";
@@ -96,7 +108,7 @@ export const CAPABILITIES: C.Capabilities = {
     speechBubbles: false,
     discountMessages: false,
   },
-  maxGuests: 1000,
+  maxGuests: MAX_GUESTS,
   maxArtifactBytes: MAX_ARTIFACT_BYTES,
   maxChunkBytes: MAX_CHUNK_BYTES,
 };
@@ -143,8 +155,15 @@ export function provision(
   );
   put(store, "role", identity, { identity, roles });
 }
+/** Loads a run for mutation (exclusive: a cached copy is checked out until saved). */
 export function core(store: Store, runId: string): CoreState {
   const state = loadCore(store, runId);
+  if (!state) throw new DomainFault("NOT_FOUND", "Run not found");
+  return state;
+}
+/** Loads a run for reading only; the result may be shared and must not be mutated. */
+export function peekCore(store: Store, runId: string): CoreState {
+  const state = loadCore(store, runId, { readOnly: true });
   if (!state) throw new DomainFault("NOT_FOUND", "Run not found");
   return state;
 }
@@ -154,6 +173,7 @@ export function command<K extends keyof C.Commands>(
   name: K,
   input: C.Commands[K]["input"],
   commandId: string,
+  options: { recordReceipt?: boolean } = {},
 ): C.Receipt<C.Commands[K]["output"]> {
   ensure(/^[A-Za-z0-9_.:-]{1,160}$/.test(commandId), "Invalid command ID");
   assertJsonSize(input);
@@ -219,71 +239,149 @@ export function command<K extends keyof C.Commands>(
       }
     }
   }
-  put(store, "receipt", commandId, { digest, receipt }, ctx.identity);
+  // Engine's own scheduler commands use one-shot IDs that are never retried; storing their
+  // receipts would only grow the database by several rows per scheduler tick.
+  if (options.recordReceipt !== false)
+    put(store, "receipt", commandId, { digest, receipt }, ctx.identity);
   return receipt;
 }
+/** Minimum wall time between scheduler-driven publications of a running run. */
+export const PUBLISH_MIN_WALL_MS = 150;
+const lastPublishWall = new Map<string, number>();
 function publish(store: Store, s: CoreState, ctx: Context) {
+  if (ctx.achievedSpeed !== undefined) s.view.achievedSpeed = ctx.achievedSpeed;
   if (
     s.view.phase === "prepare" ||
     s.view.phase === "barrier" ||
     s.view.status === "cancelled"
   ) {
-    const old = get<C.LiveSnapshot>(store, "publication", s.runId, s.runId);
+    const row = store.get(key("publication", s.runId, s.runId));
     const next = snapshot(s);
     next.health = health(store, s.runId, ctx.now);
     const comparable = (x: C.LiveSnapshot) => ({
       ...x,
-      run: { ...x.run, revision: 0 },
+      run: { ...x.run, revision: 0, achievedSpeed: 0 },
       metrics: { ...x.metrics, revision: 0 },
     });
-    if (!old || hash(comparable(old)) !== hash(comparable(next))) {
-      s.view.revision = (old?.run.revision ?? 0) + 1;
+    // A publication at a new simulated time always differs; only same-time publications
+    // (e.g. while blocked) need a content comparison against the stored one.
+    let changed = !row || row.due !== s.view.simMs;
+    // Scheduler-driven progress republishes at most every PUBLISH_MIN_WALL_MS of wall time:
+    // each publication is pushed to every subscriber (about 1 MB at 1500 guests), and
+    // replies to that subscriber's queries queue behind them. Status changes always publish.
+    if (
+      changed &&
+      row &&
+      ctx.achievedSpeed !== undefined &&
+      s.view.status === "running" &&
+      ctx.now - (lastPublishWall.get(s.runId) ?? 0) < PUBLISH_MIN_WALL_MS
+    ) {
+      if (row.status === "running") {
+        saveCore(store, s);
+        return;
+      }
+    }
+    if (!changed) {
+      const old = JSON.parse(row!.body) as C.LiveSnapshot;
+      changed = hash(comparable(old)) !== hash(comparable(next));
+    }
+    if (changed) {
+      s.view.revision = (row?.sequence ?? 0) + 1;
       next.run.revision = s.view.revision;
       next.metrics.revision = s.view.revision;
-      put(
-        store,
-        "publication",
-        s.runId,
-        next,
-        s.runId,
-        "",
-        s.view.simMs,
-        s.view.revision,
-      );
+      // Readers parse this row; plain JSON is enough (and much cheaper for large crowds).
+      lastPublishWall.set(s.runId, ctx.now);
+      store.put({
+        key: key("publication", s.runId, s.runId),
+        family: "publication",
+        scope: s.runId,
+        status: s.view.status,
+        due: s.view.simMs,
+        sequence: s.view.revision,
+        body: JSON.stringify(next),
+      });
     }
   }
   saveCore(store, s);
 }
-function syncWork(store: Store, ctx: Context, s: CoreState) {
+function syncWork(
+  store: Store,
+  ctx: Context,
+  s: CoreState,
+  openBefore: string[] = [],
+) {
   const scope = {
     runId: s.runId,
     experimentId: s.manifest.experiment?.experimentId ?? null,
   };
-  for (const slot of Object.values(s.decisions)) {
-    const id = `${s.runId}:${slot.request.requestId}`;
+  // Only decisions that were open before this command or are open now can need queue work.
+  for (const requestId of new Set([...openBefore, ...openDecisions(s)])) {
+    const slot = s.decisions[requestId],
+      id = `${s.runId}:${requestId}`,
+      status = slot?.status ?? "applied";
     if (
-      (slot.status === "pending" || slot.status === "ready") &&
+      slot &&
+      (status === "pending" || status === "ready") &&
       s.manifest.config.mode !== "replay"
-    )
-      enqueue(store, ctx, id, "decision", scope, slot.request);
-    else {
+    ) {
+      // Engine-generated request IDs are content-bound; an existing job is the same work.
+      if (!store.get(key("work_locator", id)))
+        enqueue(store, ctx, id, "decision", scope, slot.request);
+    } else {
       const j = findJob(store, id);
-      if (j && j.status !== slot.status) {
-        j.status = slot.status;
+      if (!j) continue;
+      if (!slot && compactsHistory(s)) {
+        // Bounded history: an applied decision's job (request copy and result) is dropped.
+        store.delete(
+          key("work", id, j.scope.runId ?? j.scope.experimentId ?? ""),
+        );
+        store.delete(key("work_locator", id));
+      } else if (j.status !== status) {
+        j.status = status;
         saveJob(store, j);
       }
     }
   }
-  for (const r of Object.values(s.ratings))
-    if (!r.result)
-      enqueue(
-        store,
-        ctx,
-        `${s.runId}:${r.request.ratingId}`,
-        "rating",
-        scope,
-        r.request,
-      );
+  if (resolvesInProcess(s)) return;
+  for (const ratingId of openRatings(s)) {
+    const r = s.ratings[ratingId]!;
+    if (store.get(key("work_locator", `${s.runId}:${r.request.ratingId}`)))
+      continue;
+    enqueue(
+      store,
+      ctx,
+      `${s.runId}:${r.request.ratingId}`,
+      "rating",
+      scope,
+      r.request,
+    );
+  }
+}
+/**
+ * Mock-mode runs evaluate the deterministic mock policy in-process (identical to the
+ * Intelligence worker's `mock-policy-v1`), so a barrier costs no worker round trips.
+ */
+function resolveInProcess(s: CoreState): boolean {
+  if (!resolvesInProcess(s)) return false;
+  let resolved = false;
+  for (const id of openDecisions(s)) {
+    const slot = s.decisions[id]!;
+    if (slot.status !== "pending") continue;
+    acceptDecision(s, inProcessMockDecision(slot.request));
+    resolved = true;
+  }
+  let rated = false;
+  for (const id of openRatings(s)) {
+    acceptRating(s, inProcessMockRating(s.ratings[id]!.request));
+    rated = true;
+  }
+  // Worker-submitted ratings append a metric snapshot; keep the final one rating-complete.
+  if (rated && s.view.status === "completed") s.metrics.push(metrics(s));
+  return resolved;
+}
+/** Response tapes are artifacts (bounded size); very long bounded-history runs skip them. */
+function tapeFits(s: CoreState) {
+  return (s.tapeResponses?.length ?? s.evidence.length) <= 6000;
 }
 function parkFor(store: Store, ref: C.ArtifactRef): ParkRecord {
   const p = list<ParkRecord>(store, "park").find(
@@ -574,11 +672,15 @@ function dispatchCommand(
             // never let a mock worker answer a Live Jev run, or a Jev worker a Mock run.
             // (Live-timeout fallback is applied by Engine itself, not submitted here.)
             if (s.manifest.config.mode === "mock")
-              ensure(item.result.originalSource === "mock", "Mock run accepts only mock-provider distributions");
+              ensure(
+                item.result.originalSource === "mock",
+                "Mock run accepts only mock-provider distributions",
+              );
             if (s.manifest.config.mode === "live")
               ensure(
                 item.result.originalSource === "jev" &&
-                  (item.result.source === "jev" || item.result.source === "cache"),
+                  (item.result.source === "jev" ||
+                    item.result.source === "cache"),
                 "Live run accepts only Jev distributions",
               );
             acceptDecision(s, item.result);
@@ -587,10 +689,17 @@ function dispatchCommand(
             ensure(item.result.ratingId === r.ratingId, "Wrong rating request");
             acceptRating(s, item.result);
           }
-          if (item.kind === "rating") {
+          // A response only touches its own slot (ratings also the rated person and quality
+          // counters); persist just those. The scheduler's next publication shows them; a
+          // finished run republishes so its final metrics include late ratings.
+          if (item.kind === "rating" && s.view.status === "completed") {
             s.metrics.push(metrics(s));
             publish(store, s, ctx);
-          } else saveCore(store, s);
+          } else
+            saveCore(store, s, {
+              only:
+                item.kind === "rating" ? ["ratings", "persons"] : ["decisions"],
+            });
         } else if (item.kind === "population") {
           const payload = j.payload as C.WorkPayloads["population"],
             park = parkFor(store, payload.park).park,
@@ -660,17 +769,34 @@ function dispatchCommand(
       } else j.status = "failed";
       saveJob(store, j);
       // A terminally failed experiment job must not leave the experiment "running" forever.
-      if (j.kind === "experiment" && j.status === "failed" && j.scope.experimentId) {
-        const e = get<ExperimentRecord>(store, "experiment", j.scope.experimentId);
+      if (
+        j.kind === "experiment" &&
+        j.status === "failed" &&
+        j.scope.experimentId
+      ) {
+        const e = get<ExperimentRecord>(
+          store,
+          "experiment",
+          j.scope.experimentId,
+        );
         if (e && e.report.status === "running") {
           e.report = {
             ...e.report,
             revision: e.report.revision + 1,
             status: "incomplete",
             pairs: e.report.pairs.map((p) =>
-              p.status === "complete" ? p : { ...p, status: "failed", reasons: [...p.reasons, "experiment job failed"] },
+              p.status === "complete"
+                ? p
+                : {
+                    ...p,
+                    status: "failed",
+                    reasons: [...p.reasons, "experiment job failed"],
+                  },
             ),
-            limitations: [...e.report.limitations, `Experiment job failed: ${a.error.message}`],
+            limitations: [
+              ...e.report.limitations,
+              `Experiment job failed: ${a.error.message}`,
+            ],
           };
           put(store, "experiment", j.scope.experimentId, e);
         }
@@ -703,6 +829,7 @@ function dispatchCommand(
       expectedBoundary(s.view, a.expectedStep, a.expectedPhase);
       checkedInt(a.maxSteps, "maxSteps", 1, 100);
       resolveLiveTimeouts(store, ctx, s);
+      const openBefore = openDecisions(s).slice();
       const beforeBoundaries = s.boundaries.length;
       let tape: ResponseTape | null = null;
       if (s.manifest.replayTape) {
@@ -714,7 +841,7 @@ function dispatchCommand(
           true,
         );
         validateTape(tape, s);
-        for (const slot of Object.values(s.decisions))
+        for (const slot of openDecisions(s).map((id) => s.decisions[id]!))
           if (slot.status === "pending") {
             const response = tape.responses.find(
               (r) => r.requestId === slot.request.requestId,
@@ -723,24 +850,44 @@ function dispatchCommand(
             acceptDecision(s, response);
           }
       }
-      const result = advanceCore(
-        s,
-        runtimeNavigation(store, s.park.grid),
-        Math.min(
-          500,
-          a.maxSteps * 40,
-          Math.max(4, Math.floor(2400 / s.population.personas.length)),
-        ),
-        a.maxSteps,
-      );
+      // Work units are deterministic resume points, not semantics: any budget yields the same
+      // states. A whole step costs about groups + places + 25 units (motion is one unit per
+      // substep), so the budget covers the requested steps; mock-mode barriers resolve in
+      // process and advancement continues within the same command.
+      const nav = runtimeNavigation(store, s.park.grid),
+        stepWork =
+          2 * Object.keys(s.groups).length + Object.keys(s.places).length + 32,
+        result = { completedSteps: 0 };
+      resolveInProcess(s);
+      for (let round = 0; round < 4 * a.maxSteps + 4; round++) {
+        const r = advanceCore(
+          s,
+          nav,
+          Math.min(10000, stepWork * (a.maxSteps - result.completedSteps)),
+          a.maxSteps - result.completedSteps,
+        );
+        result.completedSteps += r.completedSteps;
+        const resolved = resolveInProcess(s);
+        if (
+          result.completedSteps >= a.maxSteps ||
+          !["running", "blocked", "draining"].includes(s.view.status) ||
+          (s.view.status === "blocked" && !resolved)
+        )
+          break;
+      }
       if (tape)
         for (const b of s.boundaries.slice(beforeBoundaries))
           ensure(
             tape.boundaries.some((x) => x.atMs === b.atMs && x.hash === b.hash),
             "Replay physical hash mismatch",
           );
-      syncWork(store, ctx, s);
-      if (s.view.status === "completed")
+      syncWork(store, ctx, s, openBefore);
+      // Bounded-history runs cannot produce a complete response tape (see sim/retention.ts).
+      if (
+        s.view.status === "completed" &&
+        (!compactsHistory(s) || keepsTape(s)) &&
+        tapeFits(s)
+      )
         writeJSON(
           store,
           ctx,
@@ -762,7 +909,7 @@ function dispatchCommand(
     case "checkpointRun": {
       const { runId } = input as C.Commands["checkpointRun"]["input"];
       requireRun(store, ctx, runId, true);
-      const s = core(store, runId),
+      const s = peekCore(store, runId),
         c = checkpoint(s),
         ref = writeJSON(
           store,
@@ -902,7 +1049,7 @@ function dispatchCommand(
             );
             continue;
           }
-          const child = core(store, id),
+          const child = peekCore(store, id),
             assignment = child.manifest.experiment;
           ensure(
             assignment?.experimentId === a.experimentId &&
@@ -986,7 +1133,7 @@ function productWork(
     let s: CoreState | null = null;
     if (r.runId) {
       requireRun(store, ctx, r.runId, true);
-      s = core(store, r.runId);
+      s = peekCore(store, r.runId);
       scope.runId = r.runId;
       ensure(
         s.view.scenarioRevision === r.expectedScenarioRevision,
@@ -1007,7 +1154,7 @@ function productWork(
     };
   } else if (r.kind === "thought") {
     requireRun(store, ctx, r.runId);
-    const s = core(store, r.runId),
+    const s = peekCore(store, r.runId),
       evidence = s.evidence.find((e) => e.evidenceId === r.evidenceId);
     ensure(
       evidence && evidence.request.agentIds.includes(r.agentId),
@@ -1030,7 +1177,7 @@ export function factBundle(
 ): C.FactBundle {
   if (scope.runId) {
     requireRun(store, ctx, scope.runId);
-    const s = core(store, scope.runId),
+    const s = peekCore(store, scope.runId),
       m = metrics(s);
     return {
       contractVersion: "behavior.v1",

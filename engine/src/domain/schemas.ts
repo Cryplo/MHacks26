@@ -10,6 +10,8 @@ import { DomainFault, ensure, hash } from "./primitives.js";
 const obj = z.strictObject;
 export const idSchema = z.string().regex(/^[A-Za-z0-9_.:-]{1,160}$/);
 export const hashSchema = z.string().regex(/^[0-9a-f]{64}$/);
+/** Largest crowd Engine accepts (personas and groups); advertised as Capabilities.maxGuests. */
+export const MAX_GUESTS = 2000;
 const int = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const positive = int.min(1);
 const time = int.refine((v) => v % 5000 === 0, "Must be a 5000 ms boundary");
@@ -166,7 +168,7 @@ const archetype = z.enum([
   "solo",
 ]);
 export const crowdSchema = obj({
-  guestCount: positive.max(1000),
+  guestCount: positive.max(MAX_GUESTS),
   seed: text.min(1),
   shares: obj({
     young_family: fraction,
@@ -215,7 +217,7 @@ export const populationSchema = obj({
       }),
     )
     .min(1)
-    .max(1000),
+    .max(MAX_GUESTS),
   groups: z
     .array(
       obj({
@@ -231,7 +233,7 @@ export const populationSchema = obj({
       }),
     )
     .min(1)
-    .max(1000),
+    .max(MAX_GUESTS),
   proseVersion: text.min(1),
   randomVersion: z.literal("behavior-rng-v1"),
   diversity: z
@@ -312,6 +314,7 @@ export const configSchema = obj({
     replay: text.min(1),
     sourceCommit: text.min(1),
   }),
+  mockResolution: z.enum(["engine", "worker"]).optional(),
 }).refine(
   (v) => v.mode === "live" || v.fallback === "forbidden",
   "Fallback is only permitted in declared live mode",

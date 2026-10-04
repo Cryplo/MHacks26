@@ -13,6 +13,7 @@ import {
 } from "../domain/primitives.js";
 import { charge, validateQuote } from "./actions.js";
 import { event, members, setActivity, trigger, experience } from "./common.js";
+import { stepOut } from "./queue-lines.js";
 export const LOADING_POLICY =
   "loading-v1: FIFO per lane; guard >=3 misses by descending misses then sequence; pass target rounded down, standard remainder; borrow oldest fitting lane head; never skip a lane head";
 export function loadVehicle(
@@ -163,6 +164,7 @@ export function dispatch(s: CoreState, placeId: string) {
       } catch (error) {
         if (!(error instanceof DomainFault)) throw error;
         s.queues = s.queues.filter((x) => x.id !== q.id);
+        stepOut(s, placeId, members(s, g));
         setActivity(s, g, "deciding");
         trigger(g, "forced_replan");
         g.nextDecisionAtMs = s.view.simMs + 5000;
@@ -202,6 +204,9 @@ export function completeSession(s: CoreState, session: Session) {
     service = place.definition.service;
   for (const groupId of session.groupIds) {
     const g = s.groups[groupId]!;
+    place.servedGuests =
+      (place.servedGuests ?? 0) + g.manifest.memberIds.length;
+    stepOut(s, session.placeId, members(s, g));
     setActivity(s, g, "deciding");
     if (session.kind === "ride") {
       s.totals.completedRiders += g.manifest.memberIds.length;
