@@ -20,7 +20,24 @@ export type LoaderDeps = {
   importModule: (url: string) => Promise<unknown>;
   loadFixture: () => Promise<CreateRuntimeClient>;
   tokens: TokenStore;
+  fetchText?: (url: string) => Promise<string | null>;
 };
+
+const defaultFetchText = async (url: string) => {
+  const r = await fetch(url, { cache: 'no-store' });
+  return r.ok ? r.text() : null;
+};
+
+/** Local integration build: use the launcher's operator credential unless one was chosen on /session. */
+async function adoptLocalSession(url: string, deps: LoaderDeps): Promise<void> {
+  if (deps.tokens.isExplicit()) return;
+  let token: unknown = null;
+  try {
+    const text = await (deps.fetchText ?? defaultFetchText)(url);
+    token = text ? (JSON.parse(text) as { token?: unknown }).token : null;
+  } catch { /* no local session file: keep the stored credential */ }
+  if (typeof token === 'string' && token && token !== deps.tokens.get()) deps.tokens.set(token, { explicit: false });
+}
 
 export async function loadRuntime(settings: RuntimeSettings, deps: LoaderDeps): Promise<LoadedRuntime> {
   let create: CreateRuntimeClient;
@@ -41,6 +58,8 @@ export async function loadRuntime(settings: RuntimeSettings, deps: LoaderDeps): 
     }
     create = fn as CreateRuntimeClient;
   }
+
+  if (settings.profile === 'live' && settings.localSessionUrl) await adoptLocalSession(settings.localSessionUrl, deps);
 
   let client: RuntimeClient;
   try {

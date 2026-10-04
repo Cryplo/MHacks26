@@ -86,7 +86,7 @@ export function RuntimeProvider(props: { settings: RuntimeSettings; children: Re
 
   const signIn = useCallback((token: string) => {
     clearPrivateRunData();
-    tokens.set(token);
+    tokens.set(token, { explicit: true });
     setSession(null);
     setGeneration((g) => g + 1);
   }, [tokens]);

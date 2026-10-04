@@ -65,3 +65,44 @@ describe('display modes', () => {
     expect(displayModes({ profile: 'fixture', recorded: true })).toEqual(['Fixture', 'Recorded']);
   });
 });
+
+describe('local integration auto-session', () => {
+  const local = { ...live, localSessionUrl: '/runtime/local-session.json' };
+  const connect = async (settings: typeof live & { localSessionUrl?: string }, tokens: ReturnType<typeof memoryTokenStore>, fetchText: (u: string) => Promise<string | null>) => {
+    let token: string | null | undefined;
+    await loadRuntime(settings, {
+      importModule: async () => ({ createRuntimeClient: async (cfg: { token: string | null }) => { token = cfg.token; return fakeClient(); } }),
+      loadFixture: vi.fn(), tokens, fetchText,
+    });
+    return token;
+  };
+
+  it('signs in with the local operator credential, replacing an anonymous stored session', async () => {
+    const tokens = memoryTokenStore('anonymous');
+    expect(await connect(local, tokens, async () => JSON.stringify({ token: 'operator' }))).toBe('operator');
+    expect(tokens.isExplicit()).toBe(false);
+  });
+
+  it('never replaces a credential chosen on /session', async () => {
+    const tokens = memoryTokenStore();
+    tokens.set('viewer', { explicit: true });
+    const fetchText = vi.fn(async () => JSON.stringify({ token: 'operator' }));
+    expect(await connect(local, tokens, fetchText)).toBe('viewer');
+    expect(fetchText).not.toHaveBeenCalled();
+  });
+
+  it('keeps the stored session when the file is missing or malformed, and is off unless configured', async () => {
+    expect(await connect(local, memoryTokenStore('mine'), async () => null)).toBe('mine');
+    expect(await connect(local, memoryTokenStore('mine'), async () => 'not json')).toBe('mine');
+    const fetchText = vi.fn(async () => JSON.stringify({ token: 'operator' }));
+    expect(await connect(live, memoryTokenStore('mine'), fetchText)).toBe('mine');
+    expect(fetchText).not.toHaveBeenCalled();
+  });
+
+  it('VITE_RUNTIME_LOCAL_SESSION_URL must be same-origin', () => {
+    const base = { VITE_RUNTIME_PROFILE: 'live', VITE_RUNTIME_ADAPTER_URL: '/runtime/browser.js', VITE_RUNTIME_URI: 'http://x', VITE_RUNTIME_DATABASE: 'd' };
+    expect(readRuntimeSettings({ ...base, VITE_RUNTIME_LOCAL_SESSION_URL: '/runtime/local-session.json' }).localSessionUrl).toBe('/runtime/local-session.json');
+    expect(() => readRuntimeSettings({ ...base, VITE_RUNTIME_LOCAL_SESSION_URL: 'https://evil/x.json' })).toThrow(/same-origin/);
+    expect(readRuntimeSettings(base).localSessionUrl).toBeUndefined();
+  });
+});

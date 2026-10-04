@@ -31,8 +31,8 @@ node integration/bootstrap-identities.mjs
 #    real Jev: (cd intelligence && set -a && . ../engine/.local/jev.env && set +a && BEHAVIOR_PROVIDER=jev npm run dev:integration)
 
 # 5. Experience live UI with Engine's browser adapter (http://127.0.0.1:4317)
+#    signs in automatically as the local operator; no sign-in step (local use only)
 (cd experience && npm run dev:integration)
-#    sign in on /session with BEHAVIOR_OPERATOR_TOKEN from engine/.local/integration.env
 ```
 
 `node integration/run.mjs --check` (strict) passes; strict mode now runs the identity bootstrap
@@ -112,7 +112,5 @@ cost, so totals stay unknown rather than zero.
   at roughly 0.5-0.8x real time with the mock provider (each decision is a server round trip
   through the barrier); real Jev adds ~1 s per decision batch. Full-day 300-guest comparisons
   take hours; Engine's own handoff documents the same limit.
-- **Experiments whose work fails stay `running` in Engine's report** (the failed experiment job
-  is not reflected in `getExperiment`).
 - **Jev cost is often unreported** by the provider; usage stays `null` (unknown), never zero.
 - Proposals recorded in `experience/docs/integration-proposals/` remain open.

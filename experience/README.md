@@ -103,8 +103,12 @@ tooltips; charts have data tables; layouts verified at 375px; reduced-motion res
 1. Engine (A) builds `engine/client/dist/browser.js`; A's launcher copies it to
    `experience/public/runtime/browser.js` (gitignored) and starts SpacetimeDB, registers the
    Harbor Lights bundle compiled from `content/harbor-lights/`, and B's mock worker.
-2. `npm run build:live && npx vite preview --mode live --outDir dist/live` (or `dev:live`).
-3. Sign in with the operator credential printed by A's `dev:seed` allowlist bootstrap.
+2. `npm run dev:integration` builds the live profile and serves it on http://127.0.0.1:4317.
+   It signs in automatically as the local operator (from `engine/.local/integration.env`,
+   written by `node integration/bootstrap-identities.mjs`), so there is no sign-in step.
+   A credential chosen explicitly on `/session` takes precedence. Local use only: the served
+   build contains the local operator credential. A plain `npm run build:live` never does,
+   and still requires signing in on `/session`.
 4. `BEHAVIOR_OPERATOR_TOKEN=… npm run test:e2e:live` (add `BEHAVIOR_REAL_JEV=1` only when a
    real-Jev budget is authorized).
 

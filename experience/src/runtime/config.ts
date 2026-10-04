@@ -9,6 +9,11 @@ export type RuntimeSettings = {
   adapterUrl: string;
   uri: string;
   database: string;
+  /**
+   * Local integration build only (`npm run dev:integration`): same-origin path of a file the
+   * launcher writes with the local operator credential, so the local UI needs no sign-in.
+   */
+  localSessionUrl?: string;
 };
 
 export class RuntimeConfigError extends Error {
@@ -29,5 +34,7 @@ export function readRuntimeSettings(env: Env): RuntimeSettings {
   if (!adapterUrl.startsWith('/')) throw new RuntimeConfigError('VITE_RUNTIME_ADAPTER_URL must be a same-origin absolute path such as /runtime/browser.js.');
   if (!uri) throw new RuntimeConfigError('VITE_RUNTIME_URI is required for the live profile.');
   if (!database) throw new RuntimeConfigError('VITE_RUNTIME_DATABASE is required for the live profile.');
-  return { profile, adapterUrl, uri, database };
+  const localSessionUrl = String(env.VITE_RUNTIME_LOCAL_SESSION_URL ?? '');
+  if (localSessionUrl && !localSessionUrl.startsWith('/')) throw new RuntimeConfigError('VITE_RUNTIME_LOCAL_SESSION_URL must be a same-origin absolute path.');
+  return { profile, adapterUrl, uri, database, ...(localSessionUrl ? { localSessionUrl } : {}) };
 }
