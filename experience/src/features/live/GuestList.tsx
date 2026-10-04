@@ -18,11 +18,11 @@ export function GuestList(props: { store: LiveStore; selectedId: Id | null; onSe
   }, [agents, q, decided]);
   return (
     <div className="stack" data-testid="guest-list">
+      <label className="row small"><input type="checkbox" checked={decided} onChange={(e) => setDecided(e.target.checked)} data-testid="only-decided" /> Only guests with a recorded decision</label>
       <label className="field">
         <span className="label">Find a guest</span>
         <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Guest ID, group ID or activity (e.g. queueing)" aria-describedby="guest-count" />
       </label>
-      <label className="row small"><input type="checkbox" checked={decided} onChange={(e) => setDecided(e.target.checked)} data-testid="only-decided" /> Only guests with a recorded decision</label>
       <p id="guest-count" className="small muted" aria-live="polite">{list.length} guest(s) in park match{list.length > LIMIT ? `; showing the first ${LIMIT}` : ''}.</p>
       <ul className="guest-list">
         {list.slice(0, LIMIT).map((a) => {
