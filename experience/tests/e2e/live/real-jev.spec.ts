@@ -12,7 +12,7 @@ test('@real-jev a live run shows a Jev-sourced distribution, never a mock presen
   await page.getByRole('button', { name: 'Use credential' }).click();
   await page.goto('/setup');
   await page.getByTestId('choose-park-harbor-lights-s1-v1').click();
-  await page.getByTestId('guest-count').fill('200');
+  await page.getByTestId('guest-count').fill('40');
   await page.getByRole('button', { name: 'Fit to crowd size' }).click();
   await page.getByTestId('request-preview').click();
   await expect(page.getByTestId('population-preview')).toBeVisible({ timeout: 300_000 });
