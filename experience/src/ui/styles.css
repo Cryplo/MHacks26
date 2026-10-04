@@ -481,7 +481,12 @@ main.full { flex: 1 1 auto; min-height: 0; }
 .timeline-bar { display: flex; align-items: center; gap: 14px; height: 40px; padding: 0 12px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
 .tl-track-wrap { flex: 1; position: relative; height: 34px; margin: 0 18px; cursor: pointer; touch-action: none; user-select: none; }
 .tl-track { position: absolute; left: 0; right: 0; top: 8px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.06); }
-.tl-recorded { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, rgba(240, 180, 60, 0.25), rgba(240, 180, 60, 0.55)); }
+.tl-recorded { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: rgba(255, 255, 255, 0.16); }
+.tl-played { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, rgba(240, 180, 60, 0.45), var(--accent)); }
+.tl-target { position: absolute; top: -5px; width: 10px; height: 16px; margin-left: -5px; border: 2px solid var(--accent); border-radius: 3px; animation: pulse 1.6s ease-in-out infinite; pointer-events: none; }
+.tl-live.ff { color: var(--accent); border-color: var(--accent-line); gap: 8px; }
+.tl-ff-cancel { border: 0; background: transparent; color: var(--ink-2); font-size: 15px; line-height: 1; padding: 0 0 0 2px; cursor: pointer; }
+.tl-ff-cancel:hover { color: var(--ink); }
 .tl-tick { position: absolute; top: -3px; width: 1px; height: 12px; background: rgba(255, 255, 255, 0.14); }
 .tl-head { position: absolute; top: -4px; width: 2px; height: 14px; margin-left: -1px; background: var(--accent); border-radius: 1px; }
 .tl-knob { position: absolute; top: -5px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(240, 180, 60, 0.35), 0 2px 8px rgba(0, 0, 0, 0.5); cursor: grab; }
@@ -490,7 +495,7 @@ main.full { flex: 1 1 auto; min-height: 0; }
 .tl-hover { position: absolute; top: -28px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; background: var(--surface-3); color: var(--ink); padding: 2px 6px; border-radius: 4px; pointer-events: none; white-space: nowrap; }
 .tl-labels { position: absolute; left: 0; right: 0; top: 18px; height: 14px; }
 .tl-labels span { position: absolute; transform: translateX(-50%); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
-.tl-live { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; border: 1px solid var(--line-2); background: transparent; color: var(--ink-2); }
+.tl-live { flex: none; width: 168px; justify-content: center; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; border: 1px solid var(--line-2); background: transparent; color: var(--ink-2); }
 .tl-live.on { color: var(--accent); border-color: var(--accent-line); }
 .tl-live.on .dot { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: pulse 1.6s ease-in-out infinite; }
 .tl-live.off { cursor: pointer; color: var(--ink); background: var(--surface-2); }
@@ -570,3 +575,4 @@ main.full { flex: 1 1 auto; min-height: 0; }
 .mix-stack { display: flex; gap: 2px; height: 14px; border-radius: 4px; overflow: hidden; }
 .mix-stack > span { display: block; height: 100%; min-width: 2px; }
 .legend-keys i.sq { width: 9px; height: 9px; border-radius: 2px; }
+@media (max-width: 640px) { .tl-live { width: auto; } }

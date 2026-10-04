@@ -59,7 +59,9 @@ test('canvas picking selects the same guest after zoom, pan and resize (C-06)', 
   await page.keyboard.press('ArrowLeft');
   await page.setViewportSize({ width: 1200, height: 800 });
   await page.waitForTimeout(500);
-  const pick = (await pickableGuest(page, 16)) ?? (await pickableGuest(page, 10));
+  // Picking chooses the guest nearest the click, and we click exactly on the target, so a few
+  // pixels of clearance suffice when the early crowd is still bunched near the gate.
+  const pick = (await pickableGuest(page, 16)) ?? (await pickableGuest(page, 10)) ?? (await pickableGuest(page, 4));
   expect(pick).toBeTruthy();
   const id = pick!.id;
   const p = { x: pick!.x, y: pick!.y };

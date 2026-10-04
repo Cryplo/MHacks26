@@ -28,6 +28,8 @@ import { formatSimClock } from '../../ui/format';
 type OverviewTab = 'summary' | 'guests' | 'activity';
 
 const PLAYBACK_TICK_MS = 250;
+/** Requested speed while fast-forwarding (the engine runs as fast as it can up to this). */
+const FAST_FORWARD_SPEED = 240;
 
 export function LivePage() {
   const { runId = '' } = useParams();
@@ -119,6 +121,33 @@ export function LivePage() {
     return () => clearInterval(t);
   }, [playing, playSpeed, headMs, terminal]);
   useEffect(() => { if (scrubMs === null && !terminal) setPlaying(false); }, [scrubMs, terminal]);
+
+  // ---- Fast-forward: releasing beyond the live head runs the simulation flat out until the
+  // head reaches that time, then restores the previous speed. Commands go one at a time
+  // (each needs the current control revision), driven by the run state below.
+  const [ffTarget, setFfTarget] = useState<number | null>(null);
+  const [ffRestore, setFfRestore] = useState<{ speed: number; pending: boolean } | null>(null);
+  const startFastForward = useCallback((ms: number) => {
+    if (!run || terminal) return;
+    goLive();
+    setFfRestore((cur) => cur ?? { speed: run.requestedSpeed, pending: false });
+    setFfTarget(ms);
+    if (run.status === 'paused') controls.resume();
+  }, [run, terminal, goLive, controls]);
+  const stopFastForward = useCallback(() => {
+    setFfTarget(null);
+    setFfRestore((cur) => (cur ? { ...cur, pending: true } : null));
+  }, []);
+  useEffect(() => {
+    if (ffTarget === null || !run || controls.ctlPending) return;
+    if (headMs >= ffTarget || terminal) { stopFastForward(); return; }
+    if (run.status === 'running' && run.requestedSpeed !== FAST_FORWARD_SPEED) controls.speed(FAST_FORWARD_SPEED);
+  }, [ffTarget, run, headMs, terminal, controls, stopFastForward]);
+  useEffect(() => {
+    if (!ffRestore?.pending || !run || controls.ctlPending) return;
+    if (terminal || run.requestedSpeed === ffRestore.speed) { setFfRestore(null); return; }
+    controls.speed(ffRestore.speed);
+  }, [ffRestore, run, terminal, controls]);
   const viewStore = viewer.asStore();
   const scrub: Scrub = {
     scrubbing: scrubMs !== null, viewMs, playing, speed: playSpeed, terminal,
@@ -179,7 +208,8 @@ export function LivePage() {
   const showGuest = view === 'overview' && selectedId;
   const timeline = (
     <Timeline openLocal={park.openLocal} horizonMs={manifest.config.horizonMs} headMs={headMs} viewMs={viewMs} scrubbing={scrubMs !== null} terminal={terminal}
-      stepMs={frameEvery} onScrub={(ms) => { setPlaying(false); setScrubMs(ms); }} onCommit={commitScrub} onLive={() => (terminal ? setScrubMs(headMs) : goLive())} />
+      stepMs={frameEvery} onScrub={(ms) => { setPlaying(false); setScrubMs(ms); }} onCommit={commitScrub} onLive={() => (terminal ? setScrubMs(headMs) : goLive())}
+      onFastForward={canOperate && !terminal ? startFastForward : undefined} ffTargetMs={ffTarget} onCancelFastForward={stopFastForward} />
   );
 
   return (

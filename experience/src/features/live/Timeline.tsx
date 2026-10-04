@@ -14,6 +14,8 @@ export function shortClock(ms: number, openLocal: string) {
 export function Timeline(props: {
   openLocal: string; horizonMs: number; headMs: number; viewMs: number; scrubbing: boolean; terminal: boolean;
   onScrub: (ms: number) => void; onCommit?: (ms: number, released?: boolean) => void; onLive: () => void; stepMs: number;
+  /** Operators on a running run: releasing beyond the live head fast-forwards the simulation there. */
+  onFastForward?: (ms: number) => void; ffTargetMs?: number | null; onCancelFastForward?: () => void;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const [hoverMs, setHoverMs] = useState<number | null>(null);
@@ -21,6 +23,7 @@ export function Timeline(props: {
   const H = Math.max(1, props.horizonMs);
   const pct = (ms: number) => `${Math.min(100, Math.max(0, (ms / H) * 100))}%`;
   const snap = (ms: number) => Math.min(props.headMs, Math.max(0, Math.round(ms / props.stepMs) * props.stepMs));
+  const canSkip = Boolean(props.onFastForward) && !props.terminal;
   const msAt = (clientX: number) => {
     const r = track.current!.getBoundingClientRect();
     return ((clientX - r.left) / Math.max(1, r.width)) * H;
@@ -46,21 +49,38 @@ export function Timeline(props: {
         onPointerMove={(e) => { const ms = msAt(e.clientX); setHoverMs(Math.max(0, Math.min(H, ms))); if (dragging) props.onScrub(snap(ms)); }}
         onPointerLeave={() => setHoverMs(null)}
         onPointerDown={(e) => { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); setDragging(true); props.onScrub(snap(msAt(e.clientX))); }}
-        onPointerUp={(e) => { setDragging(false); const v = snap(msAt(e.clientX)); if (v >= props.headMs - props.stepMs && !props.terminal) props.onLive(); else props.onCommit?.(v, true); }}>
+        onPointerUp={(e) => {
+          setDragging(false);
+          const raw = Math.max(0, Math.min(H, msAt(e.clientX)));
+          if (canSkip && raw > props.headMs + props.stepMs) { props.onFastForward!(Math.round(raw / 60_000) * 60_000); return; }
+          const v = snap(raw);
+          if (v >= props.headMs - props.stepMs && !props.terminal) props.onLive(); else props.onCommit?.(v, true);
+        }}>
         <div className="tl-track" ref={track}>
+          {/* Faint: everything recorded so far. Solid: up to the moment on screen (like a video bar). */}
           <div className="tl-recorded" style={{ width: pct(props.headMs) }} />
+          <div className="tl-played" style={{ width: pct(Math.min(props.viewMs, props.headMs)) }} />
+          {props.ffTargetMs != null && <span className="tl-target" style={{ left: pct(props.ffTargetMs) }} title="Fast-forward target" />}
           {hours.map((h) => <span key={h} className="tl-tick" style={{ left: pct(h) }} />)}
           {!props.terminal && <span className="tl-head" style={{ left: pct(props.headMs) }} title="Live" />}
           <span className={`tl-knob ${atLive ? 'live' : ''}`} style={{ left: pct(props.viewMs) }}
             role="slider" tabIndex={0} aria-label="Simulation time" aria-valuemin={0} aria-valuemax={props.headMs} aria-valuenow={props.viewMs}
             aria-valuetext={`${formatSimClock(props.viewMs, props.openLocal)}${atLive && !props.terminal ? ', live' : ''}`} onKeyDown={key} data-testid="timeline-knob" />
-          {hoverMs !== null && <span className="tl-hover" style={{ left: pct(hoverMs) }}>{formatSimClock(Math.min(hoverMs, props.headMs), props.openLocal)}</span>}
+          {hoverMs !== null && (
+            <span className="tl-hover" style={{ left: pct(hoverMs) }}>
+              {hoverMs > props.headMs + props.stepMs
+                ? (canSkip ? `Skip ahead to ${formatSimClock(Math.round(hoverMs / 60_000) * 60_000, props.openLocal)}` : 'Not simulated yet')
+                : formatSimClock(Math.min(hoverMs, props.headMs), props.openLocal)}
+            </span>
+          )}
         </div>
         <div className="tl-labels" aria-hidden="true">
           {hours.map((h, i) => (i % Math.ceil(hours.length / 10) === 0 ? <span key={h} style={{ left: pct(h) }}>{shortClock(h, props.openLocal)}</span> : null))}
         </div>
       </div>
-      {props.terminal
+      {props.ffTargetMs != null
+        ? <span className="tl-live ff" data-testid="ff-indicator" title={`Fast-forwarding to ${formatSimClock(props.ffTargetMs, props.openLocal)}`}>Skipping to {shortClock(Math.round(props.ffTargetMs / 60_000) * 60_000, props.openLocal)}<button type="button" className="tl-ff-cancel" onClick={props.onCancelFastForward} aria-label="Stop fast-forward">×</button></span>
+        : props.terminal
         ? <span className="tl-live recorded" title="This run has finished; the timeline is a full recording">Recording</span>
         : atLive
           ? <span className="tl-live on" data-testid="live-indicator"><span className="dot" aria-hidden="true" />Live</span>

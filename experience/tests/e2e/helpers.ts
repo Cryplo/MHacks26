@@ -68,7 +68,11 @@ export const appErrors = (errors: string[]) => errors.filter((e) => !/GL Driver|
  */
 export async function pickableGuest(page: Page, gap = 16): Promise<{ id: string; x: number; y: number } | null> {
   return page.evaluate((minGap) => {
-    const ids = Array.from(new Set(Array.from(document.querySelectorAll('[data-agent-id]')).map((e) => e.getAttribute('data-agent-id')!)));
+    // Every guest, not just the rows the (name-sorted, windowed) guest list happens to render:
+    // after zooming/panning, those may all be off screen.
+    const listed = Array.from(document.querySelectorAll('[data-agent-id]')).map((e) => e.getAttribute('data-agent-id')!);
+    const all = Array.from({ length: 2000 }, (_, i) => `a${String(i + 1).padStart(4, '0')}`);
+    const ids = Array.from(new Set([...listed, ...all]));
     const map = globalThis.__behaviorMap;
     const canvas = document.querySelector('[data-testid=park-map] canvas');
     if (!map || !canvas) return null;
