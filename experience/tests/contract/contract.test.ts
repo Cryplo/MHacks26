@@ -11,7 +11,7 @@ import golden from '../../fixtures/golden-vectors.json';
 import conformance from '../../fixtures/conformance-fixtures.json';
 
 const root = join(__dirname, '..', '..');
-const FROZEN_SHA = '38502f63cf2a63f750658ae3e771a5429cd15eb9df4c66b20869970d177c40f6';
+const FROZEN_SHA = '2753b3c5c1eb16106f1a1eb69fc84174aa3c733eb5e6450927d5b60f98083a97';
 
 describe('frozen contract mirror', () => {
   it('is byte-identical to the agreed behavior.v1 contract (SHA-256 of LF bytes)', () => {

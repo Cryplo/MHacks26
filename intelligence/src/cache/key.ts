@@ -3,7 +3,7 @@ import { hashCanonical } from '../core/canonical.ts';
 
 export const CACHE_KEY_VERSION = 'cache-key-v1';
 
-export type ProviderIdentity = { source: 'jev' | 'mock'; model: string; instructionsVersion: string };
+export type ProviderIdentity = { source: 'jev' | 'mock' | 'laya'; model: string; instructionsVersion: string };
 
 /**
  * The exact semantic content a provider sees for a decision. Includes the full observation

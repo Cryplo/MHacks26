@@ -454,8 +454,8 @@ class Session {
   }
 
   private sources(): Record<Source, number> {
-    const s: Record<Source, number> = { jev: 0, cache: 0, mock: 0, fallback: 0 };
-    for (const p of this.state.pairs) for (const a of Object.values(p.arms)) if (a.quality) for (const k of Object.keys(s) as Source[]) s[k] += a.quality.behaviorCounts[k];
+    const s: Record<Source, number> = { jev: 0, cache: 0, mock: 0, fallback: 0, laya: 0 };
+    for (const p of this.state.pairs) for (const a of Object.values(p.arms)) if (a.quality) for (const k of Object.keys(s) as Source[]) s[k] += a.quality.behaviorCounts[k] ?? 0;
     return s;
   }
 

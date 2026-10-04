@@ -3,4 +3,7 @@ dist/
 coverage/
 .data/
 .env
+.env.local
 *.log
+.venv/
+__pycache__/

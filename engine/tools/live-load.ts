@@ -77,8 +77,13 @@ const versions: C.VersionSet = {
   options: "options.v1",
   random: "behavior-rng-v1",
   persona: "population-v1",
-  prompt: "jev-instructions-v1",
-  requestedModel: mode === "live" ? "jev-1.13.0" : "mock-policy-v1",
+  prompt: mode === "local" ? "laya-compact-v1" : "jev-instructions-v1",
+  requestedModel:
+    mode === "local"
+      ? "laya-multilingual-mlx-f2b4faf5"
+      : mode === "live"
+        ? "jev-1.13.0"
+        : "mock-policy-v1",
   meter: "meter.v1",
   loading: "loading.v1",
   metrics: "metrics-v1",
@@ -210,6 +215,7 @@ if (!["completed", "cancelled"].includes(run.status))
 const wall = (performance.now() - started) / 1000;
 console.log(
   JSON.stringify({
+    runId,
     guests,
     mode,
     requestedSpeed: speed,

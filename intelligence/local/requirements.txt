@@ -1,0 +1,3 @@
+# Pin the MLX port because the independent-state batch bridge uses prepare/forward.
+laya-mlx @ git+https://github.com/mizorewww/laya-mlx.git@ca5940aa9286dbbdfaacbecbdb7b337295ad36a2
+mlx==0.32.3

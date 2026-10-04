@@ -29,7 +29,7 @@ export function ExperimentSetupPage() {
   const [analysis, setAnalysis] = useState<'paired_descriptive' | 'paired_t'>('paired_descriptive');
   const [tAck, setTAck] = useState(false);
   const [provider, setProvider] = useState<'mock' | 'jev'>('mock');
-  const jevReason = rt.settings.profile === 'fixture' ? 'The fixture profile has no Jev connection.' : null;
+  const jevReason = rt.settings.profile === 'fixture' ? 'The fixture profile has no Jev connection.' : rt.settings.behaviorProvider === 'laya' ? 'This stack uses Local Laya; real-Jev experiments require a Jev worker.' : null;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ error: DomainError; transport: boolean } | null>(null);
   const [expId] = useState(() => `exp-${crypto.randomUUID().slice(0, 8)}`);

@@ -114,7 +114,7 @@ export const metricSnapshotSchema = z.object({
 
 const scope = z.object({ runId: id.nullable(), experimentId: id.nullable() }).strict();
 const quality = z.object({
-  comparisonEligible: z.boolean(), reasons: z.array(z.string()), behaviorCounts: z.object({ jev: z.number(), cache: z.number(), mock: z.number(), fallback: z.number() }).strict(),
+  comparisonEligible: z.boolean(), reasons: z.array(z.string()), behaviorCounts: z.object({ laya: z.number().optional(), jev: z.number(), cache: z.number(), mock: z.number(), fallback: z.number() }).strict(),
   invalidAttempts: z.number(), staleAttempts: z.number(), pendingRatings: z.number(), terminalRatingsExpected: z.number(), terminalRatingsComplete: z.number(),
 }).strict();
 export const factBundleSchema = z.object({
@@ -132,10 +132,10 @@ export const narrativeSchema = z.object({
 
 const distribution = z.array(z.object({ optionId: id, probability: prob }).strict());
 export const decisionResultSchema = z.object({
-  requestId: id, observationHash: hash, optionsHash: hash, modelRequested: z.string(), modelReturned: z.string(), source: z.enum(['jev', 'cache', 'mock', 'fallback']),
+  requestId: id, observationHash: hash, optionsHash: hash, modelRequested: z.string(), modelReturned: z.string(), source: z.enum(['jev', 'cache', 'mock', 'fallback', 'laya']),
   probabilities: distribution, confidence: z.number().nullable(), responseArtifact: artifactRefSchema,
   usage: z.object({ callId: id.nullable(), inputTokens: z.number().nullable(), outputTokens: z.number().nullable(), estimatedCostUsd: z.number().nullable(), priceVersion: z.string().nullable(), queueMs: z.number(), httpMs: z.number(), attemptCount: z.number() }).strict(),
-  cacheKey: hash.nullable(), originalSource: z.enum(['jev', 'mock', 'fallback']),
+  cacheKey: hash.nullable(), originalSource: z.enum(['jev', 'mock', 'fallback', 'laya']),
 }).strict();
 
 export const pairResultSchema = z.object({

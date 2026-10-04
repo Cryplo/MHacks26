@@ -36,13 +36,13 @@ export function SetupPage() {
   const [parkSummary, setParkSummary] = useState<ParkSummary | null>(null);
   const [park, setPark] = useState<LoadedPark | null>(null);
   const [parkError, setParkError] = useState<string | null>(null);
-  const [guestCount, setGuestCount] = useState(DEFAULT_GUESTS);
-  const [mix, setMix] = useState<GuestMix>(defaultMix());
+  const [guestCount, setGuestCount] = useState(rt.settings.behaviorProvider === 'laya' ? DEFAULT_LIVE_GUESTS : DEFAULT_GUESTS);
+  const [mix, setMix] = useState<GuestMix>(defaultMix(rt.settings.behaviorProvider === 'laya' ? DEFAULT_LIVE_GUESTS : DEFAULT_GUESTS));
   const [seed, setSeed] = useState(newSeed);
   const [notes, setNotes] = useState('');
   const [rawPreview, setPreview] = useState<Preview>({ kind: 'none' });
   const [presetId, setPresetId] = useState('baseline');
-  const [mode, setMode] = useState<Mode>('mock');
+  const [mode, setMode] = useState<Mode>(rt.settings.behaviorProvider === 'laya' ? 'local' : 'mock');
   // Full operating day by default; the fixture's scripted scenes only cover 4 hours.
   const [horizon, setHorizon] = useState(rt.settings.profile === 'fixture' ? 4 * 3600_000 : 10 * 3600_000);
   const [ratingMode, setRatingMode] = useState<'periodic' | 'terminal'>('periodic');
@@ -117,7 +117,8 @@ export function SetupPage() {
   const [planHash, setPlanHash] = useState<string | null>(null);
   useEffect(() => { let live = true; if (manifest) void canonicalHash(manifest).then((h) => live && setPlanHash(h)); else setPlanHash(null); return () => { live = false; }; }, [manifest ? canonicalJson(manifest) : null]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const liveModeReason = rt.settings.profile === 'fixture' ? 'The fixture profile has no Jev connection; Live Jev needs the live profile.' : null;
+  const localModeReason = rt.settings.profile !== 'live' || rt.settings.behaviorProvider !== 'laya' ? 'Start the stack with BEHAVIOR_PROVIDER=laya.' : null;
+  const liveModeReason = rt.settings.profile === 'fixture' ? 'The fixture profile has no Jev connection; Live Jev needs the live profile.' : rt.settings.behaviorProvider === 'laya' ? 'This stack is running Local Laya. Restart with BEHAVIOR_PROVIDER=jev for Jev.' : null;
   const createReason = !isOperator ? 'Only operator sessions can create runs.'
     : !parkSummary ? 'Choose a park.' : parkSummary.status !== 'ready' ? `Park is ${parkSummary.status}.`
       : !park ? 'Loading park…'
@@ -125,6 +126,7 @@ export function SetupPage() {
           : preview.kind === 'failed' ? 'Sampling the crowd failed; retry it.'
             : preview.kind !== 'ready' ? 'Sampling guests…'
               : unsupportedKinds.length ? `The server does not support ${unsupportedKinds.join(', ')} events.`
+                : mode === 'local' && localModeReason ? localModeReason
                 : mode === 'live' && liveModeReason ? liveModeReason
                   : rt.settings.profile === 'fixture' && horizon > 4 * 3600_000 ? 'Fixture scenes cover at most 4 hours.' : !planHash ? 'Preparing plan…' : null;
 
@@ -200,12 +202,13 @@ export function SetupPage() {
                   const m = e.target.value as Mode;
                   setMode(m);
                   // Live Jev is billable per decision: suggest a smaller crowd when switching from the default.
-                  if (m === 'live' && guestCount === DEFAULT_GUESTS) { setGuestCount(DEFAULT_LIVE_GUESTS); setMix(fitMix(mix, DEFAULT_LIVE_GUESTS)); }
+                  if ((m === 'live' || m === 'local') && guestCount === DEFAULT_GUESTS) { setGuestCount(DEFAULT_LIVE_GUESTS); setMix(fitMix(mix, DEFAULT_LIVE_GUESTS)); }
                 }} data-testid="mode-select">
                   <option value="mock">Mock (deterministic mock provider)</option>
+                  <option value="local" disabled={Boolean(localModeReason)}>Local Laya{localModeReason ? ' (unavailable)' : ''}</option>
                   <option value="live" disabled={Boolean(liveModeReason)}>Live Jev{liveModeReason ? ' (unavailable)' : ''}</option>
                 </select>
-                {liveModeReason && <span className="hint">{liveModeReason}</span>}
+                {mode === 'local' ? <span className="hint">On-device decisions and ratings. No API charges; explanations are templates.</span> : liveModeReason && <span className="hint">{liveModeReason}</span>}
               </label>
               <label className="field"><span className="label">Operating horizon</span>
                 <select value={horizon} onChange={(e) => setHorizon(Number(e.target.value))}>
@@ -453,7 +456,7 @@ function FrozenPlan(props: { manifest: ReturnType<typeof buildManifest>; park: L
         ['Seed', <span className="mono" key="s">{m.replicateSeed}</span>], ['Horizon', `${formatDuration(c.horizonMs)} (${props.park.park.openLocal} to ${formatSimClock(c.horizonMs, props.park.park.openLocal)})`],
         ['Scenario', `${m.scenario.label} (rev ${m.scenario.revision})`],
         ['Events', m.scenario.events.length ? m.scenario.events.map((e) => `${describeChange(e.change, props.park.park, rt.capabilities.features.discountMessages).operation}: ${describeChange(e.change, props.park.park, false).value} at ${eventTime(e, props.park.park)}`).join(' | ') : 'none (baseline)'],
-        ['Provider', c.mode === 'mock' ? 'Mock provider (not a real-Jev comparison)' : 'Live Jev'],
+        ['Provider', c.mode === 'mock' ? 'Mock provider (not a real-Jev comparison)' : c.mode === 'local' ? 'Local Laya (on-device inference)' : 'Live Jev'],
         ['Ratings', c.ratingEveryMs ? 'every 30 sim-min + departure/horizon' : 'departure/horizon only'],
         ['Steps', '5,000 ms logical steps, 250 ms movement substeps, temperature 1'],
         ['Fallback', c.fallback === 'forbidden' ? 'forbidden (clock waits for inference)' : `live timeout fallback after ${c.liveTimeoutMs} ms (marks run degraded)`],

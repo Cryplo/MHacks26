@@ -28,7 +28,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!installAdapter()) { console.error('Engine browser adapter missing: build engine (npm run build in engine/) first.'); process.exit(1); }
   const token = localOperatorToken();
   const b = spawnSync('npm', ['run', 'build:live'], {
-    cwd: root, stdio: 'inherit', env: { ...process.env, ...(token ? { VITE_RUNTIME_LOCAL_SESSION_URL: LOCAL_SESSION_PATH } : {}) },
+    cwd: root, stdio: 'inherit', env: { ...process.env, VITE_RUNTIME_PROVIDER: process.env.BEHAVIOR_PROVIDER ?? 'mock', ...(token ? { VITE_RUNTIME_LOCAL_SESSION_URL: LOCAL_SESSION_PATH } : {}) },
   });
   if (b.status !== 0) process.exit(b.status ?? 1);
   if (token) writeFileSync(join(root, 'dist', 'live', LOCAL_SESSION_PATH.slice(1)), JSON.stringify({ token }), { mode: 0o600 });

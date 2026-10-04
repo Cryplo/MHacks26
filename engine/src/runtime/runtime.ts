@@ -683,10 +683,23 @@ function dispatchCommand(
                     item.result.source === "cache"),
                 "Live run accepts only Jev distributions",
               );
+            if (s.manifest.config.mode === "local")
+              ensure(
+                item.result.originalSource === "laya" &&
+                  (item.result.source === "laya" || item.result.source === "cache") &&
+                  item.result.modelReturned === s.manifest.config.versions.requestedModel,
+                "Local run accepts only the declared Laya model",
+              );
             acceptDecision(s, item.result);
           } else {
             const r = j.payload as C.RatingRequest;
             ensure(item.result.ratingId === r.ratingId, "Wrong rating request");
+            if (s.manifest.config.mode === "local")
+              ensure(
+                (item.result.source === "laya" || item.result.source === "cache") &&
+                  item.result.modelReturned === s.manifest.config.versions.requestedModel,
+                "Local run accepts only ratings from the declared Laya model",
+              );
             acceptRating(s, item.result);
           }
           // A response only touches its own slot (ratings also the rated person and quality

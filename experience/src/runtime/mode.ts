@@ -5,7 +5,7 @@
 import type { Quality, RunView } from '../../contract/behavior-v1';
 import type { Profile } from './config';
 
-export type DisplayMode = 'Fixture' | 'Mock' | 'Live Jev' | 'Degraded' | 'Recorded';
+export type DisplayMode = 'Fixture' | 'Mock' | 'Live Jev' | 'Local Laya' | 'Degraded' | 'Recorded';
 
 export function displayModes(input: { profile: Profile; run?: Pick<RunView, 'mode'> | null; quality?: Quality | null; recorded?: boolean }): DisplayMode[] {
   const out: DisplayMode[] = [];
@@ -14,7 +14,8 @@ export function displayModes(input: { profile: Profile; run?: Pick<RunView, 'mod
   if (input.profile === 'live' && input.run && input.run.mode !== 'replay') {
     const counts = input.quality?.behaviorCounts;
     const jev = (counts?.jev ?? 0) + (counts?.cache ?? 0);
-    if (input.run.mode === 'live' || (input.run.mode === 'experiment' && jev > 0)) out.push('Live Jev');
+    if (input.run.mode === 'local') out.push('Local Laya');
+    else if (input.run.mode === 'live' || (input.run.mode === 'experiment' && jev > 0)) out.push('Live Jev');
     else out.push('Mock');
     if ((counts?.fallback ?? 0) > 0) out.push('Degraded');
   }
@@ -24,10 +25,11 @@ export function displayModes(input: { profile: Profile; run?: Pick<RunView, 'mod
 export const MODE_EXPLANATION: Record<DisplayMode, string> = {
   Fixture: 'Scripted fixture data for UI development. No Engine simulation, no Jev, guests do not react to interventions.',
   Mock: 'Engine simulation with a deterministic mock probability provider. Not a real-Jev comparison.',
+  'Local Laya': 'Engine simulation with local Laya decision distributions. No cloud inference.',
   'Live Jev': 'Engine simulation with decision distributions from Jev.',
   Degraded: 'Some decisions used the declared live-timeout fallback. Those are not evidence of Jev behavior.',
   Recorded: 'Playback of saved frames. No new inference or simulation happens during replay.',
 };
 
 export const modeClass = (m: DisplayMode) =>
-  m === 'Fixture' ? 'mode-fixture' : m === 'Mock' ? 'mode-mock' : m === 'Live Jev' ? 'mode-live' : m === 'Degraded' ? 'mode-degraded' : 'mode-recorded';
+  m === 'Fixture' ? 'mode-fixture' : m === 'Mock' ? 'mode-mock' : (m === 'Live Jev' || m === 'Local Laya') ? 'mode-live' : m === 'Degraded' ? 'mode-degraded' : 'mode-recorded';

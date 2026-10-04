@@ -135,7 +135,7 @@ export function buildExperimentFacts(report: ExperimentReport, ctx: ReportContex
     }
   }
   const totalDecisions = Object.values(ctx.sources).reduce((s, v) => s + v, 0);
-  for (const src of ['jev', 'cache', 'mock', 'fallback'] as const) {
+  for (const src of ['jev', 'cache', 'mock', 'fallback', 'laya'] as const) {
     f(`sources.${src}`, `Applied decisions with source ${src}`, ctx.sources[src], 'decisions', `${totalDecisions} applied decisions across all arms`);
   }
   if (totalDecisions) f('sources.fallback_share', 'Share of applied decisions from fallback', ctx.sources.fallback / totalDecisions, 'ratio', `${totalDecisions} applied decisions`);

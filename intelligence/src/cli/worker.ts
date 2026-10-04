@@ -22,6 +22,7 @@ import { fixtureDecisionRequest } from '../fixtures/orchestration.ts';
 import { FetchHttp } from '../providers/http.ts';
 import { DEFAULT_JEV_MODEL, JevProvider } from '../providers/jev.ts';
 import { BatchingJevProvider, DEFAULT_BATCH } from '../providers/jev-batch.ts';
+import { LayaProvider } from '../providers/laya.ts';
 import { MockProvider } from '../providers/mock.ts';
 import type { BehaviorProvider } from '../providers/types.ts';
 import { jsonLineLogger, systemClock, systemJitter } from '../runtime/clock.ts';
@@ -40,6 +41,7 @@ const secrets = [env.JEV_API_KEY, env.BEHAVIOR_WORKER_TOKEN, env.BEHAVIOR_COORDI
 const num = (name: string, fallback: number) => (env[name] ? Number(env[name]) : fallback);
 const logger = jsonLineLogger(undefined, systemClock, secrets);
 
+const usesLaya = () => env.BEHAVIOR_PROVIDER === 'laya';
 const usesJev = () => env.BEHAVIOR_PROVIDER === 'jev';
 /** Batched Jev (default): many requests per HTTP call. JEV_BATCH_SIZE=1 restores one call per request. */
 const batchSize = () => (usesJev() ? Math.max(1, num('JEV_BATCH_SIZE', DEFAULT_BATCH.maxItems)) : 1);
@@ -47,7 +49,8 @@ const batching = () => batchSize() > 1;
 
 function provider(): BehaviorProvider {
   if ((env.BEHAVIOR_PROVIDER ?? 'mock') === 'mock') return new MockProvider();
-  if (env.BEHAVIOR_PROVIDER !== 'jev') throw new Error(`BEHAVIOR_PROVIDER must be mock or jev, not ${env.BEHAVIOR_PROVIDER}`);
+  if (usesLaya()) return new LayaProvider(env.LAYA_ENDPOINT, num('LAYA_BATCH_SIZE', 8));
+  if (env.BEHAVIOR_PROVIDER !== 'jev') throw new Error(`BEHAVIOR_PROVIDER must be mock, jev or laya, not ${env.BEHAVIOR_PROVIDER}`);
   if (!env.JEV_API_KEY) throw new Error('BEHAVIOR_PROVIDER=jev requires JEV_API_KEY');
   const jev = new JevProvider({
     endpoint: env.JEV_ENDPOINT ?? 'https://api.typesafe.ai/v1/systemone', apiKey: env.JEV_API_KEY, model: env.JEV_MODEL ?? DEFAULT_JEV_MODEL,
@@ -68,7 +71,9 @@ function limiter() {
   const maxCalls = env.BEHAVIOR_MAX_PROVIDER_CALLS ? Number(env.BEHAVIOR_MAX_PROVIDER_CALLS) : undefined;
   // Batched Jev: the batching provider spaces real HTTP calls; this limiter admits logical
   // requests so a whole barrier's decisions can wait in one batch queue.
-  const logical = batching()
+  const logical = usesLaya()
+    ? { requestsPerSecond: 400, requestBurst: 128, inputTokensPerMinute: 4_000_000, tokenBurst: 200_000, maxConcurrency: 32, reservedForBehavior: 8, maxQueue: 2048 }
+    : batching()
     ? { requestsPerSecond: 400, requestBurst: 256, inputTokensPerMinute: num('JEV_INPUT_TOKENS_PER_MINUTE', 4_000_000), tokenBurst: 400_000, maxConcurrency: 4 * batchSize() * num('JEV_MAX_CONCURRENCY', DEFAULT_BATCH.maxInFlight), reservedForBehavior: batchSize(), maxQueue: 2048 }
     : {
       requestsPerSecond: num('JEV_REQUESTS_PER_SECOND', CONSERVATIVE_LIMITS.requestsPerSecond),
@@ -85,6 +90,7 @@ function limiter() {
 
 /** In-flight work items per class; batching needs enough concurrent items to fill batches. */
 function capacity() {
+  if (usesLaya()) return { behavior: 24, measurement: 8, text: 2, experiment: 0 };
   const behavior = num('WORKER_BEHAVIOR_CAPACITY', batching() ? 4 * batchSize() * num('JEV_MAX_CONCURRENCY', DEFAULT_BATCH.maxInFlight) / 2 : 8);
   return { behavior, measurement: num('WORKER_MEASUREMENT_CAPACITY', batching() ? 2 * batchSize() : 2), text: 2, experiment: 0 };
 }
@@ -96,7 +102,7 @@ function build(client: RuntimeClient, store: FileStore | MemoryStore) {
   return createWorker({
     ...common, cache: new ResponseCache(store), coalescer: new InflightCoalescer(),
     options: { leaseMs: num('WORKER_LEASE_MS', 30_000), capacity: capacity() },
-    inference: batching() ? { backgroundTelemetry: true } : undefined,
+    inference: (batching() || usesLaya()) ? { backgroundTelemetry: true } : undefined,
   });
 }
 

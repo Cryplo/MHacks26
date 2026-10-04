@@ -13,7 +13,7 @@ import { conformance, golden } from '../helpers/fixtures.ts';
 describe('frozen contract mirror', () => {
   it('is byte-identical to the agreed SHA-256', () => {
     const bytes = readFileSync(fileURLToPath(new URL('../../contract/behavior-v1.ts', import.meta.url)));
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe('38502f63cf2a63f750658ae3e771a5429cd15eb9df4c66b20869970d177c40f6');
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe('2753b3c5c1eb16106f1a1eb69fc84174aa3c733eb5e6450927d5b60f98083a97');
     expect(CONTRACT_VERSION).toBe('behavior.v1');
   });
 });

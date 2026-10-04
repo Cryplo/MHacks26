@@ -397,7 +397,8 @@ export function advanceCore(
         }
         slot.status = "applied";
         g.requestId = null;
-        s.view.quality.behaviorCounts[response.source]++;
+        s.view.quality.behaviorCounts[response.source] =
+          (s.view.quality.behaviorCounts[response.source] ?? 0) + 1;
         if (response.source === "fallback") {
           s.view.quality.comparisonEligible = false;
           s.view.quality.reasons.push("live fallback");

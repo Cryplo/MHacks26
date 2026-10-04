@@ -34,7 +34,7 @@ const STATES: C.AgentView["state"][] = [
   "deciding",
   "left",
 ];
-const SOURCES: C.Source[] = ["jev", "cache", "mock", "fallback"];
+const SOURCES: C.Source[] = ["jev", "cache", "mock", "fallback", "laya"];
 
 /** [stateCode] for absent guests, else
  * [state, x, y, vx, vy, target+1, hunger, fatigue, patience, fun, experience, evidenceSeq,

@@ -402,7 +402,7 @@ export class FakeRuntimeServer {
   }
 
   private quality(decisions: DecisionResult[], ratings: RatingResult[], expected: number, pendingRatings: number) {
-    const behaviorCounts: Record<Source, number> = { jev: 0, cache: 0, mock: 0, fallback: 0 };
+    const behaviorCounts: Record<Source, number> = { jev: 0, cache: 0, mock: 0, fallback: 0, laya: 0 };
     for (const d of decisions) behaviorCounts[d.source] += 1;
     const reasons = behaviorCounts.fallback > 0 ? ['fallback decisions applied'] : [];
     return {

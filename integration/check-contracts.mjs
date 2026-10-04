@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-export const contractHash = '38502f63cf2a63f750658ae3e771a5429cd15eb9df4c66b20869970d177c40f6';
+export const contractHash = '2753b3c5c1eb16106f1a1eb69fc84174aa3c733eb5e6450927d5b60f98083a97';
 export async function checkContracts(root, partial = false) {
   const results = [];
   for (const lane of ['engine', 'intelligence', 'experience']) {

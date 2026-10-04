@@ -7,7 +7,7 @@ export type CacheEntry = {
   schema: 'response-cache-entry.v1';
   namespace: string; key: Hash; kind: 'decision' | 'rating';
   modelRequested: string; modelReturned: string; policyVersion: string; instructionsVersion: string;
-  originalSource: 'jev' | 'mock' | 'fallback';
+  originalSource: 'jev' | 'mock' | 'fallback' | 'laya';
   /** Validated raw values exactly as returned (decision: by option id; rating: by level index). */
   probabilities: Distribution | number[];
   /** Rating score index as returned by the provider (null for decisions). */

@@ -43,7 +43,7 @@ export class ProviderError extends Error {
 }
 
 export interface BehaviorProvider {
-  readonly source: 'jev' | 'mock';
+  readonly source: 'jev' | 'mock' | 'laya';
   /** Requested model identity; part of every cache key. */
   readonly model: string;
   /** Versioned instructions/request format; part of every cache key. */

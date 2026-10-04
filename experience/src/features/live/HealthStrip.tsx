@@ -98,6 +98,7 @@ export function RunBar(props: {
           <Kpi label="Satisfaction" value={metrics?.measures.satisfaction_0_100.value != null ? formatMetric(metrics.measures.satisfaction_0_100).replace(' / 100', '') : EM_DASH} testId="stat-satisfaction" optional />
         </div>
         <div className="runbar-right">
+          {modes.includes('Local Laya') && <span className="badge plain" title="On-device Laya inference">Local Laya</span>}
           {modes.includes('Live Jev') && <span className="badge plain" title="Guest decisions come from the Jev behavior model">Jev</span>}
           {modes.includes('Degraded') && <span className="badge warn" title="Some decisions used the timeout fallback instead of Jev">Degraded</span>}
           <FixtureChip />

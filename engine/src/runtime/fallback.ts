@@ -9,7 +9,7 @@ import { writeJSON } from "./artifacts.js";
 // represented as a learned probability distribution or permitted in experiments.
 export function resolveLiveTimeouts(store: Store, ctx: Context, s: CoreState) {
   if (
-    s.manifest.config.mode !== "live" ||
+    (s.manifest.config.mode !== "live" && s.manifest.config.mode !== "local") ||
     s.manifest.config.fallback !== "live_timeout_v1"
   )
     return;

@@ -48,7 +48,8 @@ export function scheduleLive(store: Store, ctx: Context): void {
         .map((id) => get<Job>(store, "work", `${s.runId}:${id}`, s.runId))
         .filter((j) => j && !["ready", "applied"].includes(j.status));
       const dueFallback =
-        s.manifest.config.mode === "live" &&
+        (s.manifest.config.mode === "live" ||
+          s.manifest.config.mode === "local") &&
         s.manifest.config.fallback === "live_timeout_v1" &&
         unresolved.some(
           (j) => ctx.now - j!.createdAt >= s.manifest.config.liveTimeoutMs,

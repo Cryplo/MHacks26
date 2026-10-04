@@ -36,8 +36,9 @@ export function optionRows(e: AppliedDecision): OptionRow[] {
 
 export function sourceLabel(source: Source, original: Exclude<Source, 'cache'>, model: string): { text: string; tone: 'ok' | 'warn' | 'info' } {
   switch (source) {
+    case 'laya': return { text: `Local Laya distribution (${model}) — on-device inference`, tone: 'ok' };
     case 'jev': return { text: `Jev distribution (${model})`, tone: 'ok' };
-    case 'cache': return { text: `Cached distribution, originally from ${original === 'jev' ? 'Jev' : original}. The action was sampled from it; nothing was copied from another guest.`, tone: original === 'jev' ? 'info' : 'warn' };
+    case 'cache': return { text: `Cached distribution, originally from ${original === 'jev' ? 'Jev' : original === 'laya' ? 'Local Laya' : original}. The action was sampled from it; nothing was copied from another guest.`, tone: (original === 'jev' || original === 'laya') ? 'info' : 'warn' };
     case 'mock': return { text: `Mock provider (${model}) — not Jev`, tone: 'warn' };
     case 'fallback': return { text: 'Live-timeout fallback — a safety bridge, not evidence of Jev behavior', tone: 'warn' };
   }

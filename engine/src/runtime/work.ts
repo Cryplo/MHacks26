@@ -234,7 +234,10 @@ export function providerAttempt(
     a.phase === "started" || a.phase === "finished",
     "Invalid attempt phase",
   );
-  ensure(a.provider === "jev" || a.provider === "prose", "Invalid provider");
+  ensure(
+    ["jev", "prose", "laya", "mock"].includes(a.provider),
+    "Invalid provider",
+  );
   for (const n of [a.inputTokens, a.outputTokens])
     ensure(
       n === null || (Number.isSafeInteger(n) && n >= 0),

@@ -6,8 +6,8 @@ export type Hash = string; // Lowercase SHA-256 hex.
 export type SimMs = number; // Nonnegative safe integer milliseconds from park opening.
 export type Cents = number; // Safe integer USD cents; no floating-point money.
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
-export type Mode = 'mock' | 'live' | 'experiment' | 'replay';
-export type Source = 'jev' | 'cache' | 'mock' | 'fallback';
+export type Mode = 'mock' | 'live' | 'local' | 'experiment' | 'replay';
+export type Source = 'jev' | 'cache' | 'mock' | 'fallback' | 'laya';
 export type Role = 'viewer' | 'operator' | 'worker' | 'coordinator';
 export type Vec2 = { xM: number; yM: number };
 export type Velocity = { xMps: number; yMps: number };
@@ -155,7 +155,7 @@ export type BoundaryPhase = 'prepare' | 'requests' | 'barrier' | 'apply'
 export type RunStatus = 'preparing' | 'ready' | 'running' | 'paused' | 'blocked'
   | 'draining' | 'completed' | 'failed' | 'cancelled';
 export type Quality = {
-  comparisonEligible: boolean; reasons: string[]; behaviorCounts: Record<Source, number>;
+  comparisonEligible: boolean; reasons: string[]; behaviorCounts: Record<Exclude<Source, 'laya'>, number> & { laya?: number };
   invalidAttempts: number; staleAttempts: number; pendingRatings: number;
   terminalRatingsExpected: number; terminalRatingsComplete: number;
 };
@@ -224,7 +224,7 @@ export type Usage = {
   queueMs: number; httpMs: number; attemptCount: number;
 };
 export type ProviderAttempt = {
-  callId: Id; workId: Id; phase: 'started' | 'finished'; provider: 'jev' | 'prose';
+  callId: Id; workId: Id; phase: 'started' | 'finished'; provider: 'jev' | 'prose' | 'laya' | 'mock';
   modelRequested: string; modelReturned: string | null; startedAtEpochMs: number;
   durationMs: number | null; outcome: null | 'success' | 'timeout' | 'rate_limited' | 'invalid' | 'error';
   inputTokens: number | null; outputTokens: number | null;

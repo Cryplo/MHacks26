@@ -27,6 +27,23 @@ try {
     if(!checkOnly){await run('npm',['ci'],path);await run('npm',['run','build'],path);}
   }
   if(checkOnly)process.exit(0);
+  if (!partial && env.BEHAVIOR_PROVIDER === 'laya') {
+    const endpoint = env.LAYA_ENDPOINT ?? 'http://127.0.0.1:4318';
+    const url = new URL(endpoint);
+    if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(url.hostname)) throw new Error('Laya requires a loopback HTTP endpoint');
+    const healthy = async () => { try { const r = await fetch(`${endpoint}/health`, { signal: AbortSignal.timeout(1000) }); const body = await r.json(); return r.ok && body.ready && body.model === 'laya-multilingual-mlx-f2b4faf5'; } catch { return false; } };
+    if (!await healthy()) {
+      const python = env.LAYA_PYTHON ?? resolve(root, 'intelligence/.venv/bin/python');
+      await access(python);
+      env.LAYA_PORT = url.port || '80';
+      const child = launch(python, [resolve(root, 'intelligence/local/server.py')]);
+      child.once('exit', () => { if (!stopping) { process.exitCode = 1; stop(); } });
+      const deadline = Date.now() + 180000;
+      while (!stopping && Date.now() < deadline && !await healthy()) await new Promise(r => setTimeout(r, 300));
+      if (stopping || !await healthy()) throw new Error('Local Laya startup failed; see intelligence/local/README.md');
+    }
+    console.log('Local Laya ready (no cloud decision calls).');
+  }
   const cli=env.SPACETIME_CLI??'spacetime';
   if(!external){
     const u=new URL(env.SPACETIME_URI);if(!['localhost','127.0.0.1'].includes(u.hostname))throw new Error('Managed database must use loopback');

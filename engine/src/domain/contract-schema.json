@@ -1505,7 +1505,7 @@
     },
     "Mode": {
       "type": "string",
-      "enum": ["mock", "live", "experiment", "replay"]
+      "enum": ["mock", "live", "local", "experiment", "replay"]
     },
     "FeatureFlags": {
       "type": "object",
@@ -1705,7 +1705,26 @@
           }
         },
         "behaviorCounts": {
-          "$ref": "#/definitions/Record%3CSource%2Cnumber%3E"
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "laya": {
+              "type": "number"
+            },
+            "jev": {
+              "type": "number"
+            },
+            "cache": {
+              "type": "number"
+            },
+            "mock": {
+              "type": "number"
+            },
+            "fallback": {
+              "type": "number"
+            }
+          },
+          "required": ["cache", "fallback", "jev", "mock"]
         },
         "invalidAttempts": {
           "type": "number"
@@ -1733,25 +1752,6 @@
         "terminalRatingsExpected",
         "terminalRatingsComplete"
       ],
-      "additionalProperties": false
-    },
-    "Record<Source,number>": {
-      "type": "object",
-      "properties": {
-        "jev": {
-          "type": "number"
-        },
-        "cache": {
-          "type": "number"
-        },
-        "mock": {
-          "type": "number"
-        },
-        "fallback": {
-          "type": "number"
-        }
-      },
-      "required": ["jev", "cache", "mock", "fallback"],
       "additionalProperties": false
     },
     "WorkKind": {
@@ -3154,7 +3154,7 @@
     },
     "Source": {
       "type": "string",
-      "enum": ["jev", "cache", "mock", "fallback"]
+      "enum": ["jev", "cache", "mock", "fallback", "laya"]
     },
     "Distribution": {
       "type": "array",
@@ -3221,7 +3221,7 @@
     },
     "Exclude<Source,\"cache\">": {
       "type": "string",
-      "enum": ["jev", "mock", "fallback"]
+      "enum": ["jev", "mock", "fallback", "laya"]
     },
     "DecisionRationale": {
       "type": "object",
@@ -3897,7 +3897,7 @@
         },
         "provider": {
           "type": "string",
-          "enum": ["jev", "prose"]
+          "enum": ["jev", "prose", "laya", "mock"]
         },
         "modelRequested": {
           "type": "string"

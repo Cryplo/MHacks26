@@ -22,7 +22,9 @@ export const FULL_EVIDENCE_PER_GROUP = 2;
 export const DECISION_LOG_PER_GROUP = 12;
 
 export const compactsHistory = (s: CoreState) =>
-  s.manifest.config.mode === "mock" || s.manifest.config.mode === "live";
+  s.manifest.config.mode === "mock" ||
+  s.manifest.config.mode === "live" ||
+  s.manifest.config.mode === "local";
 /**
  * Mock runs (and experiment arms that request the mock policy) evaluate the mock policy inside
  * Engine unless configured to use a worker (`config.mockResolution: "worker"`).

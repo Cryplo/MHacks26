@@ -164,7 +164,7 @@ export class InferenceService {
       const callId = ids.next('call');
       const startedAt = clock.nowEpochMs();
       const base = {
-        callId, workId, provider: 'jev' as const, modelRequested: provider.model, startedAtEpochMs: startedAt,
+        callId, workId, provider: provider.source, modelRequested: provider.model, startedAtEpochMs: startedAt,
         billingOwnerRunId: this.config.billingOwnerRunId(scope),
       };
       try {

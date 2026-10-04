@@ -114,3 +114,11 @@ tooltips; charts have data tables; layouts verified at 375px; reduced-motion res
    real-Jev budget is authorized).
 
 See `docs/HANDOFF.md` for results, gates and proposals, and `docs/DEMO.md` for the demo.
+
+## Local Laya
+
+The all-lanes launcher also supports on-device Laya decisions and ratings. Follow
+[the local setup guide](../intelligence/local/README.md), then run
+`BEHAVIOR_PROVIDER=laya node integration/run.mjs` from the repository root. New simulations
+default to **Local Laya**, 300 guests, and requested speed 5x. Evidence identifies the exact
+local model; explanations are templates. Mock remains available without changing the worker.

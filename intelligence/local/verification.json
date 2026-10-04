@@ -1,0 +1,260 @@
+{
+  "laya-smoke": {
+    "guests": 50,
+    "mode": "local",
+    "requestedSpeed": 20,
+    "wallS": 31,
+    "simulatedMin": 7.67,
+    "averageSpeed": 14.7,
+    "peakInPark": 5,
+    "publications": 79,
+    "behaviorCounts": {
+      "cache": 0,
+      "fallback": 0,
+      "jev": 0,
+      "laya": 15,
+      "mock": 0
+    },
+    "samples": [
+      {
+        "wallS": 2,
+        "simMin": 0.58,
+        "inPark": 0,
+        "achieved": 13.3
+      },
+      {
+        "wallS": 4,
+        "simMin": 1.17,
+        "inPark": 0,
+        "achieved": 22
+      },
+      {
+        "wallS": 11,
+        "simMin": 1.42,
+        "inPark": 2,
+        "achieved": 12.3
+      },
+      {
+        "wallS": 13,
+        "simMin": 1.92,
+        "inPark": 4,
+        "achieved": 9
+      },
+      {
+        "wallS": 15,
+        "simMin": 2.17,
+        "inPark": 4,
+        "achieved": 12.3
+      },
+      {
+        "wallS": 17,
+        "simMin": 2.83,
+        "inPark": 5,
+        "achieved": 14.4
+      },
+      {
+        "wallS": 19,
+        "simMin": 3.58,
+        "inPark": 5,
+        "achieved": 15.2
+      },
+      {
+        "wallS": 21,
+        "simMin": 4.25,
+        "inPark": 4,
+        "achieved": 19.7
+      },
+      {
+        "wallS": 23,
+        "simMin": 4.92,
+        "inPark": 2,
+        "achieved": 20
+      },
+      {
+        "wallS": 25,
+        "simMin": 5.58,
+        "inPark": 2,
+        "achieved": 18.2
+      },
+      {
+        "wallS": 27,
+        "simMin": 6.25,
+        "inPark": 2,
+        "achieved": 19.9
+      },
+      {
+        "wallS": 29,
+        "simMin": 6.92,
+        "inPark": 2,
+        "achieved": 20
+      },
+      {
+        "wallS": 31,
+        "simMin": 7.67,
+        "inPark": 2,
+        "achieved": 20
+      }
+    ]
+  },
+  "laya-1000": {
+    "guests": 1000,
+    "mode": "local",
+    "requestedSpeed": 20,
+    "wallS": 48,
+    "simulatedMin": 1.33,
+    "averageSpeed": 1.7,
+    "peakInPark": 41,
+    "publications": 19,
+    "behaviorCounts": {
+      "cache": 0,
+      "fallback": 0,
+      "jev": 0,
+      "laya": 57,
+      "mock": 0
+    },
+    "samples": [
+      {
+        "wallS": 2,
+        "simMin": 0.25,
+        "inPark": 9,
+        "achieved": 9.6
+      },
+      {
+        "wallS": 5,
+        "simMin": 0.5,
+        "inPark": 17,
+        "achieved": 9.8
+      },
+      {
+        "wallS": 7,
+        "simMin": 0.58,
+        "inPark": 26,
+        "achieved": 8.4
+      },
+      {
+        "wallS": 10,
+        "simMin": 0.67,
+        "inPark": 26,
+        "achieved": 6.9
+      },
+      {
+        "wallS": 12,
+        "simMin": 0.75,
+        "inPark": 27,
+        "achieved": 5.4
+      },
+      {
+        "wallS": 15,
+        "simMin": 0.75,
+        "inPark": 27,
+        "achieved": 5.4
+      },
+      {
+        "wallS": 17,
+        "simMin": 0.75,
+        "inPark": 27,
+        "achieved": 5.4
+      },
+      {
+        "wallS": 19,
+        "simMin": 0.75,
+        "inPark": 27,
+        "achieved": 5.4
+      },
+      {
+        "wallS": 21,
+        "simMin": 0.83,
+        "inPark": 27,
+        "achieved": 4.2
+      },
+      {
+        "wallS": 24,
+        "simMin": 0.83,
+        "inPark": 27,
+        "achieved": 4.2
+      },
+      {
+        "wallS": 26,
+        "simMin": 0.92,
+        "inPark": 30,
+        "achieved": 3.1
+      },
+      {
+        "wallS": 29,
+        "simMin": 0.92,
+        "inPark": 30,
+        "achieved": 3.1
+      },
+      {
+        "wallS": 31,
+        "simMin": 1.08,
+        "inPark": 34,
+        "achieved": 2.1
+      },
+      {
+        "wallS": 35,
+        "simMin": 1.08,
+        "inPark": 34,
+        "achieved": 2.1
+      },
+      {
+        "wallS": 37,
+        "simMin": 1.17,
+        "inPark": 39,
+        "achieved": 2.3
+      },
+      {
+        "wallS": 39,
+        "simMin": 1.17,
+        "inPark": 39,
+        "achieved": 2.3
+      },
+      {
+        "wallS": 41,
+        "simMin": 1.25,
+        "inPark": 41,
+        "achieved": 1.9
+      },
+      {
+        "wallS": 43,
+        "simMin": 1.25,
+        "inPark": 41,
+        "achieved": 1.9
+      },
+      {
+        "wallS": 46,
+        "simMin": 1.33,
+        "inPark": 40,
+        "achieved": 1.7
+      }
+    ]
+  },
+  "notes": [
+    "Apple M4, 16 GiB unified memory; concurrent local development processes.",
+    "Guests is generated population, not simultaneous active visitors. Peak active guests is recorded separately.",
+    "Short runs only; test runs cancelled afterward. No full operating-day or calibrated behavior claim.",
+    "Provenance queried after cancellation may include additional decisions committed between the final sample and cancellation."
+  ],
+  "modelSmoke": {
+    "model": "laya-multilingual-mlx-f2b4faf5",
+    "batchVsSingleParity": true,
+    "contextOverflowRejected": true,
+    "shortSyntheticQuestions": 40,
+    "seconds": 0.24779641698114574,
+    "questionsPerSecond": 161.4228344675521,
+    "note": "Warm synthetic model throughput only, excludes Engine and IPC.",
+    "repeatQuestionsPerSecond": 153.20886391120288,
+    "singleOptionVerified": true
+  },
+  "checks": {
+    "engineTestsPassed": 76,
+    "intelligenceTestsPassed": 254,
+    "intelligenceTestsSkipped": 2,
+    "experienceTestsPassed": 187,
+    "typecheck": "passed in all three lanes",
+    "lint": "passed in all three lanes",
+    "build": "all lanes and live UI passed",
+    "browser": "Local Laya default and exact guest evidence label verified",
+    "singleOption": "real inference produced probability 1.0"
+  }
+}

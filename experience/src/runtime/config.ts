@@ -14,6 +14,7 @@ export type RuntimeSettings = {
    * launcher writes with the local operator credential, so the local UI needs no sign-in.
    */
   localSessionUrl?: string;
+  behaviorProvider?: string;
 };
 
 export class RuntimeConfigError extends Error {
@@ -36,5 +37,5 @@ export function readRuntimeSettings(env: Env): RuntimeSettings {
   if (!database) throw new RuntimeConfigError('VITE_RUNTIME_DATABASE is required for the live profile.');
   const localSessionUrl = String(env.VITE_RUNTIME_LOCAL_SESSION_URL ?? '');
   if (localSessionUrl && !localSessionUrl.startsWith('/')) throw new RuntimeConfigError('VITE_RUNTIME_LOCAL_SESSION_URL must be a same-origin absolute path.');
-  return { profile, adapterUrl, uri, database, ...(localSessionUrl ? { localSessionUrl } : {}) };
+  return { profile, adapterUrl, uri, database, behaviorProvider: String(env.VITE_RUNTIME_PROVIDER ?? 'jev'), ...(localSessionUrl ? { localSessionUrl } : {}) };
 }

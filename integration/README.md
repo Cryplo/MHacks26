@@ -38,3 +38,10 @@ never printed). Intelligence's `dev:integration` (worker + coordinator) and
 `test:integration:engine` (B-18/B-21 on the real Engine) and Experience's `dev:integration`
 (live UI with Engine's browser adapter) read that file. Experience's `test:e2e:live` runs the
 integrated browser suite when `BEHAVIOR_OPERATOR_TOKEN` is exported from it.
+
+## Local Laya demo
+
+See [installation, startup and evidence notes](../intelligence/local/README.md). After the
+one-time Python setup, `BEHAVIOR_PROVIDER=laya node integration/run.mjs` starts the local
+MLX service as well as Engine, Intelligence and Experience. The UI then offers Local Laya
+as its default, with no Jev API calls.

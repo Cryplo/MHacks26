@@ -280,7 +280,7 @@ export const scenarioSchema = obj({
   events: z.array(scenarioEventSchema).max(10000),
 });
 export const configSchema = obj({
-  mode: z.enum(["mock", "live", "experiment", "replay"]),
+  mode: z.enum(["mock", "live", "local", "experiment", "replay"]),
   horizonMs: duration.max(86400000),
   logicalStepMs: z.literal(5000),
   movementStepMs: z.literal(250),
@@ -316,7 +316,7 @@ export const configSchema = obj({
   }),
   mockResolution: z.enum(["engine", "worker"]).optional(),
 }).refine(
-  (v) => v.mode === "live" || v.fallback === "forbidden",
+  (v) => v.mode === "live" || v.mode === "local" || v.fallback === "forbidden",
   "Fallback is only permitted in declared live mode",
 );
 export function parse<T>(schema: z.ZodType<T>, input: unknown): T {

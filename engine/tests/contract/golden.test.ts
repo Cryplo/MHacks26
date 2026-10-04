@@ -18,7 +18,7 @@ describe("Frozen behavior.v1", () => {
       hashBytes(
         readFileSync(new URL("../../contract/behavior-v1.ts", import.meta.url)),
       ),
-    ).toBe("38502f63cf2a63f750658ae3e771a5429cd15eb9df4c66b20869970d177c40f6");
+    ).toBe("2753b3c5c1eb16106f1a1eb69fc84174aa3c733eb5e6450927d5b60f98083a97");
   });
   it("matches every canonical JSON and keyed random vector", () => {
     for (const v of vectors.canonicalJson) {
