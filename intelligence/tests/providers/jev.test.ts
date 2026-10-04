@@ -125,6 +125,33 @@ describe('B-06 request formatting and response mapping', () => {
     expect(JSON.parse(t.http.hits[0]!.body).questions.rating.criteria).toEqual(rating.levels);
   });
 
+  it('maps a CAPTURED real Jev decision response (jev-1.13.0, 2026-10-04)', async () => {
+    const cap = readFixture<any>('jev/captured/decision-real-2026-10-04.json').body;
+    const t = await setup((_h, _n, res) => json(res, 200, cap));
+    const r = await t.inference.decide('w1', scope, req(), new AbortController().signal);
+    expect(r.source).toBe('jev');
+    expect(r.modelReturned).toBe('jev-1.13.0');
+    expect(r.probabilities).toEqual([{ optionId: 'browse', probability: 0.01 }, { optionId: 'leave', probability: 0 }, { optionId: 'travel_splash', probability: 0.99 }]);
+    expect(r.confidence).toBe(0.98);
+    expect(r.usage.inputTokens).toBe(1361);
+    expect(r.usage.outputTokens).toBe(42);
+    expect(r.usage.estimatedCostUsd).not.toBe(0); // unreported cost is never invented as zero
+  });
+
+  it('maps a CAPTURED real Jev rating response to a 5-level distribution', async () => {
+    const cap = readFixture<any>('jev/captured/rating-real-2026-10-04.json').body;
+    const obs = req().observation;
+    const rating: RatingRequest = {
+      ratingId: 'r1', runId: 'fixture-run', agentId: 'a001', atMs: 3600000, endpoint: 'periodic', evidenceHash: hashCanonical(obs),
+      observation: obs, rubricVersion: 'satisfaction-rubric-v1', levels: ['very dissatisfied', 'dissatisfied', 'neutral', 'satisfied', 'very satisfied'],
+    };
+    const t = await setup((_h, _n, res) => json(res, 200, cap));
+    const r = await t.inference.rate('w1', scope, rating, new AbortController().signal);
+    expect(r.probabilities).toEqual([0.02, 0.53, 0.41, 0.04, 0]);
+    expect(r.scoreIndex).toBe(1);
+    expect(r.modelReturned).toBe('jev-1.13.0');
+  });
+
   it('a different returned model fails visibly instead of silently switching', async () => {
     const t = await setup((_h, _n, res) => json(res, 200, { ...docs.choiceObjectMap, model: 'jev-2.0.0' }));
     await expect(t.inference.decide('w1', scope, req(), new AbortController().signal)).rejects.toMatchObject({ kind: 'unsupported_model' });

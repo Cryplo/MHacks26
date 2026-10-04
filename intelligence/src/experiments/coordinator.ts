@@ -447,7 +447,7 @@ class Session {
 
   private pairResults(): PairResult[] {
     return this.state.pairs.map((p) => ({
-      pairId: p.pairId, seed: p.seed, populationHash: p.populationHash ?? '', initialStateHash: p.initialStateHash,
+      pairId: p.pairId, seed: p.seed, populationHash: p.populationHash ?? '0'.repeat(64) /* runtime placeholder until sampled */, initialStateHash: p.initialStateHash,
       aRunId: p.arms.A.runId, bRunId: p.arms.B.runId, status: p.status, reasons: p.reasons,
       a: p.arms.A.metrics, b: p.arms.B.metrics, deltas: p.status === 'pending' ? {} : pairDeltas(p.arms.A.metrics, p.arms.B.metrics),
     }));

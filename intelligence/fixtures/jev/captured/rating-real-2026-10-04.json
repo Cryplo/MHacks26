@@ -1,0 +1,31 @@
+{
+  "provenance": "CAPTURED 2026-10-04T02:45:56.412Z from https://api.typesafe.ai/v1/systemone, sanitized",
+  "body": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "rating": {
+        "type": "score",
+        "score": 1.46,
+        "confidence": 0.59,
+        "legend": {
+          "0": "very dissatisfied",
+          "1": "dissatisfied",
+          "2": "neutral",
+          "3": "satisfied",
+          "4": "very satisfied"
+        },
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.53,
+          "2": 0.41,
+          "3": 0.04,
+          "4": 0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 1318,
+      "output_tokens": 17
+    }
+  }
+}

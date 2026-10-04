@@ -1,0 +1,22 @@
+{
+  "provenance": "CAPTURED 2026-10-04T02:45:01.139Z from https://api.typesafe.ai/v1/systemone, sanitized",
+  "body": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "action": {
+        "type": "choice",
+        "choice": "travel_splash",
+        "confidence": 0.98,
+        "probabilities": {
+          "leave": 0,
+          "browse": 0.01,
+          "travel_splash": 0.99
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 1361,
+      "output_tokens": 42
+    }
+  }
+}
