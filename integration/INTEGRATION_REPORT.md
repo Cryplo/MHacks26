@@ -108,9 +108,75 @@ cost, so totals stay unknown rather than zero.
 - **One provider class per deployment.** Engine's `claimWork` cannot route by run mode or provider.
   With fix 11 a mismatched worker now fails safely (its submissions are rejected) instead of
   mislabeling evidence, but mock and Jev workers should not run at the same time.
-- **Throughput.** With 300 guests on the 200x150 Harbor Lights grid, Engine-driven runs advance
-  at roughly 0.5-0.8x real time with the mock provider (each decision is a server round trip
-  through the barrier); real Jev adds ~1 s per decision batch. Full-day 300-guest comparisons
-  take hours; Engine's own handoff documents the same limit.
+- **Throughput (superseded, see "Crowd scale and speed" below).** Before that work, 300-guest
+  runs advanced at roughly 0.5-0.8x real time with the mock provider.
 - **Jev cost is often unreported** by the provider; usage stays `null` (unknown), never zero.
 - Proposals recorded in `experience/docs/integration-proposals/` remain open.
+
+## Crowd scale and speed (2026-10-04)
+
+Measured on this machine against a real SpacetimeDB 2.10.2 server (Harbor Lights, Intelligence
+`population-v1`, scheduler-driven live run, `engine/tools/live-load.ts`):
+
+| Run | Guests in park vs wall time | Achieved speed |
+|---|---|---|
+| 1000 guests, mock, 20x | 140 at 10 s, 283 at 30 s, 488 at 60 s, 550 at 90 s | 19.9x sustained |
+| 1000 guests, mock, 60x | 283 at 11 s, 540 at 29 s, 630 at 47 s, ~800 from 97 s on (peak 801) | 59.2x sustained |
+| 300 guests, live Jev (batched), 20x requested | 60 at 45 s | ~6x |
+| 1000 guests, live Jev (batched), 20x requested | 131 at 39 s, 173 at 61 s | ~4.5x |
+
+In-process (no database) the 1000-guest day runs at ~150x. `getAgent` answers in 10-80 ms
+during a 1000-guest run (up to ~200 ms at 60x).
+
+What changed:
+- **Arrivals** (`intelligence/src/population/assumptions.ts` `ARRIVAL_BANDS`): gate-opening surge.
+  About 15% of groups arrive at rope drop, most within 75 minutes, and a tail up to 4 h. Stays
+  are 2.5-6 h. The fixture population matches. The mock policy's `leave_park` weight no longer
+  sends rested guests home early.
+- **Caps**: Engine `maxGuests` and the population generator default are now 2000 (were 1000/400).
+- **Mock runs resolve behavior inside Engine** (`engine/src/sim/mock-policy.ts`, a pinned copy of
+  `mock-policy-v1`). There is no worker round trip and no barrier stall. One scheduler tick
+  completes up to 8 whole steps. Set `config.mockResolution: "worker"` to use the old
+  worker-queue path; test fixtures do. Experiment arms requesting `mock-policy-v1` also resolve
+  in-process.
+- **Hot path**: navigation adjacency, bounded local fields for browsing, cached orders/indices,
+  an O(n) canonical encoder, and squared-distance neighbour checks. The physical hash is recorded
+  every 30 sim-s, not every step.
+- **Persistence**: Engine keeps loaded run state in a cache across reducer calls, validated by a
+  per-save stamp in the run row. A rolled-back transaction invalidates the cache. Saves write
+  only new or changed rows, and completeWork persists only the touched slot.
+- **Bounded history (mock/live only; experiment/replay keep everything)**: applied decision slots
+  are dropped. Each group keeps full evidence for its last 2 decisions and a compact log of its
+  last 12. Resolved ratings drop their bulky observation. Replay frames for crowds over 500 are
+  stored every 120 s with rounded coordinates. Mock runs with in-process resolution produce no
+  response tape (their responses are a pure function of the request). Worker-resolved live runs
+  keep a responses-only tape up to 6000 decisions.
+- **Jev batching** (`intelligence/src/providers/jev-batch.ts`, on by default for
+  `BEHAVIOR_PROVIDER=jev`): up to 16 requests per HTTP call (`JEV_BATCH_SIZE`; 1 disables), split
+  automatically on `max_tokens_exceeded`. Measured: 1 question about 0.25 s, 16 about 0.2-0.3 s,
+  32 about 0.4 s, 48 rejected. Each request is still cached, validated and telemetered
+  individually. Batched prompts use instructions version `jev-batch-instructions-v1`, so they have
+  their own cache keys. Live-Jev throughput is now bounded by Engine round trips per decision
+  (claim, artifact upload, complete), not by Jev latency.
+- **Rationale**: every applied decision carries `AppliedDecision.rationale` (contract
+  `DecisionRationale`). `AgentDetail` gains `statusText` and `decisions` (newest first). Any
+  reasoning text Jev returns is surfaced as `rationale.modelReasoning`; Jev does not return any today.
+
+The contract changes are additive optional fields. The new contract SHA-256 is
+`38502f63cf2a63f750658ae3e771a5429cd15eb9df4c66b20869970d177c40f6`, identical in all three lanes.
+
+### Stage 2 (27 destinations), queues, scrubbing (2026-10-04, own server on :3100)
+
+| Run (Harbor Lights stage 2, mock unless noted) | Guests in park over wall time | Speed achieved | getAgent |
+|---|---|---|---|
+| 1000 @20x | 151 at 10 s, 264 at 26 s, 427 at 59 s, 513 at 76 s | 20.0x | 14-63 ms |
+| 1000 @60x | 274 at 11 s, 547 at 28 s, 716 at 56 s, about 830 from 85 s | 59.6x | 60-530 ms |
+| 1500 @20x | 287 at 11 s, 547 at 40 s, 740 at 59 s, 862 at 78 s | 19.8x | 150-340 ms |
+| 1500 @40x | 411 at 12 s, 870 at 42 s, 1121 at 91 s | 39.4x | 210-680 ms |
+| 1500 @60x | 529 at 12 s, 931 at 34 s, 1267 at 92 s | 60x at first, about 45-50x once more than 1100 guests are in | 250-970 ms |
+| 300 live Jev (batched) @20x | 26 at 16 s, 54 at 37 s, 72 at 57 s | about 7x | 90-170 ms |
+
+getAgent latency is time spent waiting behind simulation ticks (SpacetimeDB runs reducers one at a time).
+- **Queues:** guests in a queue stand single file along the queue zone, then along an overflow line on the walkway. All 21 stage-2 zones were checked: guests on a queue line were never on a blocked cell.
+- **Frames:** one is recorded every 15 s for 1000 guests (20 s for 1500), about 60-90 KB each. A page of 10 loads in 70-950 ms depending on load.
+- **MetricSnapshot.breakdown:** each snapshot now also reports guests per state, per-place queue, revenue and served counts, and the satisfaction distribution.

@@ -8,7 +8,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const file = resolve(root, 'engine/.local/integration.env');
+// INTEGRATION_ENV_FILE overrides the credentials file (e.g. for a second local stack).
+const file = process.env.INTEGRATION_ENV_FILE ? resolve(process.env.INTEGRATION_ENV_FILE) : resolve(root, 'engine/.local/integration.env');
 const uri = process.env.SPACETIME_URI ?? 'http://127.0.0.1:3000';
 const database = process.env.SPACETIME_DATABASE ?? 'mhacks-engine';
 const adapter = resolve(root, 'engine/client/dist/node.js');
@@ -47,4 +48,4 @@ const lines = [
 ];
 writeFileSync(file, lines.join('\n') + '\n', { mode: 0o600 });
 chmodSync(file, 0o600);
-console.log(`Identities ready (worker ${worker.identity.slice(0, 10)}…, coordinator ${coordinator.identity.slice(0, 10)}…). Credentials written to engine/.local/integration.env (0600).`);
+console.log(`Identities ready (worker ${worker.identity.slice(0, 10)}…, coordinator ${coordinator.identity.slice(0, 10)}…). Credentials written to ${file} (0600).`);
