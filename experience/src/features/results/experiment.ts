@@ -5,7 +5,8 @@ import type { Profile } from '../../runtime/config';
 export function evidenceLabels(r: ExperimentReport, profile: Profile): string[] {
   const out: string[] = [];
   if (profile === 'fixture') out.push('Fixture');
-  if (r.spec.config.mode === 'mock') out.push('Mock');
+  const real = r.spec.config.mode !== 'mock' && r.spec.config.versions.requestedModel !== 'mock-policy-v1';
+  out.push(real ? 'Live Jev' : 'Mock');
   out.push(r.completePairs <= 1 ? 'Illustrative' : 'Exploratory');
   if (r.status !== 'complete') out.push(r.status === 'running' ? 'Running' : 'Incomplete');
   return out;

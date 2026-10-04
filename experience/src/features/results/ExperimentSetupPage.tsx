@@ -10,7 +10,7 @@ import { ActionButton, Alert, ErrorBox, KV, Panel, Spinner } from '../../ui/comp
 import { formatDuration } from '../../ui/format';
 import { CrowdEditor } from '../setup/SetupPage';
 import { buildCrowd, DEFAULT_GUESTS, defaultMix, validateCrowd, type GuestMix } from '../setup/crowd';
-import { defaultRunConfig, HORIZON_OPTIONS_MS, NO_FEATURES } from '../setup/plan';
+import { defaultRunConfig, HORIZON_OPTIONS_MS, NO_FEATURES, REQUESTED_MODEL } from '../setup/plan';
 import { changedLever } from './experiment';
 
 export function ExperimentSetupPage() {
@@ -28,6 +28,8 @@ export function ExperimentSetupPage() {
   const [horizon, setHorizon] = useState(3 * 3600_000);
   const [analysis, setAnalysis] = useState<'paired_descriptive' | 'paired_t'>('paired_descriptive');
   const [tAck, setTAck] = useState(false);
+  const [provider, setProvider] = useState<'mock' | 'jev'>('mock');
+  const jevReason = rt.settings.profile === 'fixture' ? 'The fixture profile has no Jev connection.' : null;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ error: DomainError; transport: boolean } | null>(null);
   const [expId] = useState(() => `exp-${crypto.randomUUID().slice(0, 8)}`);
@@ -42,7 +44,11 @@ export function ExperimentSetupPage() {
   const { seed: _seed, ...crowdNoSeed } = crowd;
   const spec: ExperimentSpec | null = park ? {
     contractVersion: CONTRACT_VERSION, experimentId: expId, park: park.artifact, crowd: crowdNoSeed, seeds, baseline, variant,
-    config: { ...defaultRunConfig('mock', NO_FEATURES), mode: 'mock', horizonMs: horizon }, interventionLabel: lever.label, changedLever: lever.lever,
+    // Real comparisons run as `experiment` mode with Jev requested; Engine then rejects any
+    // mock or fallback distribution, so every arm decision is real Jev or a Jev-origin cache hit.
+    config: provider === 'jev'
+      ? { ...defaultRunConfig('mock', NO_FEATURES), mode: 'experiment', horizonMs: horizon, fallback: 'forbidden', versions: { ...defaultRunConfig('mock').versions, requestedModel: REQUESTED_MODEL.live } }
+      : { ...defaultRunConfig('mock', NO_FEATURES), mode: 'mock', horizonMs: horizon }, interventionLabel: lever.label, changedLever: lever.lever,
     analysis, alpha: 0.05, operationBudgetMs: 30 * 60_000, maxConcurrentArms: 1, start: { kind: 'opening' },
   } : null;
   const reason = !park ? 'Choose a ready park.' : park.status !== 'ready' ? `Park is ${park.status}.` : check.errors.length ? 'Fix the crowd settings.'
@@ -81,6 +87,13 @@ export function ExperimentSetupPage() {
           <label className="field"><span className="label">Seed prefix</span><input type="text" value={seedPrefix} onChange={(e) => setSeedPrefix(e.target.value.replace(/[^A-Za-z0-9_.:-]/g, ''))} /></label>
           <label className="field"><span className="label">Horizon</span>
             <select value={horizon} onChange={(e) => setHorizon(Number(e.target.value))}>{HORIZON_OPTIONS_MS.map((h) => <option key={h} value={h}>{formatDuration(h)}</option>)}</select></label>
+          <label className="field"><span className="label">Behavior provider</span>
+            <select value={provider} onChange={(e) => setProvider(e.target.value as 'mock' | 'jev')} data-testid="experiment-provider">
+              <option value="mock">Mock provider (infrastructure check)</option>
+              <option value="jev" disabled={Boolean(jevReason)}>Real Jev (billable){jevReason ? ' (unavailable)' : ''}</option>
+            </select>
+            {jevReason && <span className="small muted">{jevReason}</span>}
+          </label>
           <label className="field"><span className="label">Analysis</span>
             <select value={analysis} onChange={(e) => { setAnalysis(e.target.value as 'paired_descriptive' | 'paired_t'); setTAck(false); }}>
               <option value="paired_descriptive">Paired descriptive (mean, min, max, SD)</option>
@@ -94,7 +107,7 @@ export function ExperimentSetupPage() {
             <label className="row small"><input type="checkbox" checked={tAck} onChange={(e) => setTAck(e.target.checked)} /> I understand these assumptions.</label>
           </Alert>
         )}
-        <KV items={[['Mode', 'Mock provider (not a real-Jev comparison)'], ['Seeds', seeds.join(', ')], ['Arms run', 'one at a time (maxConcurrentArms 1)'], ['Start', 'park opening']]} />
+        <KV items={[['Mode', provider === 'jev' ? 'Real Jev (experiment mode; mock and fallback rejected by Engine; billable)' : 'Mock provider (not a real-Jev comparison)'], ['Seeds', seeds.join(', ')], ['Arms run', 'one at a time (maxConcurrentArms 1)'], ['Start', 'park opening']]} />
         <div className="row" style={{ marginTop: 8 }}>
           <ActionButton tone="primary" onClick={() => void create()} busy={busy} disabledReason={reason} testId="create-experiment">Create experiment</ActionButton>
           <Link to="/setup" className="small">Single exploratory run instead</Link>

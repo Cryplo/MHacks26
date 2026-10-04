@@ -12,13 +12,13 @@ import { revenueRateSeries } from '../../src/data/derived';
 import { metrics } from '../helpers';
 
 const park = bundle as unknown as ParkBundle;
-const report = (completePairs: number, mode: 'mock' | 'live' = 'mock', status: ExperimentReport['status'] = 'complete') =>
-  ({ completePairs, status, spec: { config: { mode } } } as unknown as ExperimentReport);
+const report = (completePairs: number, mode: 'mock' | 'experiment' = 'mock', status: ExperimentReport['status'] = 'complete') =>
+  ({ completePairs, status, spec: { config: { mode, versions: { requestedModel: mode === 'mock' ? 'mock-policy-v1' : 'jev-1.13.0' } } } } as unknown as ExperimentReport);
 
 describe('experiment labels (C-17)', () => {
   it('one pair is illustrative, several exploratory, mock and fixture always labeled', () => {
     expect(evidenceLabels(report(1), 'live')).toEqual(['Mock', 'Illustrative']);
-    expect(evidenceLabels(report(3, 'live'), 'live')).toEqual(['Exploratory']);
+    expect(evidenceLabels(report(3, 'experiment'), 'live')).toEqual(['Live Jev', 'Exploratory']);
     expect(evidenceLabels(report(2, 'mock', 'incomplete'), 'fixture')).toEqual(['Fixture', 'Mock', 'Exploratory', 'Incomplete']);
   });
   it('no interval text unless supplied with method and level; min/max are never an interval', () => {

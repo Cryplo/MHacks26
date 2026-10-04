@@ -41,7 +41,7 @@ export function ExperimentPage() {
       <div className="spread">
         <div>
           <h1>Experiment <span className="mono">{s.experimentId}</span></h1>
-          <div className="row" data-testid="evidence-labels">{labels.map((l) => <span key={l} className={`badge ${l === 'Fixture' ? 'mode-fixture' : l === 'Mock' ? 'mode-mock' : l === 'Running' ? 'info' : l === 'Incomplete' ? 'warn' : 'neutral'}`}>{l}</span>)}</div>
+          <div className="row" data-testid="evidence-labels">{labels.map((l) => <span key={l} className={`badge ${l === 'Fixture' ? 'mode-fixture' : l === 'Mock' ? 'mode-mock' : l === 'Live Jev' ? 'mode-live' : l === 'Running' ? 'info' : l === 'Incomplete' ? 'warn' : 'neutral'}`}>{l}</span>)}</div>
         </div>
         <div className="row no-print">
           <button type="button" className="btn" onClick={exportJson}>Download JSON</button>
@@ -52,7 +52,7 @@ export function ExperimentPage() {
         <KV items={[
           ['Intervention', s.interventionLabel], ['Changed lever', s.changedLever === 'bundled' ? 'bundled (labeled; not attributable to one lever)' : s.changedLever],
           ['Arm A / arm B', `${s.baseline.label} / ${s.variant.label}`], ['Seeds', s.seeds.join(', ')],
-          ['Horizon', `${formatDuration(s.config.horizonMs)} from opening`], ['Mode', s.config.mode === 'mock' ? 'Mock provider (not a real-Jev comparison)' : s.config.mode],
+          ['Horizon', `${formatDuration(s.config.horizonMs)} from opening`], ['Mode', s.config.mode === 'mock' || s.config.versions.requestedModel === 'mock-policy-v1' ? 'Mock provider (not a real-Jev comparison)' : `Real Jev (${s.config.versions.requestedModel}; mock and fallback rejected)`],
           ['Analysis', s.analysis === 'paired_t' ? 'paired t (explicit choice; assumptions disclosed)' : 'paired descriptive'],
           ['Pairs', `${r.completePairs} complete of ${r.requestedPairs} requested`], ['Report revision', String(r.revision)],
         ]} />
