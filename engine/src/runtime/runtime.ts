@@ -659,6 +659,22 @@ function dispatchCommand(
         j.lease = null;
       } else j.status = "failed";
       saveJob(store, j);
+      // A terminally failed experiment job must not leave the experiment "running" forever.
+      if (j.kind === "experiment" && j.status === "failed" && j.scope.experimentId) {
+        const e = get<ExperimentRecord>(store, "experiment", j.scope.experimentId);
+        if (e && e.report.status === "running") {
+          e.report = {
+            ...e.report,
+            revision: e.report.revision + 1,
+            status: "incomplete",
+            pairs: e.report.pairs.map((p) =>
+              p.status === "complete" ? p : { ...p, status: "failed", reasons: [...p.reasons, "experiment job failed"] },
+            ),
+            limitations: [...e.report.limitations, `Experiment job failed: ${a.error.message}`],
+          };
+          put(store, "experiment", j.scope.experimentId, e);
+        }
+      }
       return { workId: j.id, status: j.status };
     }
     case "acquireDriver": {
